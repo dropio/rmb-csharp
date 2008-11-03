@@ -18,6 +18,7 @@ namespace Dropio.Core
         public const string COMMENTS = "/comments/";
         public const string SEND_TO = "/send_to/";
         public const string FROM_API = "/from_api";
+        public const string VERSION = "1.0";
 
         public abstract string BaseUrl { get; }
         public abstract string ApiBaseUrl { get; }
@@ -1260,7 +1261,7 @@ namespace Dropio.Core
         /// <returns></returns>
         protected HttpWebRequest CreateGetRequest(string url, NameValueCollection parameters)
         {
-            string newUrl = url + "?format=xml&api_key=" + this.ApiKey;
+            string newUrl = url + "?format=xml&version=" + VERSION + "&api_key=" + this.ApiKey;
             foreach (string key in parameters.Keys)
             {
                 newUrl += "&" + key + "=" + parameters[key];
@@ -1295,6 +1296,7 @@ namespace Dropio.Core
             request.ContentType = "application/x-www-form-urlencoded";
             parameters["api_key"] = this.ApiKey;
             parameters["format"] = "xml";
+            parameters["version"] = VERSION;
             StringBuilder p = new StringBuilder();
             foreach (string key in parameters)
             {
