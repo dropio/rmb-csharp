@@ -256,7 +256,7 @@ namespace Dropio.Core
         /// <param name="drop">The drop.</param>
         /// <param name="file">The file.</param>
         /// <returns></returns>
-        public bool AddFile(Drop drop, string file)
+        public Asset AddFile(Drop drop, string file)
         {
             return this.ServiceAdapter.AddFile(drop, file);
         }

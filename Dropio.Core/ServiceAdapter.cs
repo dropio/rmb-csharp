@@ -701,7 +701,7 @@ namespace Dropio.Core
         /// <param name="drop">The drop.</param>
         /// <param name="file">The file.</param>
         /// <returns></returns>
-        public bool AddFile(Drop drop, string file)
+        public Asset AddFile(Drop drop, string file)
         {
             if (string.IsNullOrEmpty(drop.UploadUrl))
             {
@@ -785,9 +785,18 @@ namespace Dropio.Core
 
             resStream.Close();
 
-            CompleteRequest(request, null);
+            Asset a = null;
 
-            return true;
+            CompleteRequest(request, delegate(HttpWebResponse response)
+            {
+                ReadResponse(response, delegate(XmlDocument doc)
+                {
+                    XmlNodeList nodes = doc.SelectNodes("/asset");
+                    a = this.CreateAndMapAsset(drop, nodes[0]) as Asset;
+                });
+            });
+
+            return a;
         }
 
         /// <summary>

@@ -241,7 +241,7 @@ namespace Dropio.Core
         /// </summary>
         /// <param name="file">The file.</param>
         /// <returns></returns>
-        public bool AddFile(string file)
+        public Asset AddFile(string file)
         {
             return ServiceProxy.Instance.AddFile(this, file);
         }
