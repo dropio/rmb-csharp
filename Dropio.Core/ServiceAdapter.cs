@@ -22,6 +22,7 @@ namespace Dropio.Core
 
         public abstract string BaseUrl { get; }
         public abstract string ApiBaseUrl { get; }
+        public abstract string UploadUrl { get; }
         public string ApiKey { get; set; }
 
         delegate void GetResponse(HttpWebResponse response);
@@ -703,12 +704,7 @@ namespace Dropio.Core
         /// <returns></returns>
         public Asset AddFile(Drop drop, string file)
         {
-            if (string.IsNullOrEmpty(drop.UploadUrl))
-            {
-                throw new ServiceException(ServiceError.NotAuthorized, "You do not have the permission to upload a file.");
-            }
-
-            string requestUrl = drop.UploadUrl;
+            string requestUrl = this.UploadUrl;
 
             NameValueCollection parameters = new NameValueCollection();
 
@@ -727,6 +723,7 @@ namespace Dropio.Core
             parameters["api_key"] = this.ApiKey;
             parameters["format"] = "xml";
             parameters["drop_name"] = drop.Name;
+            parameters["version"] = VERSION;
 
             StringBuilder sb = new StringBuilder();
             string fileName = Path.GetFileName(file);
@@ -973,11 +970,6 @@ namespace Dropio.Core
             if (doc.GetElementsByTagName("email").Count == 1)
             {
                 d.Email = doc.GetElementsByTagName("email").Item(0).InnerText;
-            }
-
-            if (doc.GetElementsByTagName("upload_url").Count == 1)
-            {
-                d.UploadUrl = doc.GetElementsByTagName("upload_url").Item(0).InnerText;
             }
 
             d.Rss = doc.GetElementsByTagName("rss").Item(0).InnerText;

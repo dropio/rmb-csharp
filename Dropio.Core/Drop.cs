@@ -95,12 +95,6 @@ namespace Dropio.Core
         public ExpirationLength ExpirationLength { get; set; }
 
         /// <summary>
-        /// Gets or sets the upload URL.
-        /// </summary>
-        /// <value>The upload URL.</value>
-        public string UploadUrl { get; set; }
-
-        /// <summary>
         /// Gets the assets, defaulting to page 1.
         /// </summary>
         /// <returns></returns>

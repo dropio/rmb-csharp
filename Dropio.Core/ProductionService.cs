@@ -8,11 +8,13 @@ namespace Dropio.Core
     {
         private string _baseUrl;
         private string _apiBaseUrl;
+        private string _uploadUrl;
 
         public ProductionService()
         {
             this._baseUrl = "http://drop.io/";
             this._apiBaseUrl = "http://api.drop.io/";
+            this._uploadUrl = "http://assets.drop.io/upload";
         }
 
         /// <summary>
@@ -34,6 +36,15 @@ namespace Dropio.Core
         }
 
         /// <summary>
+        /// Gets the upload URL.
+        /// </summary>
+        /// <value>The upload URL.</value>
+        public override string UploadUrl
+        {
+            get { return this._uploadUrl; }
+        }
+
+        /// <summary>
         /// Sets the base URL.
         /// </summary>
         /// <param name="baseUrl">The base URL.</param>
@@ -49,6 +60,15 @@ namespace Dropio.Core
         public void SetApiBaseUrl(string apiBaseUrl)
         {
             this._apiBaseUrl = apiBaseUrl;
+        }
+
+        /// <summary>
+        /// Sets the upload URL.
+        /// </summary>
+        /// <param name="uploadUrl">The upload URL.</param>
+        public void SetUploadUrl(string uploadUrl)
+        {
+            this._uploadUrl = uploadUrl;
         }
     }
 }
