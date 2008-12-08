@@ -935,49 +935,23 @@ namespace Dropio.Core
         /// <returns></returns>
         protected void MapDrop(Drop d, XmlDocument doc)
         {
-            d.Name = doc.GetElementsByTagName("name").Item(0).InnerText;
+            XmlNode node = doc.SelectSingleNode("drop");
+            d.Name = this.ExtractInnerText(node, "name");
+            d.AdminToken = this.ExtractInnerText(node, "admin_token");
+            d.GuestToken = this.ExtractInnerText(node, "guest_token");
+            d.CurrentBytes = this.ExtractInt(node, "current_bytes");
+            d.MaxBytes = this.ExtractInt(node, "max_bytes");
+            d.Voicemail = this.ExtractInnerText(node, "voicemail");
+            d.Fax = this.ExtractInnerText(node, "fax");
+            d.Conference = this.ExtractInnerText(node, "conference");
+            d.Email = this.ExtractInnerText(node, "email");
+            d.Rss = this.ExtractInnerText(node, "rss");
+          
+            d.GuestsCanAdd = this.ExtractBoolean(node, "guests_can_add");
+            d.GuestsCanComment = this.ExtractBoolean(node, "guests_can_comment");
+            d.GuestsCanDelete = this.ExtractBoolean(node, "guests_can_delete");
 
-            if (doc.GetElementsByTagName("admin_token").Count == 1)
-            {
-                d.AdminToken = doc.GetElementsByTagName("admin_token").Item(0).InnerText;
-            }
-
-            if (doc.GetElementsByTagName("guest_token").Count == 1)
-            {
-                d.GuestToken = doc.GetElementsByTagName("guest_token").Item(0).InnerText;
-            }
-
-            int bytes = 0;
-            Int32.TryParse(doc.GetElementsByTagName("current_bytes").Item(0).InnerText, out bytes);
-            d.CurrentBytes = bytes;
-
-            bytes = 0;
-            Int32.TryParse(doc.GetElementsByTagName("max_bytes").Item(0).InnerText, System.Globalization.NumberStyles.AllowDecimalPoint, null, out bytes);
-            d.MaxBytes = bytes;
-
-            if (doc.GetElementsByTagName("voicemail").Count == 1)
-            {
-                d.Voicemail = doc.GetElementsByTagName("voicemail").Item(0).InnerText;
-            }
-
-            if (doc.GetElementsByTagName("fax").Count == 1)
-            {
-                d.Fax = doc.GetElementsByTagName("fax").Item(0).InnerText;
-            }
-
-            d.Conference = doc.GetElementsByTagName("conference").Item(0).InnerText;
-
-            if (doc.GetElementsByTagName("email").Count == 1)
-            {
-                d.Email = doc.GetElementsByTagName("email").Item(0).InnerText;
-            }
-
-            d.Rss = doc.GetElementsByTagName("rss").Item(0).InnerText;
-
-            d.GuestsCanAdd = bool.Parse(doc.GetElementsByTagName("guests_can_add").Item(0).InnerText);
-            d.GuestsCanComment = bool.Parse(doc.GetElementsByTagName("guests_can_comment").Item(0).InnerText);
-            d.GuestsCanDelete = bool.Parse(doc.GetElementsByTagName("guests_can_delete").Item(0).InnerText);
-            d.ExpirationLength = this.ExtractExpirationLength(doc.GetElementsByTagName("expiration_length").Item(0).InnerText);
+            d.ExpirationLength = this.ExtractExpirationLength(this.ExtractInnerText(node, "expiration_length"));
 
         }
 
@@ -1001,7 +975,7 @@ namespace Dropio.Core
         /// <returns></returns>
         protected Asset CreateAndMapAsset(Drop d, XmlNode node)
         {
-            string displayType = node.SelectSingleNode("type").InnerText;
+            string displayType = this.ExtractInnerText(node, "type");
             Asset a = this.CreateTypedAsset(displayType);
             this.MapAsset(a, d, node);
             return a;
@@ -1044,62 +1018,33 @@ namespace Dropio.Core
             {
                 case "Audio":
                     Audio a = asset as Audio;
-                    if (node.SelectSingleNode("artist") != null)
-                    {
-                        a.Artist = node.SelectSingleNode("artist").InnerText;
-                    }
-                    if (node.SelectSingleNode("title") != null)
-                    {
-                        a.Title = node.SelectSingleNode("title").InnerText;
-                    }
-                    a.Duration = Int32.Parse(node.SelectSingleNode("duration").InnerText);
+                    a.Artist = this.ExtractInnerText(node, "artist");
+                    a.Title = this.ExtractInnerText(node, "title");
+                    a.Duration = this.ExtractInt(node, "duration");
                     break;
                 case "Document":
                     Document d = asset as Document;
-                    if (node.SelectSingleNode("pages") != null)
-                    {
-                        d.Pages = Int32.Parse(node.SelectSingleNode("pages").InnerText);
-                    }
+                    d.Pages = this.ExtractInt(node, "pages");
                     break;
                 case "Note":
                     Note n = asset as Note;
-                    if (node.SelectSingleNode("title") != null)
-                    {
-                        n.Title = node.SelectSingleNode("title").InnerText;
-                    }
-                    n.Contents = node.SelectSingleNode("contents").InnerText;
+                    n.Title = this.ExtractInnerText(node, "title");
+                    n.Contents = this.ExtractInnerText(node, "contents");
                     break;
                 case "Image":
                     Image i = asset as Image;
-                    if (node.SelectSingleNode("height") != null)
-                    {
-                        i.Height = Int32.Parse(node.SelectSingleNode("height").InnerText);
-                    }
-                    if (node.SelectSingleNode("width") != null)
-                    {
-                        i.Width = Int32.Parse(node.SelectSingleNode("width").InnerText);
-                    }
+                    i.Height = this.ExtractInt(node, "height");
+                    i.Width = this.ExtractInt(node, "width");
                     break;
                 case "Movie":
                     Movie m = asset as Movie;
-                    if (node.SelectSingleNode("duration") != null)
-                    {
-                        m.Duration = Int32.Parse(node.SelectSingleNode("duration").InnerText);
-                    }
+                    m.Duration = this.ExtractInt(node, "duration");
                     break;
                 case "Link":
                     Link l = asset as Link;
-                    if (node.SelectSingleNode("title") != null)
-                    {
-                        l.Title = node.SelectSingleNode("title").InnerText;
-                    }
-
-                    if (node.SelectSingleNode("description") != null)
-                    {
-                        l.Description = node.SelectSingleNode("description").InnerText;
-                    }
-
-                    l.Url = node.SelectSingleNode("url").InnerText;
+                    l.Title = this.ExtractInnerText(node, "title");
+                    l.Description = this.ExtractInnerText(node, "description");
+                    l.Url = this.ExtractInnerText(node, "url");
                     break;
             }
         }
@@ -1112,31 +1057,24 @@ namespace Dropio.Core
         /// <param name="node">The node.</param>
         protected void MapAsset(Asset asset, Drop drop, XmlNode node)
         {
-            asset.CreatedAt = this.ExtractDateTime(node.SelectSingleNode("created_at").InnerText);
-            asset.Status = (Status)Enum.Parse(typeof(Status), node.SelectSingleNode("status").InnerText, true);
-            asset.Filesize = int.Parse(node.SelectSingleNode("filesize").InnerText);
-            asset.Name = node.SelectSingleNode("name").InnerText;
-
-            if (node.SelectSingleNode("thumbnail") != null)
-            {
-                asset.ThumbnailUrl = node.SelectSingleNode("thumbnail").InnerText;
-            }
-            
-            if (node.SelectSingleNode("file") != null)
-            {
-                asset.FileUrl = node.SelectSingleNode("file").InnerText;
-            }
-
-            if (node.SelectSingleNode("converted") != null)
-            {
-                asset.ConvertedFileUrl = node.SelectSingleNode("converted").InnerText;
-            }
-
+            asset.CreatedAt = this.ExtractDateTime(this.ExtractInnerText(node, "created_at"));
+            asset.Filesize = this.ExtractInt(node, "filesize");
+            asset.Status = (Status)Enum.Parse(typeof(Status), this.ExtractInnerText(node,"status"), true);
+            asset.Name = this.ExtractInnerText(node, "name");
+            asset.ThumbnailUrl = this.ExtractInnerText(node, "thumbnail");
+            asset.FileUrl = this.ExtractInnerText(node, "file");
+            asset.ConvertedFileUrl = this.ExtractInnerText(node, "converted");
             asset.Drop = drop;
 
             this.MapTypedData(asset, node);
         }
 
+        /// <summary>
+        /// Creates the and map comment.
+        /// </summary>
+        /// <param name="asset">The asset.</param>
+        /// <param name="node">The node.</param>
+        /// <returns></returns>
         protected Comment CreateAndMapComment(Asset asset, XmlNode node)
         {
             Comment c = new Comment();
@@ -1144,14 +1082,67 @@ namespace Dropio.Core
             return c;
         }
 
+        /// <summary>
+        /// Maps the comment.
+        /// </summary>
+        /// <param name="asset">The asset.</param>
+        /// <param name="c">The c.</param>
+        /// <param name="node">The node.</param>
         protected void MapComment(Asset asset, Comment c, XmlNode node)
         {
-            c.CreatedAt = this.ExtractDateTime(node.SelectSingleNode("created_at").InnerText);
-            c.Contents = node.SelectSingleNode("contents").InnerText;
-            int id = 0;
-            int.TryParse(node.SelectSingleNode("id").InnerText, out id);
-            c.Id = id;
+            c.CreatedAt = this.ExtractDateTime(this.ExtractInnerText(node, "created_at"));
+            c.Contents = this.ExtractInnerText(node, "contents");
+            c.Id = this.ExtractInt(node, "id");
             c.Asset = asset;
+        }
+
+        /// <summary>
+        /// Extracts the boolean.
+        /// </summary>
+        /// <param name="node">The node.</param>
+        /// <param name="path">The path.</param>
+        /// <returns></returns>
+        protected bool ExtractBoolean(XmlNode node, string path)
+        {
+            bool result = false;
+            bool.TryParse(this.ExtractInnerText(node, path), out result);
+            return result;
+        }
+
+        /// <summary>
+        /// Extracts the int.
+        /// </summary>
+        /// <param name="node">The node.</param>
+        /// <param name="path">The path.</param>
+        /// <returns></returns>
+        protected int ExtractInt(XmlNode node, string path)
+        {
+            string val = this.ExtractInnerText(node, path);
+
+            if (!string.IsNullOrEmpty(val))
+            {
+                int result = 0;
+                int.TryParse(val, out result);
+                return result;
+            }
+
+            return 0;
+        }
+
+        /// <summary>
+        /// Extracts the inner text.
+        /// </summary>
+        /// <param name="node">The node.</param>
+        /// <param name="path">The path.</param>
+        /// <returns></returns>
+        protected string ExtractInnerText(XmlNode node, string path)
+        {
+            XmlNode result = node.SelectSingleNode(path);
+            if (result != null)
+            {
+                return result.InnerText;
+            }
+            return string.Empty;
         }
 
         /// <summary>

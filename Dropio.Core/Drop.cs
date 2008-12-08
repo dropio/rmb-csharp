@@ -114,6 +114,21 @@ namespace Dropio.Core
         }
         #endregion
 
+        #region Permissions
+
+        /// <summary>
+        /// Gets a value indicating whether you have admin access to this Drop.
+        /// </summary>
+        /// <value><c>true</c> if this instance is admin; otherwise, <c>false</c>.</value>
+        public bool IsAdmin
+        {
+            get
+            {
+                return !string.IsNullOrEmpty(this.AdminToken);
+            }
+        }
+        #endregion
+
         #region Create / Read
 
         /// <summary>
