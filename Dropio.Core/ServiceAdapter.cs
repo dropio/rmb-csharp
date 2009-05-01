@@ -190,9 +190,9 @@ namespace Dropio.Core
             NameValueCollection parameters = new NameValueCollection();
 
             parameters.Add("name", name);
-            parameters.Add("guests_can_add", guestsCanAdd.ToString());
-            parameters.Add("guests_can_comment", guestsCanComment.ToString());
-            parameters.Add("guests_can_delete", guestsCanDelete.ToString());
+            parameters.Add("guests_can_add", guestsCanAdd.ToString().ToLower());
+            parameters.Add("guests_can_comment", guestsCanComment.ToString().ToLower());
+            parameters.Add("guests_can_delete", guestsCanDelete.ToString().ToLower());
             parameters.Add("expiration_length", this.MapExpirationLength(expirationLength));
             parameters.Add("password", password);
             parameters.Add("admin_password", adminPassword);
