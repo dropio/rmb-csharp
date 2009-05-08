@@ -745,42 +745,33 @@ namespace Dropio.Core
             UTF8Encoding encoding = new UTF8Encoding();
 
             byte[] postContents = encoding.GetBytes(sb.ToString());
-
-            Stream stream = File.OpenRead(file);
-
-            byte[] fileContents = new byte[stream.Length];
-            stream.Read(fileContents, 0, fileContents.Length);
-            stream.Close();
-
             byte[] postFooter = encoding.GetBytes("\r\n--" + boundary + "--\r\n");
 
-            byte[] dataBuffer = new byte[postContents.Length + fileContents.Length + postFooter.Length];
-            Buffer.BlockCopy(postContents, 0, dataBuffer, 0, postContents.Length);
-            Buffer.BlockCopy(fileContents, 0, dataBuffer, postContents.Length, fileContents.Length);
-            Buffer.BlockCopy(postFooter, 0, dataBuffer, postContents.Length + fileContents.Length, postFooter.Length);
+            request.ContentLength = postContents.Length + new FileInfo(file).Length + postFooter.Length;
 
-            request.ContentLength = dataBuffer.Length;
-
+            request.AllowWriteStreamBuffering = false;
             Stream resStream = request.GetRequestStream();
+            resStream.Write(postContents, 0, postContents.Length);
 
-            int j = 1;
-            int uploadBit = Math.Max(dataBuffer.Length / 100, 50 * 1024);
-            int uploadSoFar = 0;
-
-            for (int i = 0; i < dataBuffer.Length; i = i + uploadBit)
+            FileStream fs = new FileStream(file, FileMode.Open, FileAccess.Read);
+            byte[] buffer = new byte[4096];
+            int bytesOut = 0;
+            int bytesSoFar = 0;
+            while ((bytesOut = fs.Read(buffer, 0, buffer.Length)) != 0)
             {
-                int toUpload = Math.Min(uploadBit, dataBuffer.Length - i);
-                uploadSoFar += toUpload;
-                resStream.Write(dataBuffer, i, toUpload);
-
-                if ((OnUploadProgress != null) && ((j++) % 5 == 0 || uploadSoFar == dataBuffer.Length))
+                resStream.Write(buffer, 0, bytesOut);
+                //resStream.Flush(); Not needed, apparently the stream 
+                bytesSoFar += bytesOut;
+                if (OnUploadProgress != null)
                 {
-                    OnUploadProgress(this, new UploadProgressEventArgs(i + toUpload, uploadSoFar == dataBuffer.Length));
+                    OnUploadProgress(this, new UploadProgressEventArgs(bytesSoFar, true));
                 }
-
             }
 
+            resStream.Write(postFooter, 0, postFooter.Length);
+
             resStream.Close();
+            fs.Close();
 
             Asset a = null;
 
