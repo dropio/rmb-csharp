@@ -252,7 +252,29 @@ namespace Dropio.Core
         /// <returns></returns>
         public Asset AddFile(string file)
         {
-            return ServiceProxy.Instance.AddFile(this, file);
+            return this.AddFile(file, null);
+        }
+
+        /// <summary>
+        /// Adds the file.
+        /// </summary>
+        /// <param name="file">The file.</param>
+        /// <param name="handler">The handler.</param>
+        /// <returns></returns>
+        public Asset AddFile(string file, ServiceAdapter.UploadProgressHandler handler)
+        {
+            if (handler != null)
+            {
+                ServiceProxy.Instance.ServiceAdapter.OnUploadProgress += handler;
+            }
+
+            Asset a = ServiceProxy.Instance.AddFile(this, file);
+
+            if (handler != null)
+            {
+                ServiceProxy.Instance.ServiceAdapter.OnUploadProgress -= handler;
+            }
+            return a;
         }
 
         /// <summary>

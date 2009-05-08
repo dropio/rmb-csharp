@@ -19,16 +19,23 @@ namespace Dropio.Core
         /// Gets or sets the bytes uploaded so far.
         /// </summary>
         /// <value>The bytes.</value>
-        public int Bytes { get; set; }
+        public long Bytes { get; set; }
+
+        /// <summary>
+        /// Gets or sets the total number of bytes in file going uploaded.
+        /// </summary>
+        /// <value>The bytes.</value>
+        public long Total { get; set; }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="UploadProgressEventArgs"/> class.
         /// </summary>
         /// <param name="bytes">The bytes.</param>
         /// <param name="complete">if set to <c>true</c> [complete].</param>
-        public UploadProgressEventArgs(int bytes, bool complete)
+        public UploadProgressEventArgs(long bytes, long totalBytes, bool complete)
         {
             this.Bytes = bytes;
+            this.Total = totalBytes;
             this.UploadComplete = complete;
         }
     }

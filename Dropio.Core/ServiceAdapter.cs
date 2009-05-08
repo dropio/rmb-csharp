@@ -753,8 +753,15 @@ namespace Dropio.Core
             Stream resStream = request.GetRequestStream();
             resStream.Write(postContents, 0, postContents.Length);
 
+            if (OnUploadProgress != null)
+            {
+                OnUploadProgress(this, new UploadProgressEventArgs(postContents.LongLength, request.ContentLength, false));
+            }
+
             FileStream fs = new FileStream(file, FileMode.Open, FileAccess.Read);
-            byte[] buffer = new byte[4096];
+            long size = Math.Min(Math.Max(request.ContentLength / 100, 50 * 1024), 1024 * 1024);
+
+            byte[] buffer = new byte[size];
             int bytesOut = 0;
             int bytesSoFar = 0;
             while ((bytesOut = fs.Read(buffer, 0, buffer.Length)) != 0)
@@ -764,11 +771,16 @@ namespace Dropio.Core
                 bytesSoFar += bytesOut;
                 if (OnUploadProgress != null)
                 {
-                    OnUploadProgress(this, new UploadProgressEventArgs(bytesSoFar, true));
+                    OnUploadProgress(this, new UploadProgressEventArgs(bytesSoFar, request.ContentLength, false));
                 }
             }
 
             resStream.Write(postFooter, 0, postFooter.Length);
+
+            if (OnUploadProgress != null)
+            {
+                OnUploadProgress(this, new UploadProgressEventArgs(request.ContentLength, request.ContentLength, true));
+            }
 
             resStream.Close();
             fs.Close();
