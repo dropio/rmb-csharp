@@ -5,15 +5,15 @@ using System.Text;
 namespace Dropio.Core
 {
     /// <summary>
-    /// Event arguments for a <see cref="ServiceAdapter.OnUploadProgress"/> event.
+    /// Event arguments for a <see cref="ServiceAdapter.OnTransferProgress"/> event.
     /// </summary>
-    public class UploadProgressEventArgs : EventArgs
+    public class TransferProgressEventArgs : EventArgs
     {
         /// <summary>
-        /// Gets or sets a value indicating whether [upload complete].
+        /// Gets or sets a value indicating whether [transfer completed].
         /// </summary>
-        /// <value><c>true</c> if [upload complete]; otherwise, <c>false</c>.</value>
-        public bool UploadComplete { get; set; }
+        /// <value><c>true</c> if [transfer complete]; otherwise, <c>false</c>.</value>
+        public bool TransferCompleted { get; set; }
 
         /// <summary>
         /// Gets or sets the bytes uploaded so far.
@@ -28,15 +28,15 @@ namespace Dropio.Core
         public long Total { get; set; }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="UploadProgressEventArgs"/> class.
+        /// Initializes a new instance of the <see cref="TransferProgressEventArgs"/> class.
         /// </summary>
         /// <param name="bytes">The bytes.</param>
-        /// <param name="complete">if set to <c>true</c> [complete].</param>
-        public UploadProgressEventArgs(long bytes, long totalBytes, bool complete)
+        /// <param name="complete">if set to <c>true</c> [completed].</param>
+        public TransferProgressEventArgs(long bytes, long totalBytes, bool completed)
         {
             this.Bytes = bytes;
             this.Total = totalBytes;
-            this.UploadComplete = complete;
+            this.TransferCompleted = completed;
         }
     }
 

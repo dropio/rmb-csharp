@@ -61,7 +61,7 @@
     <Compile Include="Types\Link.cs" />
     <Compile Include="Types\Movie.cs" />
     <Compile Include="Types\Note.cs" />
-    <Compile Include="UploadProgressEventArgs.cs" />
+    <Compile Include="TransferProgressEventArgs.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

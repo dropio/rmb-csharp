@@ -178,6 +178,37 @@ namespace Dropio.Core
         #region Actions
 
         /// <summary>
+        /// Saves the file to the given path.
+        /// </summary>
+        /// <param name="path">The path.</param>
+        /// <returns></returns>
+        public void SaveFile(string path)
+        {
+            this.SaveFile(path, null);
+        }
+
+        /// <summary>
+        /// Saves the file to the given path.
+        /// </summary>
+        /// <param name="path">The filepathparam>
+        /// <param name="handler">The handler.</param>
+        /// <returns></returns>
+        public void SaveFile(string path, ServiceAdapter.TransferProgressHandler handler)
+        {
+            if (handler != null)
+            {
+                ServiceProxy.Instance.ServiceAdapter.OnTransferProgress += handler;
+            }
+
+            ServiceProxy.Instance.SaveFile(this, path);
+
+            if (handler != null)
+            {
+                ServiceProxy.Instance.ServiceAdapter.OnTransferProgress -= handler;
+            }
+        }
+
+        /// <summary>
         /// Generates the authenticated URL.
         /// </summary>
         /// <returns></returns>

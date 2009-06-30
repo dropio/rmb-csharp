@@ -31,14 +31,14 @@ namespace Dropio.Core
         /// <summary>
         /// Delegate
         /// </summary>
-        public delegate void UploadProgressHandler(object sender, UploadProgressEventArgs e);
+        public delegate void TransferProgressHandler(object sender, TransferProgressEventArgs e);
 
         /// <summary>
-        /// UploadProgressHandler is fired during a synchronous upload process to signify that 
-        /// a segment of uploading has been completed. This is approximately 50 bytes. The total
-        /// uploaded is recorded in the <see cref="UploadProgressEventArgs"/> class.
+        /// UploadProgressHandler is fired during a synchronous transfer process to signify that 
+        /// a segment of transfer has been completed. The total transfered is recorded in the 
+        /// <see cref="TransferProgressEventArgs"/> class.
         /// </summary>
-        public event UploadProgressHandler OnUploadProgress;
+        public event TransferProgressHandler OnTransferProgress;
 
         #region Implementation
 
@@ -753,9 +753,9 @@ namespace Dropio.Core
             Stream resStream = request.GetRequestStream();
             resStream.Write(postContents, 0, postContents.Length);
 
-            if (OnUploadProgress != null)
+            if (OnTransferProgress != null)
             {
-                OnUploadProgress(this, new UploadProgressEventArgs(postContents.LongLength, request.ContentLength, false));
+                OnTransferProgress(this, new TransferProgressEventArgs(postContents.LongLength, request.ContentLength, false));
             }
 
             FileStream fs = new FileStream(file, FileMode.Open, FileAccess.Read);
@@ -767,19 +767,18 @@ namespace Dropio.Core
             while ((bytesOut = fs.Read(buffer, 0, buffer.Length)) != 0)
             {
                 resStream.Write(buffer, 0, bytesOut);
-                //resStream.Flush(); Not needed, apparently the stream 
                 bytesSoFar += bytesOut;
-                if (OnUploadProgress != null)
+                if (OnTransferProgress != null)
                 {
-                    OnUploadProgress(this, new UploadProgressEventArgs(bytesSoFar, request.ContentLength, false));
+                    OnTransferProgress(this, new TransferProgressEventArgs(bytesSoFar, request.ContentLength, false));
                 }
             }
 
             resStream.Write(postFooter, 0, postFooter.Length);
 
-            if (OnUploadProgress != null)
+            if (OnTransferProgress != null)
             {
-                OnUploadProgress(this, new UploadProgressEventArgs(request.ContentLength, request.ContentLength, true));
+                OnTransferProgress(this, new TransferProgressEventArgs(request.ContentLength, request.ContentLength, true));
             }
 
             resStream.Close();
@@ -812,7 +811,67 @@ namespace Dropio.Core
             if (rk != null && rk.GetValue("Content Type") != null)
                 mime = rk.GetValue("Content Type").ToString();
             return mime;
-        } 
+        }
+
+        /// <summary>
+        /// Saves the file to the given path.
+        /// </summary>
+        /// <param name="asset">The asset.</param>
+        /// <param name="path">The path.</param>
+        public void SaveFile(Asset asset, string path)
+        {
+            if (!string.IsNullOrEmpty(asset.FileUrl))
+            {
+                long bytesSoFar = 0;
+                long totalBytes = 0;
+                int bytesOut = 0;
+
+                HttpWebRequest request = HttpWebRequest.Create(asset.FileUrl) as HttpWebRequest;
+                request.AllowAutoRedirect = true;
+
+                HttpWebResponse response = request.GetResponse() as HttpWebResponse;
+                totalBytes = response.ContentLength;
+                
+                if (!Directory.Exists(path))
+                {
+                    throw new ArgumentException("Value given is not a complete path.", "path");
+                }
+
+                string contentHeader = response.GetResponseHeader("Content-Disposition");
+                // Kinda hacky, I know, but it's after attachment; filename=*utf-8''
+                string fileName = HttpUtility.UrlDecode(contentHeader.Substring(29));
+                string fullPath = Path.Combine(path, fileName);
+
+
+                using (Stream responseStream = response.GetResponseStream())
+                {
+                    using (FileStream fs = new FileStream(fullPath, FileMode.Create, FileAccess.Write))
+                    {
+                        long size = Math.Min(Math.Max(totalBytes / 100, 50 * 1024), 1024 * 1024);
+                        byte[] buffer = new byte[size];
+
+                        while ((bytesOut = responseStream.Read(buffer, 0, buffer.Length)) != 0)
+                        {
+                            fs.Write(buffer, 0, bytesOut);
+                            bytesSoFar += bytesOut;
+                            if (OnTransferProgress != null)
+                            {
+                                OnTransferProgress(this, new TransferProgressEventArgs(bytesSoFar, totalBytes, false));
+                            }
+                        }
+
+                        if (OnTransferProgress != null)
+                        {
+                            OnTransferProgress(this, new TransferProgressEventArgs(totalBytes, totalBytes, true));
+                        }
+                    }
+                }
+            }
+            else
+            {
+                throw new ServiceException(ServiceError.NotAuthorized);
+            }
+        }
 
         /// <summary>
         /// Handles the exception.
@@ -1325,6 +1384,6 @@ namespace Dropio.Core
         }
 
         #endregion
-  
+
     }
 }
