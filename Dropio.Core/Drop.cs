@@ -17,6 +17,12 @@ namespace Dropio.Core
         public string Name { get; set; }
 
         /// <summary>
+        /// Gets or sets the asset count.
+        /// </summary>
+        /// <value>The asset count.</value>
+        public int AssetCount { get; set; }
+
+        /// <summary>
         /// Gets or sets the email.
         /// </summary>
         /// <value>The email.</value>

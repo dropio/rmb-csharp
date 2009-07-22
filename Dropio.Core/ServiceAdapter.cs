@@ -999,6 +999,7 @@ namespace Dropio.Core
         {
             XmlNode node = doc.SelectSingleNode("drop");
             d.Name = this.ExtractInnerText(node, "name");
+            d.AssetCount = this.ExtractInt(node, "asset_count");
             d.AdminToken = this.ExtractInnerText(node, "admin_token");
             d.GuestToken = this.ExtractInnerText(node, "guest_token");
             d.CurrentBytes = this.ExtractInt(node, "current_bytes");
