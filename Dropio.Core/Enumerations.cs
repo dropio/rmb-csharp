@@ -17,6 +17,8 @@ namespace Dropio.Core
         OneMonthFromLastView,
         OneYearFromLastView
     };
+	
+	public enum FaxStatus { None, Pending, Failed, Success };
 
     public enum ServiceError { NotAuthorized, NotFound, BadRequest, ServerError };
 

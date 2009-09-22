@@ -119,6 +119,16 @@ namespace Dropio.Core
         {
             return this.ServiceAdapter.FindAsset(drop, assetUrl);
         }
+		
+		/// <summary>
+		/// Gets the embed code for the asset.
+		/// </summary>
+		/// <param name="asset">The asset.</param>
+		/// <returns></returns>
+		public string GetAssetEmbedCode(Asset asset)
+		{
+			return this.ServiceAdapter.GetAssetEmbedCode(asset);
+		}
 
         /// <summary>
         /// Deletes the asset.
@@ -139,6 +149,62 @@ namespace Dropio.Core
         {
             return this.ServiceAdapter.UpdateAsset(asset);
         }
+		
+		/// <summary>
+        /// Finds the subscriptions.
+        /// </summary>
+        /// <param name="drop">The drop.</param>
+        /// <returns></returns
+		public List<Subscription> FindSubscriptions(Drop drop)
+		{
+			return this.ServiceAdapter.FindSubscriptions(drop);
+		}
+		
+		/// <summary>
+		/// Creates a Twitter subscription
+		/// </summary>
+		/// <param name="drop">The drop.</param>
+		/// <param name="username">The username.</param>
+		/// <param name="password">The password</param>
+		/// <returns></returns>
+		public Subscription CreateTwitterSubscription(Drop drop, string username, string password)
+		{
+			return this.ServiceAdapter.CreateTwitterSubscription(drop, username, password);
+		}
+		
+		/// <summary>
+		/// Creates an email subscription
+		/// </summary>
+		/// <param name="drop">The drop.</param>
+		/// <param name="email">The email.</param>
+		/// <param name="welcomeFrom">The welcome message from address.</param>
+		/// <param name="welcomeSubject">The welcome message subject.</param>
+		/// <param name="welcomeMessage">The welcome message.</param>
+		/// <returns></returns>
+		public Subscription CreateEmailSubscription(Drop drop, string email, string welcomeFrom, string welcomeSubject, string welcomeMessage)
+		{
+			return this.ServiceAdapter.CreateEmailSubscription(drop, email, welcomeFrom, welcomeSubject, welcomeMessage);
+		}
+		
+		/// <summary>
+        /// Saves the subscription.
+        /// </summary>
+        /// <param name="subscription">The subscription.</param>
+        /// <returns></returns>
+		public bool UpdateSubscription(Subscription subscription)
+		{
+			return this.ServiceAdapter.UpdateSubscription(subscription);
+		}
+		
+		/// <summary>
+        /// Deletes the subscription.
+        /// </summary>
+        /// <param name="subscription">The subscription.</param>
+        /// <returns></returns>
+		public bool DeleteSubscription(Subscription subscription)
+		{
+			return this.ServiceAdapter.DeleteSubscription(subscription);
+		}
 
         /// <summary>
         /// Finds the assets.
@@ -245,9 +311,10 @@ namespace Dropio.Core
         /// </summary>
         /// <param name="asset">The asset.</param>
         /// <param name="dropName">Name of the drop.</param>
-        public void SendToDrop(Asset asset, string dropName)
+        /// <param name="dropToken">Drop token.</param>
+        public void SendToDrop(Asset asset, string dropName, string dropToken)
         {
-            this.ServiceAdapter.SendToDrop(asset, dropName);
+            this.ServiceAdapter.SendToDrop(asset, dropName, dropToken);
         }
 
         /// <summary>
@@ -270,6 +337,29 @@ namespace Dropio.Core
         {
             this.ServiceAdapter.SaveFile(asset, path);
         }
+		
+		/// <summary>
+		/// Copies the asset to the given drop and returns the new asset.
+		/// </summary>
+		/// <param name="asset">The asset.</param>
+		/// <param name="drop">The drop.</param>
+		/// <returns></returns>
+		public Asset CopyAsset(Asset asset, Drop drop)
+		{
+			return this.ServiceAdapter.CopyAsset(asset, drop);
+		}
+		
+		/// <summary>
+		/// Moves the asset to the given drop.
+		/// </summary>
+		/// <param name="asset">The asset.</param>
+		/// <param name="drop">The drop.</param>
+		/// <returns></returns>
+		public void MoveAsset(Asset asset, Drop drop)
+		{
+			this.ServiceAdapter.MoveAsset(asset, drop);
+		}
+		
         #endregion
     }
 }

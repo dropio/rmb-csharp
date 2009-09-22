@@ -118,6 +118,15 @@ namespace Dropio.Core
         {
             return ServiceProxy.Instance.FindAssets(this, page);
         }
+
+		/// <summary>
+        /// Gets the subscriptions.
+        /// </summary>
+        /// <returns></returns>
+        public List<Subscription> GetSubscriptions()
+        {
+            return ServiceProxy.Instance.FindSubscriptions(this);
+        }
         #endregion
 
         #region Permissions
@@ -305,6 +314,40 @@ namespace Dropio.Core
         {
             return ServiceProxy.Instance.CreateLink(this, title, description, url);
         }
+
+		/// <summary>
+        /// Creates a Twitter subscription.
+        /// </summary>
+        /// <param name="username">The username.</param>
+        /// <param name="password">The password.</param>
+        /// <returns></returns>
+		public Subscription CreateTwitterSubscription(string username, string password)
+		{
+			return ServiceProxy.Instance.CreateTwitterSubscription(this, username, password);
+		}
+		
+		/// <summary>
+        /// Creates an email subscription.
+        /// </summary>
+        /// <param name="email">The email.</param>
+        /// <returns></returns>
+		public Subscription CreateEmailSubscription(string email)
+		{
+			return this.CreateEmailSubscription(email, string.Empty, string.Empty, string.Empty);
+		}
+
+		/// <summary>
+        /// Creates an email subscription.
+        /// </summary>
+        /// <param name="email">The email.</param>
+		/// <param name="welcomeFrom">The welcome message from address.</param>
+		/// <param name="welcomeSubject">The welcome message subject.</param>
+		/// <param name="welcomeMessage">The welcome message.</param>
+        /// <returns></returns>		
+		public Subscription CreateEmailSubscription(string email, string welcomeFrom, string welcomeSubject, string welcomeMessage)
+		{
+			return ServiceProxy.Instance.CreateEmailSubscription(this, email, welcomeFrom, welcomeSubject, welcomeMessage);
+		}
 
         #endregion
 

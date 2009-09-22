@@ -18,7 +18,8 @@ namespace Dropio.Core
         public const string COMMENTS = "/comments/";
         public const string SEND_TO = "/send_to/";
         public const string FROM_API = "/from_api";
-        public const string VERSION = "1.0";
+		public const string EMBED_CODE = "/embed_code";
+        public const string VERSION = "2.0";
 
         public abstract string BaseUrl { get; }
         public abstract string ApiBaseUrl { get; }
@@ -352,6 +353,91 @@ namespace Dropio.Core
 
             return assets;
         }
+		
+		/// <summary>
+        /// Finds the subscriptions.
+        /// </summary>
+        /// <param name="drop">The drop.</param>
+        /// <returns></returns
+		public List<Subscription> FindSubscriptions(Drop drop)
+		{
+			return null;
+		}
+		
+		/// <summary>
+		/// Creates a Twitter subscription
+		/// </summary>
+		/// <param name="drop">The drop.</param>
+		/// <param name="username">The username.</param>
+		/// <param name="password">The password</param>
+		/// <returns></returns>
+		public Subscription CreateTwitterSubscription(Drop drop, string username, string password)
+		{
+			return null;
+		}
+		
+		/// <summary>
+		/// Creates an email subscription
+		/// </summary>
+		/// <param name="drop">The drop.</param>
+		/// <param name="email">The email.</param>
+		/// <param name="welcomeFrom">The welcome message from address.</param>
+		/// <param name="welcomeSubject">The welcome message subject.</param>
+		/// <param name="welcomeMessage">The welcome message.</param>
+		/// <returns></returns>
+		public Subscription CreateEmailSubscription(Drop drop, string email, string welcomeFrom, string welcomeSubject, string welcomeMessage)
+		{
+			return null;
+		}
+		
+		/// <summary>
+        /// Saves the subscription.
+        /// </summary>
+        /// <param name="subscription">The subscription.</param>
+        /// <returns></returns>
+		public bool UpdateSubscription(Subscription subscription)
+		{
+			return false;
+		}
+		
+		/// <summary>
+        /// Deletes the subscription.
+        /// </summary>
+        /// <param name="subscription">The subscription.</param>
+        /// <returns></returns>
+		public bool DeleteSubscription(Subscription subscription)
+		{
+			return false;
+		}
+		
+		/// <summary>
+		/// Gets the embed code for the asset.
+		/// </summary>
+		/// <param name="asset">The asset.</param>
+		/// <returns></returns>
+		public string GetAssetEmbedCode(Asset asset)
+		{
+			if (asset == null)
+                throw new ArgumentNullException("asset", "The given asset can't be null");
+
+			Drop drop = asset.Drop;
+			string embed_code = string.Empty;
+			
+            string token = string.IsNullOrEmpty(drop.AdminToken) ? drop.GuestToken : drop.AdminToken;
+
+            HttpWebRequest request = this.CreateGetRequest(this.CreateAssetEmbedCodeUrl(drop.Name, asset.Name), token);
+
+            CompleteRequest(request, delegate(HttpWebResponse response)
+            {
+                ReadResponse(response, delegate(XmlDocument doc) 
+                {
+                    XmlNodeList nodes = doc.SelectNodes("/response");
+                    embed_code = this.ExtractInnerText(nodes[0],"embed_code");
+                });
+            });
+
+            return embed_code;
+		}
 
         /// <summary>
         /// Creates the note.
@@ -669,11 +755,18 @@ namespace Dropio.Core
         /// </summary>
         /// <param name="asset">The asset.</param>
         /// <param name="dropName">Name of the drop.</param>
-        public void SendToDrop(Asset asset, string dropName)
+        /// <param name="dropToken">Drop token.</param>
+        public void SendToDrop(Asset asset, string dropName, string dropToken)
         {
             NameValueCollection parameters = new NameValueCollection();
             parameters.Add("medium", "drop");
             parameters.Add("drop_name", dropName);
+			
+			if (!string.IsNullOrEmpty(dropToken))
+			{
+				parameters.Add("drop_token", dropToken);
+			}
+			
             this.Send(asset, parameters);
         }
 
@@ -695,6 +788,27 @@ namespace Dropio.Core
             HttpWebRequest request = this.CreatePostRequest(this.CreateSendToUrl(drop.Name, a.Name), parameters);
             CompleteRequest(request, null);
         }
+		
+		/// <summary>
+		/// Copies the asset to the given drop and returns the new asset.
+		/// </summary>
+		/// <param name="asset">The asset.</param>
+		/// <param name="drop">The drop.</param>
+		/// <returns></returns>
+		public Asset CopyAsset(Asset asset, Drop drop)
+		{
+			return null;
+		}
+		
+		/// <summary>
+		/// Moves the asset to the given drop.
+		/// </summary>
+		/// <param name="asset">The asset.</param>
+		/// <param name="drop">The drop.</param>
+		/// <returns></returns>
+		public void MoveAsset(Asset asset, Drop drop)
+		{
+		}
 
         /// <summary>
         /// Adds the file.
@@ -1088,6 +1202,7 @@ namespace Dropio.Core
                 case "Document":
                     Document d = asset as Document;
                     d.Pages = this.ExtractInt(node, "pages");
+				    d.FaxStatus = this.ExtractFaxStatus(node, "fax_status");
                     break;
                 case "Note":
                     Note n = asset as Note;
@@ -1127,6 +1242,7 @@ namespace Dropio.Core
             asset.ThumbnailUrl = this.ExtractInnerText(node, "thumbnail");
             asset.FileUrl = this.ExtractInnerText(node, "file");
             asset.ConvertedFileUrl = this.ExtractInnerText(node, "converted");
+			asset.HiddenUrl = this.ExtractInnerText(node, "hidden_url");
             asset.Drop = drop;
 
             this.MapTypedData(asset, node);
@@ -1224,6 +1340,29 @@ namespace Dropio.Core
             catch (FormatException) { }
             return extracted;
         }
+		
+		/// <summary>
+        /// Extracts the fax status.
+        /// </summary>
+        /// <param name="p">The p.</param>
+        /// <returns></returns>
+        protected FaxStatus ExtractFaxStatus(XmlNode node, string p)
+        {
+            string returnedStatus = this.ExtractInnerText(node,p);
+			if (!string.IsNullOrEmpty(returnedStatus))
+			{
+				switch (returnedStatus)
+				{
+				case "pending":
+					return FaxStatus.Pending;
+				case "failed":
+					return FaxStatus.Failed;
+				case "success":
+					return FaxStatus.Success;
+				}
+			}
+            return FaxStatus.None;
+        }
 
         #endregion
 
@@ -1248,6 +1387,17 @@ namespace Dropio.Core
         protected string CreateAssetUrl(string dropName, string assetName)
         {
             return this.ApiBaseUrl + DROPS + dropName + ASSETS + assetName;
+        }
+		
+		/// <summary>
+        /// Creates the asset embed code URL.
+        /// </summary>
+        /// <param name="dropName">Name of the drop.</param>
+        /// <param name="assetName">Name of the asset.</param>
+        /// <returns></returns>
+        protected string CreateAssetEmbedCodeUrl(string dropName, string assetName)
+        {
+            return this.ApiBaseUrl + DROPS + dropName + ASSETS + assetName + EMBED_CODE;
         }
 
         /// <summary>

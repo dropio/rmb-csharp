@@ -65,6 +65,12 @@ namespace Dropio.Core
         /// </summary>
         /// <value>The drop.</value>
         public Drop Drop { get; set; }
+		
+		/// <summary>
+		/// Gets or sets the hidden url.
+		/// </summary>
+		/// <value>The hidden URL</value>
+		public string HiddenUrl { get; set; }
 
         /// <summary>
         /// Gets the display type.
@@ -176,6 +182,35 @@ namespace Dropio.Core
         #endregion
 
         #region Actions
+		
+		/// <summary>
+		/// Copies the asset to the given drop and returns the new asset.
+		/// </summary>
+		/// <param name="drop">The drop.</param>
+		/// <returns></returns>
+		public Asset Copy(Drop drop)
+		{
+			return ServiceProxy.Instance.CopyAsset(this, drop);
+		}
+		
+		/// <summary>
+		/// Moves the asset to the given drop.
+		/// </summary>
+		/// <param name="drop">The drop.</param>
+		/// <returns></returns>
+		public void Move(Drop drop)
+		{
+			ServiceProxy.Instance.MoveAsset(this, drop);
+		}
+		
+		/// <summary>
+		/// Gets the embed code for the Asset.
+		/// </summary>
+		/// <returns></returns>
+		public string GetEmbedCode()
+		{
+			return ServiceProxy.Instance.GetAssetEmbedCode(this);
+		}
 
         /// <summary>
         /// Saves the file to the given path.
@@ -253,8 +288,18 @@ namespace Dropio.Core
         /// <param name="dropName">Name of the drop.</param>
         public void SendToDrop(string dropName)
         {
-            ServiceProxy.Instance.SendToDrop(this, dropName);
+            this.SendToDrop(dropName, string.Empty);
         }
+		
+		/// <summary>
+		/// Sends to drop.
+		/// </summary>
+		/// <param name="dropName">Name of the drop</param>
+		/// <param name="dropToken">Drop token.</param>
+		public void SendToDrop(string dropName, string dropToken)
+		{
+			ServiceProxy.Instance.SendToDrop(this, dropName, dropToken);
+		}
 
         #endregion
 

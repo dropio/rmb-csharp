@@ -7,6 +7,7 @@ namespace Dropio.Core.Types
     public class Document : Asset
     {
         public int Pages { get; set; }
+		public FaxStatus FaxStatus { get; set; }
 
         /// <summary>
         /// Determines whether this instance can fax.
