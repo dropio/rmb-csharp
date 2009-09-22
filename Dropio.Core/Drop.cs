@@ -39,6 +39,12 @@ namespace Dropio.Core
         /// </summary>
         /// <value>The fax.</value>
         public string Fax { get; set; }
+		
+		/// <summary>
+        /// Gets or sets the description.
+        /// </summary>
+        /// <value>The description.</value>
+        public string Description { get; set; }
 
         /// <summary>
         /// Gets or sets the conference.
@@ -99,6 +105,48 @@ namespace Dropio.Core
         /// </summary>
         /// <value>The length of the expiration.</value>
         public ExpirationLength ExpirationLength { get; set; }
+		
+		/// <summary>
+		/// Gets or sets the expiration date.
+		/// </summary>
+		/// <value>The expiration date.</value>
+		public DateTime ExpiresAt { get; set; }
+		
+        /// <summary>
+        /// Gets or sets the hidden upload url.
+        /// </summary>
+        /// <value>The hidden upload url.</value>
+        public string HiddenUploadUrl { get; set; }
+
+        /// <summary>
+        /// Gets or sets the chat password.
+        /// </summary>
+        /// <value>The chat password.</value>
+        public string ChatPassword { get; set; }
+
+        /// <summary>
+        /// Gets or sets the default view.
+        /// </summary>
+        /// <value>The default view.</value>
+        public string DefaultView { get; set; }
+
+        /// <summary>
+        /// Gets or sets the upload url.
+        /// </summary>
+        /// <value>The upload url.</value>
+        public string UploadUrl { get; set; }
+
+		/// <summary>
+        /// Gets or sets the admin email.
+        /// </summary>
+        /// <value>The admin email.</value>
+        public string AdminEmail { get; set; }
+
+        /// <summary>
+        /// Gets or sets the email key.
+        /// </summary>
+        /// <value>The email key.</value>
+        public string EmailKey { get; set; }
 
         /// <summary>
         /// Gets the assets, defaulting to page 1.
@@ -250,6 +298,25 @@ namespace Dropio.Core
         #endregion
 
         #region Actions
+		
+		/// <summary>
+		/// Promotes the nick in chat.
+		/// </summary>
+		/// <param name="nick">The nick.</param>
+		/// <returns></returns>
+		public bool PromoteNick(string nick)
+		{
+			return ServiceProxy.Instance.PromoteNick(this, nick);
+		}
+		
+		/// <summary>
+		/// Gets the upload code for the Drop.
+		/// </summary>
+		/// <returns></returns>
+		public string GetUploadCode()
+		{
+			return ServiceProxy.Instance.GetDropUploadCode(this);
+		}
 
         /// <summary>
         /// Generates the authenticated URL.
@@ -259,6 +326,50 @@ namespace Dropio.Core
         {
             return ServiceProxy.Instance.GenerateAuthenticatedDropUrl(this);
         }
+		
+		/// <summary>
+        /// Adds a file via a url.
+        /// </summary>
+        /// <param name="url">The url.</param>
+        /// <returns></return>
+		public Asset AddFileFromUrl(string url)
+		{
+			return ServiceProxy.Instance.AddFileFromUrl(this, url);
+		}
+		
+		/// <summary>
+        /// Adds the file.
+        /// </summary>
+        /// <param name="file">The file.</param>
+        /// <param name="comment">The comment.</param>
+        /// <returns></return>
+		public Asset AddFile(string file, string comment)
+		{
+			return this.AddFile(file, comment, null);
+		}
+		
+		/// <summary>
+        /// Adds the file.
+        /// </summary>
+        /// <param name="file">The file.</param>
+        /// <param name="comment">The comment.</param>
+        /// <param name="handler">The handler.</param>
+        /// <returns></return>
+		public Asset AddFile(string file, string comment, ServiceAdapter.TransferProgressHandler handler)
+		{
+			if (handler != null)
+            {
+                ServiceProxy.Instance.ServiceAdapter.OnTransferProgress += handler;
+            }
+
+            Asset a = ServiceProxy.Instance.AddFile(this, file, comment);
+
+            if (handler != null)
+            {
+                ServiceProxy.Instance.ServiceAdapter.OnTransferProgress -= handler;
+            }
+            return a;
+		}
 
         /// <summary>
         /// Adds the file.
@@ -267,7 +378,7 @@ namespace Dropio.Core
         /// <returns></returns>
         public Asset AddFile(string file)
         {
-            return this.AddFile(file, null);
+            return this.AddFile(file, null, null);
         }
 
         /// <summary>
@@ -278,18 +389,7 @@ namespace Dropio.Core
         /// <returns></returns>
         public Asset AddFile(string file, ServiceAdapter.TransferProgressHandler handler)
         {
-            if (handler != null)
-            {
-                ServiceProxy.Instance.ServiceAdapter.OnTransferProgress += handler;
-            }
-
-            Asset a = ServiceProxy.Instance.AddFile(this, file);
-
-            if (handler != null)
-            {
-                ServiceProxy.Instance.ServiceAdapter.OnTransferProgress -= handler;
-            }
-            return a;
+            return this.AddFile(file, string.Empty, handler);
         }
 
         /// <summary>

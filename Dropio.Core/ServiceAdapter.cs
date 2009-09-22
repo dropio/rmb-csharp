@@ -14,11 +14,13 @@ namespace Dropio.Core
     public abstract class ServiceAdapter
     {
         public const string DROPS = "drops/";
+		public const string EMPTY_DROP = "/empty";
         public const string ASSETS = "/assets/";
         public const string COMMENTS = "/comments/";
         public const string SEND_TO = "/send_to/";
         public const string FROM_API = "/from_api";
 		public const string EMBED_CODE = "/embed_code";
+		public const string UPLOAD_CODE = "/upload_code";
         public const string VERSION = "2.0";
 
         public abstract string BaseUrl { get; }
@@ -229,6 +231,68 @@ namespace Dropio.Core
 
             return d;
         }
+		
+		/// <summary>
+		/// Gets the upload code for the drop.
+		/// </summary>
+		/// <param name="asset">The drop.</param>
+		/// <returns></returns>
+		public string GetDropUploadCode(Drop drop)
+		{
+			if (drop == null)
+                throw new ArgumentNullException("drop", "The given drop can't be null");
+			
+			string upload_code = string.Empty;
+			
+            string token = string.IsNullOrEmpty(drop.AdminToken) ? drop.GuestToken : drop.AdminToken;
+
+            HttpWebRequest request = this.CreateGetRequest(this.CreateDropUploadCodeUrl(drop.Name), token);
+
+            CompleteRequest(request, delegate(HttpWebResponse response)
+            {
+                ReadResponse(response, delegate(XmlDocument doc) 
+                {
+                    XmlNodeList nodes = doc.SelectNodes("/response");
+                    upload_code = this.ExtractInnerText(nodes[0],"upload_code");
+                });
+            });
+
+            return upload_code;
+		}
+		
+		/// <summary>
+		/// Promotes the nick in chat.
+		/// </summary>
+		/// <param name="drop">The drop.</param>
+		/// <param name="nick">The nick.</param>
+		/// <returns></returns>
+		public bool PromoteNick(Drop drop, string nick)
+		{
+			return false;
+		}
+		
+		/// <summary>
+        /// Empties the drop.
+        /// </summary>
+        /// <param name="drop">The drop.</param>
+        /// <returns></returns>
+        public bool EmptyDrop(Drop drop)
+        {
+            if (drop == null)
+                throw new ArgumentNullException("drop", "The given drop can't be null");
+
+            bool emptied = false;
+
+            NameValueCollection parameters = new NameValueCollection();
+
+            string token = drop.AdminToken;
+            parameters.Add("token", token);
+
+            HttpWebRequest request = this.CreatePostRequest(this.CreateEmptyDropUrl(drop.Name), parameters);
+            CompleteRequest(request, (HttpWebResponse response) => { emptied = true; });
+
+            return emptied;
+        }
 
         /// <summary>
         /// Deletes the drop.
@@ -244,7 +308,7 @@ namespace Dropio.Core
 
             NameValueCollection parameters = new NameValueCollection();
 
-            string token = string.IsNullOrEmpty(drop.AdminToken) ? drop.GuestToken : drop.AdminToken;
+            string token = drop.AdminToken;
             parameters.Add("token", token);
 
             HttpWebRequest request = this.CreateDeleteRequest(this.CreateDropUrl(drop.Name), parameters);
@@ -276,6 +340,11 @@ namespace Dropio.Core
             parameters.Add("password", password);
             parameters.Add("admin_password", adminPassword);
             parameters.Add("premium_code", premiumCode);
+			parameters.Add("description", drop.Description);
+			parameters.Add("admin_email", drop.AdminEmail);
+			parameters.Add("email_key", drop.EmailKey);
+			parameters.Add("default_view", drop.DefaultView);
+			parameters.Add("chat_password", drop.ChatPassword);
 
             HttpWebRequest request = this.CreatePutRequest(this.CreateDropUrl(drop.Name), parameters);
             CompleteRequest(request, delegate(HttpWebResponse response)
@@ -809,14 +878,26 @@ namespace Dropio.Core
 		public void MoveAsset(Asset asset, Drop drop)
 		{
 		}
+		
+		/// <summary>
+        /// Adds a file via a url.
+        /// </summary>
+        /// <param name="drop">The drop.</param>
+        /// <param name="url">The url.</param>
+        /// <returns></return>
+		public Asset AddFileFromUrl(Drop drop, string url)
+		{
+			return null;
+		}
 
         /// <summary>
         /// Adds the file.
         /// </summary>
         /// <param name="drop">The drop.</param>
         /// <param name="file">The file.</param>
+        /// <param name="comment">The comment.</param>
         /// <returns></returns>
-        public Asset AddFile(Drop drop, string file)
+        public Asset AddFile(Drop drop, string file, string comment)
         {
             string requestUrl = this.UploadUrl;
 
@@ -838,6 +919,7 @@ namespace Dropio.Core
             parameters["format"] = "xml";
             parameters["drop_name"] = drop.Name;
             parameters["version"] = VERSION;
+			parameters["comment"] = comment;
 
             StringBuilder sb = new StringBuilder();
             string fileName = Path.GetFileName(file);
@@ -1123,10 +1205,17 @@ namespace Dropio.Core
             d.Conference = this.ExtractInnerText(node, "conference");
             d.Email = this.ExtractInnerText(node, "email");
             d.Rss = this.ExtractInnerText(node, "rss");
-          
+			d.ExpiresAt = this.ExtractDateTime(this.ExtractInnerText(node, "expires_at"));
+            d.Description = this.ExtractInnerText(node, "description");
             d.GuestsCanAdd = this.ExtractBoolean(node, "guests_can_add");
             d.GuestsCanComment = this.ExtractBoolean(node, "guests_can_comment");
             d.GuestsCanDelete = this.ExtractBoolean(node, "guests_can_delete");
+
+			d.HiddenUploadUrl = this.ExtractInnerText(node, "hidden_upload_url");
+			d.ChatPassword = this.ExtractInnerText(node, "chat_password");
+			d.DefaultView = this.ExtractInnerText(node, "default_view");
+			d.AdminEmail = this.ExtractInnerText(node, "admin_email");
+			d.EmailKey = this.ExtractInnerText(node, "email_key");
 
             d.ExpirationLength = this.ExtractExpirationLength(this.ExtractInnerText(node, "expiration_length"));
 
@@ -1376,6 +1465,26 @@ namespace Dropio.Core
         protected string CreateDropUrl(string dropName)
         {
             return this.ApiBaseUrl + DROPS + dropName;
+        }
+		
+		/// <summary>
+        /// Creates the drop empty URL.
+        /// </summary>
+        /// <param name="dropName">Name of the drop.</param>
+        /// <returns></returns>
+        protected string CreateEmptyDropUrl(string dropName)
+        {
+            return this.ApiBaseUrl + DROPS + dropName + EMPTY_DROP;
+        }
+		
+		/// <summary>
+        /// Creates the drop upload code URL.
+        /// </summary>
+        /// <param name="dropName">Name of the drop.</param>
+        /// <returns></returns>
+        protected string CreateDropUploadCodeUrl(string dropName)
+        {
+            return this.ApiBaseUrl + DROPS + dropName + UPLOAD_CODE;
         }
 
         /// <summary>

@@ -108,6 +108,27 @@ namespace Dropio.Core
         {
             return this.ServiceAdapter.UpdateDrop(drop, password, adminPassword, premiumCode);
         }
+		
+		/// <summary>
+		/// Gets the drops upload code.
+		/// </summary>
+		/// <param name="drop"></param>
+		/// <returns></returns>
+		public string GetDropUploadCode(Drop drop)
+		{
+			return this.ServiceAdapter.GetDropUploadCode(drop);
+		}
+		
+		/// <summary>
+		/// Promotes the nick in chat.
+		/// </summary>
+		/// <param name="drop">The drop.</param>
+		/// <param name="nick">The nick.</param>
+		/// <returns></returns>
+		public bool PromoteNick(Drop drop, string nick)
+		{
+			return this.ServiceAdapter.PromoteNick(drop, nick);
+		}
 
         /// <summary>
         /// Finds the asset.
@@ -316,16 +337,28 @@ namespace Dropio.Core
         {
             this.ServiceAdapter.SendToDrop(asset, dropName, dropToken);
         }
+		
+		/// <summary>
+        /// Adds a file via a url.
+        /// </summary>
+        /// <param name="drop">The drop.</param>
+        /// <param name="url">The url.</param>
+        /// <returns></return>
+		public Asset AddFileFromUrl(Drop drop, string url)
+		{
+			return this.ServiceAdapter.AddFileFromUrl(drop, url);
+		}
 
         /// <summary>
         /// Adds the file to the drop..
         /// </summary>
         /// <param name="drop">The drop.</param>
         /// <param name="file">The file.</param>
+        /// <param name="comment">The comment. </param>
         /// <returns></returns>
-        public Asset AddFile(Drop drop, string file)
+        public Asset AddFile(Drop drop, string file, string comment)
         {
-            return this.ServiceAdapter.AddFile(drop, file);
+            return this.ServiceAdapter.AddFile(drop, file, comment);
         }
 
         /// <summary>
