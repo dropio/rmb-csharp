@@ -212,16 +212,6 @@ namespace Dropio.Core
 		}
 		
 		/// <summary>
-        /// Saves the subscription.
-        /// </summary>
-        /// <param name="subscription">The subscription.</param>
-        /// <returns></returns>
-		public bool UpdateSubscription(Subscription subscription)
-		{
-			return this.ServiceAdapter.UpdateSubscription(subscription);
-		}
-		
-		/// <summary>
         /// Deletes the subscription.
         /// </summary>
         /// <param name="subscription">The subscription.</param>
@@ -236,10 +226,11 @@ namespace Dropio.Core
         /// </summary>
         /// <param name="drop">The drop.</param>
         /// <param name="page">The page.</param>
+        /// <param name="order">The order.</param>
         /// <returns></returns>
-        public List<Asset> FindAssets(Drop drop, int page)
+        public List<Asset> FindAssets(Drop drop, int page, Order order)
         {
-            return this.ServiceAdapter.FindAssets(drop, page);
+            return this.ServiceAdapter.FindAssets(drop, page, order);
         }
 
         

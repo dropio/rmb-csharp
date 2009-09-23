@@ -36,15 +36,6 @@ namespace Dropio.Core
         public Drop Drop { get; set; }
 
         /// <summary>
-        /// Saves this instance.
-        /// </summary>
-        /// <returns></returns>
-        public bool Save()
-        {
-            return ServiceProxy.Instance.UpdateSubscription(this);
-        }
-
-        /// <summary>
         /// Deletes this instance.
         /// </summary>
         /// <returns></returns>

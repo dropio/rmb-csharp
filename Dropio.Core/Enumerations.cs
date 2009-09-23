@@ -29,6 +29,12 @@ namespace Dropio.Core
 		CommentDeleted = 0x10,
 	}
 	
+	public enum Order
+	{ 
+		Oldest, 
+		Newest
+	};
+	
 	public enum FaxStatus { None, Pending, Failed, Success };
 
     public enum ServiceError { NotAuthorized, NotFound, BadRequest, ServerError };

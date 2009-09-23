@@ -414,8 +414,9 @@ namespace Dropio.Core
         /// </summary>
         /// <param name="drop">The drop.</param>
         /// <param name="page">The page.</param>
+        /// <param name="order">The order.</param>
         /// <returns></returns>
-        public List<Asset> FindAssets(Drop drop, int page)
+        public List<Asset> FindAssets(Drop drop, int page, Order order)
         {
             if (drop == null)
                 throw new ArgumentNullException("drop", "The given drop can't be null");
@@ -426,6 +427,7 @@ namespace Dropio.Core
             NameValueCollection parameters = new NameValueCollection();
             parameters["token"] = token;
             parameters["page"] = page.ToString();
+			parameters["order"] = (order == Order.Newest) ? "newest" : "oldest";
             HttpWebRequest request = this.CreateGetRequest(this.CreateAssetUrl(drop.Name, string.Empty), parameters);
             CompleteRequest(request, delegate(HttpWebResponse response)
             {
@@ -569,40 +571,6 @@ namespace Dropio.Core
             });
 
             return s;
-		}
-		
-		/// <summary>
-        /// Saves the subscription.
-        /// </summary>
-        /// <param name="subscription">The subscription.</param>
-        /// <returns></returns>
-		public bool UpdateSubscription(Subscription subscription)
-		{
-			if (subscription == null)
-                throw new ArgumentNullException("subscription", "The given subscription can't be null");
-
-            bool updated = false;
-            Drop drop = subscription.Drop;
-
-            NameValueCollection parameters = new NameValueCollection();
-
-            string token = drop.AdminToken;
-            parameters.Add("token", token);
-            parameters.Add("message", subscription.Message);
-
-            HttpWebRequest request = this.CreatePutRequest(this.CreateSubscriptionUrl(drop.Name, subscription.Id), parameters);
-            CompleteRequest(request, delegate(HttpWebResponse response)
-            {
-                ReadResponse(response, delegate(XmlDocument doc)
-                {
-                    XmlNodeList nodes = doc.SelectNodes("/subscription");
-
-                    this.MapSubscription(drop, subscription, nodes[0]);
-                    updated = true;
-                });
-            });
-
-            return updated;
 		}
 		
 		/// <summary>

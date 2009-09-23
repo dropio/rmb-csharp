@@ -164,7 +164,18 @@ namespace Dropio.Core
         /// <returns></returns>
         public List<Asset> GetAssets(int page)
         {
-            return ServiceProxy.Instance.FindAssets(this, page);
+            return this.GetAssets(page,Order.Oldest);
+        }
+		
+		/// <summary>
+        /// Gets a list of assets via a page number.s
+        /// </summary>
+        /// <param name="page">The page.</param>
+        /// <param name="order">The order.</param>
+        /// <returns></returns>
+        public List<Asset> GetAssets(int page, Order order)
+        {
+            return ServiceProxy.Instance.FindAssets(this, page, order);
         }
 
 		/// <summary>
