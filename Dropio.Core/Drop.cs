@@ -423,7 +423,19 @@ namespace Dropio.Core
         /// <returns></returns>
 		public Subscription CreateTwitterSubscription(string username, string password)
 		{
-			return ServiceProxy.Instance.CreateTwitterSubscription(this, username, password);
+			return this.CreateTwitterSubscription(username, password, string.Empty);
+		}
+		
+		/// <summary>
+        /// Creates a Twitter subscription.
+        /// </summary>
+        /// <param name="username">The username.</param>
+        /// <param name="password">The password.</param>
+        /// <param name="message">The message.</param>
+        /// <returns></returns>
+		public Subscription CreateTwitterSubscription(string username, string password, string message)
+		{
+			return ServiceProxy.Instance.CreateTwitterSubscription(this, username, password, message);
 		}
 		
 		/// <summary>
@@ -433,20 +445,32 @@ namespace Dropio.Core
         /// <returns></returns>
 		public Subscription CreateEmailSubscription(string email)
 		{
-			return this.CreateEmailSubscription(email, string.Empty, string.Empty, string.Empty);
+			return this.CreateEmailSubscription(email, string.Empty, string.Empty, string.Empty, string.Empty);
+		}
+		
+		/// <summary>
+        /// Creates an email subscription.
+        /// </summary>
+        /// <param name="email">The email.</param>
+        /// <param name="message">The message.</param>
+        /// <returns></returns>
+		public Subscription CreateEmailSubscription(string email, string message)
+		{
+			return this.CreateEmailSubscription(email, message, string.Empty, string.Empty, string.Empty);
 		}
 
 		/// <summary>
         /// Creates an email subscription.
         /// </summary>
         /// <param name="email">The email.</param>
+        /// <param name="message">The message.</param>
 		/// <param name="welcomeFrom">The welcome message from address.</param>
 		/// <param name="welcomeSubject">The welcome message subject.</param>
 		/// <param name="welcomeMessage">The welcome message.</param>
         /// <returns></returns>		
-		public Subscription CreateEmailSubscription(string email, string welcomeFrom, string welcomeSubject, string welcomeMessage)
+		public Subscription CreateEmailSubscription(string email, string message, string welcomeFrom, string welcomeSubject, string welcomeMessage)
 		{
-			return ServiceProxy.Instance.CreateEmailSubscription(this, email, welcomeFrom, welcomeSubject, welcomeMessage);
+			return ServiceProxy.Instance.CreateEmailSubscription(this, email, message, welcomeFrom, welcomeSubject, welcomeMessage);
 		}
 
         #endregion

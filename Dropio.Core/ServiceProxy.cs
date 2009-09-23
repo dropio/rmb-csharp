@@ -187,10 +187,11 @@ namespace Dropio.Core
 		/// <param name="drop">The drop.</param>
 		/// <param name="username">The username.</param>
 		/// <param name="password">The password</param>
+		/// <param name="message">The message,</param>
 		/// <returns></returns>
-		public Subscription CreateTwitterSubscription(Drop drop, string username, string password)
+		public Subscription CreateTwitterSubscription(Drop drop, string username, string password, string message)
 		{
-			return this.ServiceAdapter.CreateTwitterSubscription(drop, username, password);
+			return this.ServiceAdapter.CreateTwitterSubscription(drop, username, password, message);
 		}
 		
 		/// <summary>
@@ -198,13 +199,14 @@ namespace Dropio.Core
 		/// </summary>
 		/// <param name="drop">The drop.</param>
 		/// <param name="email">The email.</param>
+		/// <param name="message">The message,</param>
 		/// <param name="welcomeFrom">The welcome message from address.</param>
 		/// <param name="welcomeSubject">The welcome message subject.</param>
 		/// <param name="welcomeMessage">The welcome message.</param>
 		/// <returns></returns>
-		public Subscription CreateEmailSubscription(Drop drop, string email, string welcomeFrom, string welcomeSubject, string welcomeMessage)
+		public Subscription CreateEmailSubscription(Drop drop, string email, string message, string welcomeFrom, string welcomeSubject, string welcomeMessage)
 		{
-			return this.ServiceAdapter.CreateEmailSubscription(drop, email, welcomeFrom, welcomeSubject, welcomeMessage);
+			return this.ServiceAdapter.CreateEmailSubscription(drop, email, message, welcomeFrom, welcomeSubject, welcomeMessage);
 		}
 		
 		/// <summary>
@@ -375,22 +377,22 @@ namespace Dropio.Core
 		/// Copies the asset to the given drop and returns the new asset.
 		/// </summary>
 		/// <param name="asset">The asset.</param>
-		/// <param name="drop">The drop.</param>
+		/// <param name="targetDrop">The target drop.</param>
 		/// <returns></returns>
-		public Asset CopyAsset(Asset asset, Drop drop)
+		public Asset CopyAsset(Asset asset, Drop targetDrop)
 		{
-			return this.ServiceAdapter.CopyAsset(asset, drop);
+			return this.ServiceAdapter.CopyAsset(asset, targetDrop);
 		}
 		
 		/// <summary>
 		/// Moves the asset to the given drop.
 		/// </summary>
 		/// <param name="asset">The asset.</param>
-		/// <param name="drop">The drop.</param>
+		/// <param name="targetDrop">The target drop.</param>
 		/// <returns></returns>
-		public void MoveAsset(Asset asset, Drop drop)
+		public Asset MoveAsset(Asset asset, Drop targetDrop)
 		{
-			this.ServiceAdapter.MoveAsset(asset, drop);
+			return this.ServiceAdapter.MoveAsset(asset, targetDrop);
 		}
 		
         #endregion

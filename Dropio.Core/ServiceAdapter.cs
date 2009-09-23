@@ -15,12 +15,16 @@ namespace Dropio.Core
     {
         public const string DROPS = "drops/";
 		public const string EMPTY_DROP = "/empty";
+		public const string PROMOTE_NICK = "/promote";
         public const string ASSETS = "/assets/";
         public const string COMMENTS = "/comments/";
+        public const string SUBSCRIPTIONS = "/subscriptions/";
         public const string SEND_TO = "/send_to/";
         public const string FROM_API = "/from_api";
 		public const string EMBED_CODE = "/embed_code";
 		public const string UPLOAD_CODE = "/upload_code";
+		public const string COPY = "/copy";
+		public const string MOVE = "/move";
         public const string VERSION = "2.0";
 
         public abstract string BaseUrl { get; }
@@ -268,7 +272,24 @@ namespace Dropio.Core
 		/// <returns></returns>
 		public bool PromoteNick(Drop drop, string nick)
 		{
-			return false;
+			if (drop == null)
+                throw new ArgumentNullException("drop", "The given drop can't be null");
+			
+			if (string.IsNullOrEmpty(nick))
+                throw new ArgumentNullException("nick", "The given nick can't be null");
+
+            bool promoted = false;
+
+            NameValueCollection parameters = new NameValueCollection();
+
+            string token = drop.AdminToken;
+            parameters.Add("token", token);
+			parameters.Add("nick", nick);
+			
+            HttpWebRequest request = this.CreatePutRequest(this.CreatePromoteNickUrl(drop.Name), parameters);
+            CompleteRequest(request, (HttpWebResponse response) => { promoted = true; });
+
+            return promoted;
 		}
 		
 		/// <summary>
@@ -430,7 +451,30 @@ namespace Dropio.Core
         /// <returns></returns
 		public List<Subscription> FindSubscriptions(Drop drop)
 		{
-			return null;
+			if (drop == null)
+                throw new ArgumentNullException("drop", "The given drop can't be null");
+
+            List<Subscription> subscriptions = new List<Subscription>();
+
+            string token = drop.AdminToken;
+            NameValueCollection parameters = new NameValueCollection();
+            parameters["token"] = token;
+            HttpWebRequest request = this.CreateGetRequest(this.CreateSubscriptionsUrl(drop.Name), parameters);
+            CompleteRequest(request, delegate(HttpWebResponse response)
+            {
+                ReadResponse(response, delegate(XmlDocument doc)
+                {
+                    XmlNodeList nodes = doc.SelectNodes("/subscriptions/subscription");
+
+                    foreach (XmlNode node in nodes)
+                    {
+                        Subscription s = this.CreateAndMapSubscription(drop, node);
+                        subscriptions.Add(s);
+                    }
+                });
+            });
+
+            return subscriptions;
 		}
 		
 		/// <summary>
@@ -439,10 +483,35 @@ namespace Dropio.Core
 		/// <param name="drop">The drop.</param>
 		/// <param name="username">The username.</param>
 		/// <param name="password">The password</param>
+		/// <param name="message">The message</param>
 		/// <returns></returns>
-		public Subscription CreateTwitterSubscription(Drop drop, string username, string password)
+		public Subscription CreateTwitterSubscription(Drop drop, string username, string password, string message)
 		{
-			return null;
+			if (drop == null)
+                throw new ArgumentNullException("drop", "The given drop can't be null");
+
+            Subscription s = null;
+
+            NameValueCollection parameters = new NameValueCollection();
+
+            string token = string.IsNullOrEmpty(drop.AdminToken) ? drop.GuestToken : drop.AdminToken;
+            parameters.Add("token", token);
+			parameters.Add("type", "twitter");
+            parameters.Add("username", username);
+            parameters.Add("password", password);
+			parameters.Add("message", message);
+
+            HttpWebRequest request = this.CreatePostRequest(this.CreateSubscriptionsUrl(drop.Name), parameters);
+            CompleteRequest(request, delegate(HttpWebResponse response)
+            {
+                ReadResponse(response, delegate(XmlDocument doc)
+                {
+                    XmlNodeList nodes = doc.SelectNodes("/subscription");
+                    s = this.CreateAndMapSubscription(drop, nodes[0]);
+                });
+            });
+
+            return s;
 		}
 		
 		/// <summary>
@@ -450,13 +519,40 @@ namespace Dropio.Core
 		/// </summary>
 		/// <param name="drop">The drop.</param>
 		/// <param name="email">The email.</param>
+		/// <param name="message">The message,</param>
 		/// <param name="welcomeFrom">The welcome message from address.</param>
 		/// <param name="welcomeSubject">The welcome message subject.</param>
 		/// <param name="welcomeMessage">The welcome message.</param>
 		/// <returns></returns>
-		public Subscription CreateEmailSubscription(Drop drop, string email, string welcomeFrom, string welcomeSubject, string welcomeMessage)
+		public Subscription CreateEmailSubscription(Drop drop, string email, string message, string welcomeFrom, string welcomeSubject, string welcomeMessage)
 		{
-			return null;
+			if (drop == null)
+                throw new ArgumentNullException("drop", "The given drop can't be null");
+
+            Subscription s = null;
+
+            NameValueCollection parameters = new NameValueCollection();
+
+            string token = string.IsNullOrEmpty(drop.AdminToken) ? drop.GuestToken : drop.AdminToken;
+            parameters.Add("token", token);
+			parameters.Add("type", "email");
+            parameters.Add("email", email);
+			parameters.Add("message", message);
+			parameters.Add("welcome_from", welcomeFrom);
+			parameters.Add("welcome_subject", welcomeSubject);
+			parameters.Add("welcome_message", welcomeMessage);
+
+            HttpWebRequest request = this.CreatePostRequest(this.CreateSubscriptionsUrl(drop.Name), parameters);
+            CompleteRequest(request, delegate(HttpWebResponse response)
+            {
+                ReadResponse(response, delegate(XmlDocument doc)
+                {
+                    XmlNodeList nodes = doc.SelectNodes("/subscription");
+                    s = this.CreateAndMapSubscription(drop, nodes[0]);
+                });
+            });
+
+            return s;
 		}
 		
 		/// <summary>
@@ -466,7 +562,31 @@ namespace Dropio.Core
         /// <returns></returns>
 		public bool UpdateSubscription(Subscription subscription)
 		{
-			return false;
+			if (subscription == null)
+                throw new ArgumentNullException("subscription", "The given subscription can't be null");
+
+            bool updated = false;
+            Drop drop = subscription.Drop;
+
+            NameValueCollection parameters = new NameValueCollection();
+
+            string token = drop.AdminToken;
+            parameters.Add("token", token);
+            parameters.Add("message", subscription.Message);
+
+            HttpWebRequest request = this.CreatePutRequest(this.CreateSubscriptionUrl(drop.Name, subscription.Id), parameters);
+            CompleteRequest(request, delegate(HttpWebResponse response)
+            {
+                ReadResponse(response, delegate(XmlDocument doc)
+                {
+                    XmlNodeList nodes = doc.SelectNodes("/subscription");
+
+                    this.MapSubscription(drop, subscription, nodes[0]);
+                    updated = true;
+                });
+            });
+
+            return updated;
 		}
 		
 		/// <summary>
@@ -476,7 +596,18 @@ namespace Dropio.Core
         /// <returns></returns>
 		public bool DeleteSubscription(Subscription subscription)
 		{
-			return false;
+			bool destroyed = false;
+            Drop drop = subscription.Drop;
+
+            NameValueCollection parameters = new NameValueCollection();
+
+            string token = drop.AdminToken;
+            parameters.Add("token", token);
+
+            HttpWebRequest request = this.CreateDeleteRequest(this.CreateSubscriptionUrl(drop.Name, subscription.Id), parameters);
+            CompleteRequest(request, (HttpWebResponse response) => { destroyed = true; });
+
+            return destroyed;
 		}
 		
 		/// <summary>
@@ -733,7 +864,7 @@ namespace Dropio.Core
 
             string token = string.IsNullOrEmpty(drop.AdminToken) ? drop.GuestToken : drop.AdminToken;
 
-            HttpWebRequest request = this.CreateGetRequest(this.CreateCommentUrl(drop.Name, asset.Name), token);
+            HttpWebRequest request = this.CreateGetRequest(this.CreateCommentsUrl(drop.Name, asset.Name), token);
             CompleteRequest(request, delegate(HttpWebResponse response)
             {
                 ReadResponse(response, delegate(XmlDocument doc)
@@ -771,7 +902,7 @@ namespace Dropio.Core
             parameters.Add("token", token);
             parameters.Add("contents", contents);
 
-            HttpWebRequest request = this.CreatePostRequest(this.CreateCommentUrl(drop.Name, asset.Name), parameters);
+            HttpWebRequest request = this.CreatePostRequest(this.CreateCommentsUrl(drop.Name, asset.Name), parameters);
             CompleteRequest(request, delegate(HttpWebResponse response)
             {
                 ReadResponse(response, delegate(XmlDocument doc)
@@ -862,21 +993,76 @@ namespace Dropio.Core
 		/// Copies the asset to the given drop and returns the new asset.
 		/// </summary>
 		/// <param name="asset">The asset.</param>
-		/// <param name="drop">The drop.</param>
+		/// <param name="targetDrop">The target drop.</param>
 		/// <returns></returns>
-		public Asset CopyAsset(Asset asset, Drop drop)
+		public Asset CopyAsset(Asset asset, Drop targetDrop)
 		{
-			return null;
+			if (asset == null)
+                throw new ArgumentNullException("asset", "The given asset can't be null");
+			
+			if (asset == null)
+                throw new ArgumentNullException("drop", "The given drop can't be null");
+
+			Asset a = null;
+            Drop drop = asset.Drop;
+
+            NameValueCollection parameters = new NameValueCollection();
+
+            string token = string.IsNullOrEmpty(drop.AdminToken) ? drop.GuestToken : drop.AdminToken;
+			string targetToken = string.IsNullOrEmpty(targetDrop.AdminToken) ? targetDrop.GuestToken : targetDrop.AdminToken;
+            parameters.Add("token", token);
+            parameters.Add("drop_name", targetDrop.Name);
+			parameters.Add("drop_token", targetToken);
+
+            HttpWebRequest request = this.CreatePostRequest(this.CreateAssetCopyUrl(drop.Name, asset.Name), parameters);
+            CompleteRequest(request, delegate(HttpWebResponse response)
+            {
+                ReadResponse(response, delegate(XmlDocument doc)
+                {
+                    XmlNodeList nodes = doc.SelectNodes("/asset");
+                    a = this.CreateAndMapAsset(targetDrop, nodes[0]);
+                });
+            });
+
+            return a;
 		}
 		
 		/// <summary>
 		/// Moves the asset to the given drop.
 		/// </summary>
 		/// <param name="asset">The asset.</param>
-		/// <param name="drop">The drop.</param>
+		/// <param name="targetDrop">The target drop.</param>
 		/// <returns></returns>
-		public void MoveAsset(Asset asset, Drop drop)
+		public Asset MoveAsset(Asset asset, Drop targetDrop)
 		{
+			if (asset == null)
+                throw new ArgumentNullException("asset", "The given asset can't be null");
+			
+			if (asset == null)
+                throw new ArgumentNullException("drop", "The given drop can't be null");
+
+			Asset a = null;
+            Drop drop = asset.Drop;
+
+            NameValueCollection parameters = new NameValueCollection();
+
+            string token = string.IsNullOrEmpty(drop.AdminToken) ? drop.GuestToken : drop.AdminToken;
+			string targetToken = string.IsNullOrEmpty(targetDrop.AdminToken) ? targetDrop.GuestToken : targetDrop.AdminToken;
+            parameters.Add("token", token);
+            parameters.Add("drop_name", targetDrop.Name);
+			parameters.Add("drop_token", targetToken);
+
+            HttpWebRequest request = this.CreatePostRequest(this.CreateAssetMoveUrl(drop.Name, asset.Name), parameters);
+            CompleteRequest(request, delegate(HttpWebResponse response)
+            {
+                ReadResponse(response, delegate(XmlDocument doc)
+                {
+                    XmlNodeList nodes = doc.SelectNodes("/asset");
+                    a = this.CreateAndMapAsset(targetDrop, nodes[0]);
+                });
+            });
+
+            return a;
 		}
 		
 		/// <summary>
@@ -887,7 +1073,28 @@ namespace Dropio.Core
         /// <returns></return>
 		public Asset AddFileFromUrl(Drop drop, string url)
 		{
-			return null;
+			if (drop == null)
+                throw new ArgumentNullException("drop", "The given drop can't be null");
+
+            Link a = null;
+
+            NameValueCollection parameters = new NameValueCollection();
+
+            string token = string.IsNullOrEmpty(drop.AdminToken) ? drop.GuestToken : drop.AdminToken;
+            parameters.Add("file_url", url);
+			parameters.Add("token", token);
+
+            HttpWebRequest request = this.CreatePostRequest(this.CreateAssetUrl(drop.Name, string.Empty), parameters);
+            CompleteRequest(request, delegate(HttpWebResponse response)
+            {
+                ReadResponse(response, delegate(XmlDocument doc)
+                {
+                    XmlNodeList nodes = doc.SelectNodes("/asset");
+                    a = this.CreateAndMapAsset(drop, nodes[0]) as Link;
+                });
+            });
+
+            return a;
 		}
 
         /// <summary>
@@ -1232,6 +1439,19 @@ namespace Dropio.Core
             this.MapDrop(d, doc);
             return d;
         }
+		
+		/// <summary>
+        /// Creates the and map subscription.
+        /// </summary>
+        /// <param name="d">The d.</param>
+        /// <param name="node">The node.</param>
+        /// <returns></returns>
+        protected Subscription CreateAndMapSubscription(Drop d, XmlNode node)
+        {
+            Subscription s = new Subscription();
+            this.MapSubscription(d, s, node);
+            return s;
+        }
 
         /// <summary>
         /// Creates the and map asset.
@@ -1336,6 +1556,21 @@ namespace Dropio.Core
 
             this.MapTypedData(asset, node);
         }
+		
+		/// <summary>
+        /// Maps the subscription.
+        /// </summary>
+        /// <param name="subscription">The subscription.</param>
+        /// <param name="drop">The drop.</param>
+        /// <param name="node">The node.</param>
+		protected void MapSubscription(Drop drop, Subscription subscription, XmlNode node)
+		{
+			subscription.Id = this.ExtractInt(node, "id");
+			subscription.Message = this.ExtractInnerText(node, "message");
+			subscription.Type = this.ExtractInnerText(node, "type");
+			subscription.Username = this.ExtractInnerText(node, "username");
+			subscription.Drop = drop;
+		}
 
         /// <summary>
         /// Creates the and map comment.
@@ -1478,6 +1713,16 @@ namespace Dropio.Core
         }
 		
 		/// <summary>
+        /// Creates the promote nick URL.
+        /// </summary>
+        /// <param name="dropName">Name of the drop.</param>
+        /// <returns></returns>
+        protected string CreatePromoteNickUrl(string dropName)
+        {
+            return this.ApiBaseUrl + DROPS + dropName + PROMOTE_NICK;
+        }
+		
+		/// <summary>
         /// Creates the drop upload code URL.
         /// </summary>
         /// <param name="dropName">Name of the drop.</param>
@@ -1508,6 +1753,28 @@ namespace Dropio.Core
         {
             return this.ApiBaseUrl + DROPS + dropName + ASSETS + assetName + EMBED_CODE;
         }
+		
+		/// <summary>
+        /// Creates the asset embed code URL.
+        /// </summary>
+        /// <param name="dropName">Name of the drop.</param>
+        /// <param name="assetName">Name of the asset.</param>
+        /// <returns></returns>
+        protected string CreateAssetCopyUrl(string dropName, string assetName)
+        {
+            return this.ApiBaseUrl + DROPS + dropName + ASSETS + assetName + COPY;
+        }
+		
+		/// <summary>
+        /// Creates the asset embed code URL.
+        /// </summary>
+        /// <param name="dropName">Name of the drop.</param>
+        /// <param name="assetName">Name of the asset.</param>
+        /// <returns></returns>
+        protected string CreateAssetMoveUrl(string dropName, string assetName)
+        {
+            return this.ApiBaseUrl + DROPS + dropName + ASSETS + assetName + MOVE;
+        }
 
         /// <summary>
         /// Creates the comment URL.
@@ -1515,9 +1782,30 @@ namespace Dropio.Core
         /// <param name="dropName">Name of the drop.</param>
         /// <param name="assetName">Name of the asset.</param>
         /// <returns></returns>
-        protected string CreateCommentUrl(string dropName, string assetName)
+        protected string CreateCommentsUrl(string dropName, string assetName)
         {
             return this.ApiBaseUrl + DROPS + dropName + ASSETS + assetName + COMMENTS;
+        }
+		
+		/// <summary>
+        /// Creates the subscription URL.
+        /// </summary>
+        /// <param name="dropName">Name of the drop.</param>
+        /// <returns></returns>
+        protected string CreateSubscriptionsUrl(string dropName)
+        {
+            return this.ApiBaseUrl + DROPS + dropName + SUBSCRIPTIONS;
+        }
+
+        /// <summary>
+        /// Creates the subscription URL.
+        /// </summary>
+        /// <param name="dropName">Name of the drop.</param>
+        /// <param name="subscriptionId">The subscription id.</param>
+        /// <returns></returns>
+        protected string CreateSubscriptionUrl(string dropName, int subscriptionId)
+        {
+            return this.ApiBaseUrl + DROPS + dropName + SUBSCRIPTIONS + subscriptionId.ToString();
         }
 
         /// <summary>

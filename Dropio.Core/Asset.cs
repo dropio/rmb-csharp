@@ -186,21 +186,21 @@ namespace Dropio.Core
 		/// <summary>
 		/// Copies the asset to the given drop and returns the new asset.
 		/// </summary>
-		/// <param name="drop">The drop.</param>
+		/// <param name="targetDrop">The target drop.</param>
 		/// <returns></returns>
-		public Asset Copy(Drop drop)
+		public Asset Copy(Drop targetDrop)
 		{
-			return ServiceProxy.Instance.CopyAsset(this, drop);
+			return ServiceProxy.Instance.CopyAsset(this, targetDrop);
 		}
 		
 		/// <summary>
 		/// Moves the asset to the given drop.
 		/// </summary>
-		/// <param name="drop">The drop.</param>
+		/// <param name="targetDrop">The target drop.</param>
 		/// <returns></returns>
-		public void Move(Drop drop)
+		public Asset Move(Drop targetDrop)
 		{
-			ServiceProxy.Instance.MoveAsset(this, drop);
+			return ServiceProxy.Instance.MoveAsset(this, targetDrop);
 		}
 		
 		/// <summary>
