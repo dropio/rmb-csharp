@@ -372,7 +372,7 @@ namespace Dropio.Core
 		/// <param name="asset">The asset.</param>
 		/// <param name="targetDrop">The target drop.</param>
 		/// <returns></returns>
-		public Asset CopyAsset(Asset asset, Drop targetDrop)
+		public bool CopyAsset(Asset asset, Drop targetDrop)
 		{
 			return this.ServiceAdapter.CopyAsset(asset, targetDrop);
 		}
@@ -383,7 +383,7 @@ namespace Dropio.Core
 		/// <param name="asset">The asset.</param>
 		/// <param name="targetDrop">The target drop.</param>
 		/// <returns></returns>
-		public Asset MoveAsset(Asset asset, Drop targetDrop)
+		public bool MoveAsset(Asset asset, Drop targetDrop)
 		{
 			return this.ServiceAdapter.MoveAsset(asset, targetDrop);
 		}

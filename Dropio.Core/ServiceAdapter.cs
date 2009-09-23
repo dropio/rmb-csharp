@@ -979,7 +979,7 @@ namespace Dropio.Core
 		/// <param name="asset">The asset.</param>
 		/// <param name="targetDrop">The target drop.</param>
 		/// <returns></returns>
-		public Asset CopyAsset(Asset asset, Drop targetDrop)
+		public bool CopyAsset(Asset asset, Drop targetDrop)
 		{
 			if (asset == null)
                 throw new ArgumentNullException("asset", "The given asset can't be null");
@@ -987,7 +987,7 @@ namespace Dropio.Core
 			if (asset == null)
                 throw new ArgumentNullException("drop", "The given drop can't be null");
 
-			Asset a = null;
+			bool copied = false;
             Drop drop = asset.Drop;
 
             NameValueCollection parameters = new NameValueCollection();
@@ -999,16 +999,9 @@ namespace Dropio.Core
 			parameters.Add("drop_token", targetToken);
 
             HttpWebRequest request = this.CreatePostRequest(this.CreateAssetCopyUrl(drop.Name, asset.Name), parameters);
-            CompleteRequest(request, delegate(HttpWebResponse response)
-            {
-                ReadResponse(response, delegate(XmlDocument doc)
-                {
-                    XmlNodeList nodes = doc.SelectNodes("/asset");
-                    a = this.CreateAndMapAsset(targetDrop, nodes[0]);
-                });
-            });
+            CompleteRequest(request, (HttpWebResponse response) => { copied = true; });
 
-            return a;
+            return copied;
 		}
 		
 		/// <summary>
@@ -1017,7 +1010,7 @@ namespace Dropio.Core
 		/// <param name="asset">The asset.</param>
 		/// <param name="targetDrop">The target drop.</param>
 		/// <returns></returns>
-		public Asset MoveAsset(Asset asset, Drop targetDrop)
+		public bool MoveAsset(Asset asset, Drop targetDrop)
 		{
 			if (asset == null)
                 throw new ArgumentNullException("asset", "The given asset can't be null");
@@ -1025,7 +1018,7 @@ namespace Dropio.Core
 			if (asset == null)
                 throw new ArgumentNullException("drop", "The given drop can't be null");
 
-			Asset a = null;
+			bool moved = false;
             Drop drop = asset.Drop;
 
             NameValueCollection parameters = new NameValueCollection();
@@ -1037,16 +1030,9 @@ namespace Dropio.Core
 			parameters.Add("drop_token", targetToken);
 
             HttpWebRequest request = this.CreatePostRequest(this.CreateAssetMoveUrl(drop.Name, asset.Name), parameters);
-            CompleteRequest(request, delegate(HttpWebResponse response)
-            {
-                ReadResponse(response, delegate(XmlDocument doc)
-                {
-                    XmlNodeList nodes = doc.SelectNodes("/asset");
-                    a = this.CreateAndMapAsset(targetDrop, nodes[0]);
-                });
-            });
+            CompleteRequest(request, (HttpWebResponse response) => { moved = true; });
 
-            return a;
+            return moved;
 		}
 		
 		/// <summary>

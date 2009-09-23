@@ -188,7 +188,7 @@ namespace Dropio.Core
 		/// </summary>
 		/// <param name="targetDrop">The target drop.</param>
 		/// <returns></returns>
-		public Asset Copy(Drop targetDrop)
+		public bool Copy(Drop targetDrop)
 		{
 			return ServiceProxy.Instance.CopyAsset(this, targetDrop);
 		}
@@ -198,7 +198,7 @@ namespace Dropio.Core
 		/// </summary>
 		/// <param name="targetDrop">The target drop.</param>
 		/// <returns></returns>
-		public Asset Move(Drop targetDrop)
+		public bool Move(Drop targetDrop)
 		{
 			return ServiceProxy.Instance.MoveAsset(this, targetDrop);
 		}
