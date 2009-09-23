@@ -423,19 +423,23 @@ namespace Dropio.Core
         /// <returns></returns>
 		public Subscription CreateTwitterSubscription(string username, string password)
 		{
-			return this.CreateTwitterSubscription(username, password, string.Empty);
+			return this.CreateTwitterSubscription(username, password, string.Empty, AssetEvents.AssetAdded);
 		}
 		
 		/// <summary>
         /// Creates a Twitter subscription.
+        /// There are variables which you can use to format the message that will be replaced with their values.
+        /// Variables include: [item name], [item type], [item url], [item comment], [drop url]
+        /// Example: "the [item type] [item name] was just added to [drop url]" yields "the image test.jpg was just added to http://drop.io/test_drop"
         /// </summary>
         /// <param name="username">The username.</param>
         /// <param name="password">The password.</param>
         /// <param name="message">The message.</param>
+        /// <param name="events">The events.</param>
         /// <returns></returns>
-		public Subscription CreateTwitterSubscription(string username, string password, string message)
+		public Subscription CreateTwitterSubscription(string username, string password, string message, AssetEvents events)
 		{
-			return ServiceProxy.Instance.CreateTwitterSubscription(this, username, password, message);
+			return ServiceProxy.Instance.CreateTwitterSubscription(this, username, password, message, events);
 		}
 		
 		/// <summary>
@@ -445,32 +449,40 @@ namespace Dropio.Core
         /// <returns></returns>
 		public Subscription CreateEmailSubscription(string email)
 		{
-			return this.CreateEmailSubscription(email, string.Empty, string.Empty, string.Empty, string.Empty);
+			return this.CreateEmailSubscription(email, string.Empty, string.Empty, string.Empty, string.Empty, AssetEvents.AssetAdded);
 		}
 		
 		/// <summary>
         /// Creates an email subscription.
+        /// There are variables which you can use to format the message that will be replaced with their values.
+        /// Variables include: [item name], [item type], [item url], [item comment], [drop url]
+        /// Example: "the [item type] [item name] was just added to [drop url]" yields "the image test.jpg was just added to http://drop.io/test_drop"
         /// </summary>
         /// <param name="email">The email.</param>
         /// <param name="message">The message.</param>
+        /// <param name="events">The events.</param>
         /// <returns></returns>
-		public Subscription CreateEmailSubscription(string email, string message)
+		public Subscription CreateEmailSubscription(string email, string message, AssetEvents events)
 		{
-			return this.CreateEmailSubscription(email, message, string.Empty, string.Empty, string.Empty);
+			return this.CreateEmailSubscription(email, message, string.Empty, string.Empty, string.Empty, events);
 		}
 
 		/// <summary>
         /// Creates an email subscription.
+        /// There are variables which you can use to format the message that will be replaced with their values.
+        /// Variables include: [item name], [item type], [item url], [item comment], [drop url]
+        /// Example: "the [item type] [item name] was just added to [drop url]" yields "the image test.jpg was just added to http://drop.io/test_drop"
         /// </summary>
         /// <param name="email">The email.</param>
         /// <param name="message">The message.</param>
 		/// <param name="welcomeFrom">The welcome message from address.</param>
 		/// <param name="welcomeSubject">The welcome message subject.</param>
 		/// <param name="welcomeMessage">The welcome message.</param>
+		/// <param name="events">The events.</param>
         /// <returns></returns>		
-		public Subscription CreateEmailSubscription(string email, string message, string welcomeFrom, string welcomeSubject, string welcomeMessage)
+		public Subscription CreateEmailSubscription(string email, string message, string welcomeFrom, string welcomeSubject, string welcomeMessage, AssetEvents events)
 		{
-			return ServiceProxy.Instance.CreateEmailSubscription(this, email, message, welcomeFrom, welcomeSubject, welcomeMessage);
+			return ServiceProxy.Instance.CreateEmailSubscription(this, email, message, welcomeFrom, welcomeSubject, welcomeMessage, events);
 		}
 
         #endregion

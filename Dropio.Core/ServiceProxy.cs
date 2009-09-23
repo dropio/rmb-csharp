@@ -188,10 +188,11 @@ namespace Dropio.Core
 		/// <param name="username">The username.</param>
 		/// <param name="password">The password</param>
 		/// <param name="message">The message,</param>
+		/// <param name="events">The events.</param>
 		/// <returns></returns>
-		public Subscription CreateTwitterSubscription(Drop drop, string username, string password, string message)
+		public Subscription CreateTwitterSubscription(Drop drop, string username, string password, string message, AssetEvents events)
 		{
-			return this.ServiceAdapter.CreateTwitterSubscription(drop, username, password, message);
+			return this.ServiceAdapter.CreateTwitterSubscription(drop, username, password, message, events);
 		}
 		
 		/// <summary>
@@ -203,10 +204,11 @@ namespace Dropio.Core
 		/// <param name="welcomeFrom">The welcome message from address.</param>
 		/// <param name="welcomeSubject">The welcome message subject.</param>
 		/// <param name="welcomeMessage">The welcome message.</param>
+		/// <param name="events">The events.</param>
 		/// <returns></returns>
-		public Subscription CreateEmailSubscription(Drop drop, string email, string message, string welcomeFrom, string welcomeSubject, string welcomeMessage)
+		public Subscription CreateEmailSubscription(Drop drop, string email, string message, string welcomeFrom, string welcomeSubject, string welcomeMessage, AssetEvents events)
 		{
-			return this.ServiceAdapter.CreateEmailSubscription(drop, email, message, welcomeFrom, welcomeSubject, welcomeMessage);
+			return this.ServiceAdapter.CreateEmailSubscription(drop, email, message, welcomeFrom, welcomeSubject, welcomeMessage, events);
 		}
 		
 		/// <summary>

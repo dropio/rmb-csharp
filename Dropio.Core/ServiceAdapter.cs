@@ -484,8 +484,9 @@ namespace Dropio.Core
 		/// <param name="username">The username.</param>
 		/// <param name="password">The password</param>
 		/// <param name="message">The message</param>
+		/// <param name="events">The events.</param>
 		/// <returns></returns>
-		public Subscription CreateTwitterSubscription(Drop drop, string username, string password, string message)
+		public Subscription CreateTwitterSubscription(Drop drop, string username, string password, string message, AssetEvents events)
 		{
 			if (drop == null)
                 throw new ArgumentNullException("drop", "The given drop can't be null");
@@ -500,6 +501,13 @@ namespace Dropio.Core
             parameters.Add("username", username);
             parameters.Add("password", password);
 			parameters.Add("message", message);
+			
+			parameters.Add("asset_added", ((events & AssetEvents.AssetAdded) == AssetEvents.AssetAdded).ToString());
+			parameters.Add("asset_udpated", ((events & AssetEvents.AssetUpdated) == AssetEvents.AssetUpdated).ToString());
+			parameters.Add("asset_deleted", ((events & AssetEvents.AssetDeleted) == AssetEvents.AssetDeleted).ToString());
+			parameters.Add("comment_added", ((events & AssetEvents.CommentAdded) == AssetEvents.CommentAdded).ToString());
+			parameters.Add("comment_updated", ((events & AssetEvents.CommentUpdated) == AssetEvents.CommentUpdated).ToString());
+			parameters.Add("comment_deleted", ((events & AssetEvents.CommentDeleted) == AssetEvents.CommentDeleted).ToString());
 
             HttpWebRequest request = this.CreatePostRequest(this.CreateSubscriptionsUrl(drop.Name), parameters);
             CompleteRequest(request, delegate(HttpWebResponse response)
@@ -523,8 +531,9 @@ namespace Dropio.Core
 		/// <param name="welcomeFrom">The welcome message from address.</param>
 		/// <param name="welcomeSubject">The welcome message subject.</param>
 		/// <param name="welcomeMessage">The welcome message.</param>
+		/// <param name="events">The events.</param>
 		/// <returns></returns>
-		public Subscription CreateEmailSubscription(Drop drop, string email, string message, string welcomeFrom, string welcomeSubject, string welcomeMessage)
+		public Subscription CreateEmailSubscription(Drop drop, string email, string message, string welcomeFrom, string welcomeSubject, string welcomeMessage, AssetEvents events)
 		{
 			if (drop == null)
                 throw new ArgumentNullException("drop", "The given drop can't be null");
@@ -541,6 +550,13 @@ namespace Dropio.Core
 			parameters.Add("welcome_from", welcomeFrom);
 			parameters.Add("welcome_subject", welcomeSubject);
 			parameters.Add("welcome_message", welcomeMessage);
+			
+			parameters.Add("asset_added", ((events & AssetEvents.AssetAdded) == AssetEvents.AssetAdded).ToString());
+			parameters.Add("asset_udpated", ((events & AssetEvents.AssetUpdated) == AssetEvents.AssetUpdated).ToString());
+			parameters.Add("asset_deleted", ((events & AssetEvents.AssetDeleted) == AssetEvents.AssetDeleted).ToString());
+			parameters.Add("comment_added", ((events & AssetEvents.CommentAdded) == AssetEvents.CommentAdded).ToString());
+			parameters.Add("comment_updated", ((events & AssetEvents.CommentUpdated) == AssetEvents.CommentUpdated).ToString());
+			parameters.Add("comment_deleted", ((events & AssetEvents.CommentDeleted) == AssetEvents.CommentDeleted).ToString());
 
             HttpWebRequest request = this.CreatePostRequest(this.CreateSubscriptionsUrl(drop.Name), parameters);
             CompleteRequest(request, delegate(HttpWebResponse response)
