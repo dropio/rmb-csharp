@@ -43,12 +43,6 @@ namespace Dropio.Core
         public DateTime CreatedAt { get; set; }
 
         /// <summary>
-        /// Gets or sets the file URL.
-        /// </summary>
-        /// <value>The file URL.</value>
-        public string FileUrl { get; set; }
-
-        /// <summary>
         /// Gets or sets the converted file URL.
         /// </summary>
         /// <value>The converted file URL.</value>
@@ -176,37 +170,6 @@ namespace Dropio.Core
         #endregion
 
         #region Actions
-
-        /// <summary>
-        /// Saves the file to the given path.
-        /// </summary>
-        /// <param name="path">The path.</param>
-        /// <returns></returns>
-        public void SaveFile(string path)
-        {
-            this.SaveFile(path, null);
-        }
-
-        /// <summary>
-        /// Saves the file to the given path.
-        /// </summary>
-        /// <param name="path">The filepathparam>
-        /// <param name="handler">The handler.</param>
-        /// <returns></returns>
-        public void SaveFile(string path, ServiceAdapter.TransferProgressHandler handler)
-        {
-            if (handler != null)
-            {
-                ServiceProxy.Instance.ServiceAdapter.OnTransferProgress += handler;
-            }
-
-            ServiceProxy.Instance.SaveFile(this, path);
-
-            if (handler != null)
-            {
-                ServiceProxy.Instance.ServiceAdapter.OnTransferProgress -= handler;
-            }
-        }
 
         /// <summary>
         /// Generates the authenticated URL.

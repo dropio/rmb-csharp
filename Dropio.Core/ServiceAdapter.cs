@@ -813,65 +813,6 @@ namespace Dropio.Core
             return mime;
         }
 
-        /// <summary>
-        /// Saves the file to the given path.
-        /// </summary>
-        /// <param name="asset">The asset.</param>
-        /// <param name="path">The path.</param>
-        public void SaveFile(Asset asset, string path)
-        {
-            if (!string.IsNullOrEmpty(asset.FileUrl))
-            {
-                long bytesSoFar = 0;
-                long totalBytes = 0;
-                int bytesOut = 0;
-
-                HttpWebRequest request = HttpWebRequest.Create(asset.FileUrl) as HttpWebRequest;
-                request.AllowAutoRedirect = true;
-
-                HttpWebResponse response = request.GetResponse() as HttpWebResponse;
-                totalBytes = response.ContentLength;
-                
-                if (!Directory.Exists(path))
-                {
-                    throw new ArgumentException("Value given is not a complete path.", "path");
-                }
-
-                string contentHeader = response.GetResponseHeader("Content-Disposition");
-                // Kinda hacky, I know, but it's after attachment; filename=*utf-8''
-                string fileName = HttpUtility.UrlDecode(contentHeader.Substring(29));
-                string fullPath = Path.Combine(path, fileName);
-
-
-                using (Stream responseStream = response.GetResponseStream())
-                {
-                    using (FileStream fs = new FileStream(fullPath, FileMode.Create, FileAccess.Write))
-                    {
-                        long size = Math.Min(Math.Max(totalBytes / 100, 50 * 1024), 1024 * 1024);
-                        byte[] buffer = new byte[size];
-
-                        while ((bytesOut = responseStream.Read(buffer, 0, buffer.Length)) != 0)
-                        {
-                            fs.Write(buffer, 0, bytesOut);
-                            bytesSoFar += bytesOut;
-                            if (OnTransferProgress != null)
-                            {
-                                OnTransferProgress(this, new TransferProgressEventArgs(bytesSoFar, totalBytes, false));
-                            }
-                        }
-
-                        if (OnTransferProgress != null)
-                        {
-                            OnTransferProgress(this, new TransferProgressEventArgs(totalBytes, totalBytes, true));
-                        }
-                    }
-                }
-            }
-            else
-            {
-                throw new ServiceException(ServiceError.NotAuthorized);
-            }
-        }
 
         /// <summary>
         /// Handles the exception.
@@ -1125,7 +1066,6 @@ namespace Dropio.Core
             asset.Status = (Status)Enum.Parse(typeof(Status), this.ExtractInnerText(node,"status"), true);
             asset.Name = this.ExtractInnerText(node, "name");
             asset.ThumbnailUrl = this.ExtractInnerText(node, "thumbnail");
-            asset.FileUrl = this.ExtractInnerText(node, "file");
             asset.ConvertedFileUrl = this.ExtractInnerText(node, "converted");
             asset.Drop = drop;
 
