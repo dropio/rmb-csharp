@@ -355,16 +355,6 @@ namespace Dropio.Core
         {
             return this.ServiceAdapter.AddFile(drop, file, comment);
         }
-
-        /// <summary>
-        /// Saves the file to the given path.
-        /// </summary>
-        /// <param name="asset">The asset.</param>
-        /// <param name="path">The path.</param>
-        public void SaveFile(Asset asset, string path)
-        {
-            this.ServiceAdapter.SaveFile(asset, path);
-        }
 		
 		/// <summary>
 		/// Copies the asset to the given drop and returns the new asset.
