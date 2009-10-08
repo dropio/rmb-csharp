@@ -175,10 +175,11 @@ namespace Dropio.Core
         /// Finds the subscriptions.
         /// </summary>
         /// <param name="drop">The drop.</param>
+        /// <param name="page">The page.</param>
         /// <returns></returns
-		public List<Subscription> FindSubscriptions(Drop drop)
+		public List<Subscription> FindSubscriptions(Drop drop, int page)
 		{
-			return this.ServiceAdapter.FindSubscriptions(drop);
+			return this.ServiceAdapter.FindSubscriptions(drop,page);
 		}
 		
 		/// <summary>
@@ -264,10 +265,11 @@ namespace Dropio.Core
         /// Finds the comments.
         /// </summary>
         /// <param name="asset">The asset.</param>
+        /// <param name="page">The page.</param>
         /// <returns></returns>
-        public List<Comment> FindComments(Asset asset)
+        public List<Comment> FindComments(Asset asset, int page)
         {
-            return this.ServiceAdapter.FindComments(asset);
+            return this.ServiceAdapter.FindComments(asset, page);
         }
 
         /// <summary>

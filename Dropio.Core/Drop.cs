@@ -184,7 +184,17 @@ namespace Dropio.Core
         /// <returns></returns>
         public List<Subscription> GetSubscriptions()
         {
-            return ServiceProxy.Instance.FindSubscriptions(this);
+            return this.GetSubscriptions(1);
+        }
+		
+		/// <summary>
+        /// Gets the subscriptions.
+        /// </summary>
+        /// <param name="page">The page.</param>
+        /// <returns></returns>
+        public List<Subscription> GetSubscriptions(int page)
+        {
+            return ServiceProxy.Instance.FindSubscriptions(this, page);
         }
         #endregion
 

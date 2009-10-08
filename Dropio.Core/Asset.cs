@@ -78,25 +78,6 @@ namespace Dropio.Core
             }
         }
 
-        private List<Comment> _comments;
-
-        /// <summary>
-        /// Gets a list of comments.
-        /// </summary>
-        /// <value>The comments.</value>
-        public List<Comment> Comments
-        {
-            get
-            {
-                if (this._comments == null)
-                {
-                    this._comments = ServiceProxy.Instance.FindComments(this);
-                }
-
-                return this._comments;
-            }
-        }
-
         #endregion
 
         #region Create/Read
@@ -142,13 +123,26 @@ namespace Dropio.Core
         public Comment CreateComment(string contents)
         {
             Comment c = ServiceProxy.Instance.CreateComment(this, contents);
-
-            if((c != null) && (!this.Comments.Contains(c)))
-            {
-                this.Comments.Add(c);
-            }
-
             return c; 
+        }
+		
+		/// <summary>
+        /// Gets the comments.
+        /// </summary>
+        /// <returns></returns>
+        public List<Comment> GetComments()
+        {
+            return this.GetComments(1);
+        }
+		
+		/// <summary>
+        /// Gets the comments.
+        /// </summary>
+        /// <param name="page">The page.</param>
+        /// <returns></returns>
+        public List<Comment> GetComments(int page)
+        {
+            return ServiceProxy.Instance.FindComments(this, page);
         }
 
         #endregion

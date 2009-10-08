@@ -450,8 +450,9 @@ namespace Dropio.Core
         /// Finds the subscriptions.
         /// </summary>
         /// <param name="drop">The drop.</param>
+        /// <param name="page">The page.</param>
         /// <returns></returns
-		public List<Subscription> FindSubscriptions(Drop drop)
+		public List<Subscription> FindSubscriptions(Drop drop, int page)
 		{
 			if (drop == null)
                 throw new ArgumentNullException("drop", "The given drop can't be null");
@@ -461,6 +462,7 @@ namespace Dropio.Core
             string token = drop.AdminToken;
             NameValueCollection parameters = new NameValueCollection();
             parameters["token"] = token;
+			parameters["page"] = page.ToString();
             HttpWebRequest request = this.CreateGetRequest(this.CreateSubscriptionsUrl(drop.Name), parameters);
             CompleteRequest(request, delegate(HttpWebResponse response)
             {
@@ -836,8 +838,9 @@ namespace Dropio.Core
         /// Finds the comments.
         /// </summary>
         /// <param name="asset">The asset.</param>
+        /// <param name="page">The page.</param>
         /// <returns></returns>
-        public List<Comment> FindComments(Asset asset)
+        public List<Comment> FindComments(Asset asset, int page)
         {
             if (asset == null)
                 throw new ArgumentNullException("asset", "The given asset can't be null");
@@ -847,8 +850,10 @@ namespace Dropio.Core
             Drop drop = asset.Drop;
 
             string token = string.IsNullOrEmpty(drop.AdminToken) ? drop.GuestToken : drop.AdminToken;
-
-            HttpWebRequest request = this.CreateGetRequest(this.CreateCommentsUrl(drop.Name, asset.Name), token);
+			NameValueCollection parameters = new NameValueCollection();
+            parameters["token"] = token;
+            parameters["page"] = page.ToString();
+            HttpWebRequest request = this.CreateGetRequest(this.CreateCommentsUrl(drop.Name, asset.Name), parameters);
             CompleteRequest(request, delegate(HttpWebResponse response)
             {
                 ReadResponse(response, delegate(XmlDocument doc)
