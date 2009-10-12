@@ -527,6 +527,47 @@ namespace Dropio.Core
 		}
 		
 		/// <summary>
+		/// Creates a pingback subscription. When the events happen, the url will be sent a POST request with the pertinent data.
+		/// </summary>
+		/// <param name="drop">The drop.</param>
+		/// <param name="url">The url.</param>
+		/// <param name="events"> The events. </param>
+		/// <returns></returns>
+		public Subscription CreatePingbackSubscription(Drop drop, string url, AssetEvents events)
+		{
+			if (drop == null)
+                throw new ArgumentNullException("drop", "The given drop can't be null");
+
+            Subscription s = null;
+
+            NameValueCollection parameters = new NameValueCollection();
+
+            string token = string.IsNullOrEmpty(drop.AdminToken) ? drop.GuestToken : drop.AdminToken;
+            parameters.Add("token", token);
+			parameters.Add("type", "pingback");
+            parameters.Add("url", url);
+			
+			parameters.Add("asset_added", ((events & AssetEvents.AssetAdded) == AssetEvents.AssetAdded).ToString());
+			parameters.Add("asset_udpated", ((events & AssetEvents.AssetUpdated) == AssetEvents.AssetUpdated).ToString());
+			parameters.Add("asset_deleted", ((events & AssetEvents.AssetDeleted) == AssetEvents.AssetDeleted).ToString());
+			parameters.Add("comment_added", ((events & AssetEvents.CommentAdded) == AssetEvents.CommentAdded).ToString());
+			parameters.Add("comment_updated", ((events & AssetEvents.CommentUpdated) == AssetEvents.CommentUpdated).ToString());
+			parameters.Add("comment_deleted", ((events & AssetEvents.CommentDeleted) == AssetEvents.CommentDeleted).ToString());
+
+            HttpWebRequest request = this.CreatePostRequest(this.CreateSubscriptionsUrl(drop.Name), parameters);
+            CompleteRequest(request, delegate(HttpWebResponse response)
+            {
+                ReadResponse(response, delegate(XmlDocument doc)
+                {
+                    XmlNodeList nodes = doc.SelectNodes("/subscription");
+                    s = this.CreateAndMapSubscription(drop, nodes[0]);
+                });
+            });
+
+            return s;
+		}
+		
+		/// <summary>
 		/// Creates an email subscription
 		/// </summary>
 		/// <param name="drop">The drop.</param>

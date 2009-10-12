@@ -197,6 +197,18 @@ namespace Dropio.Core
 		}
 		
 		/// <summary>
+		/// Creates a pingback subscription. When the events happen, the url will be sent a POST request with the pertinent data.
+		/// </summary>
+		/// <param name="drop">The drop.</param>
+		/// <param name="url">The url.</param>
+		/// <param name="events"> The events. </param>
+		/// <returns></returns>
+		public Subscription CreatePingbackSubscription(Drop drop, string url, AssetEvents events)
+		{
+			return this.ServiceAdapter.CreatePingbackSubscription(drop, url, events);
+		}
+		
+		/// <summary>
 		/// Creates an email subscription
 		/// </summary>
 		/// <param name="drop">The drop.</param>

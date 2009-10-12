@@ -505,6 +505,17 @@ namespace Dropio.Core
 		{
 			return ServiceProxy.Instance.CreateEmailSubscription(this, email, message, welcomeFrom, welcomeSubject, welcomeMessage, events);
 		}
+		
+		/// <summary>
+		/// Creates a pingback subscription. When the events happen, the url will be sent a POST request with the pertinent data.
+		/// </summary>
+		/// <param name="url">The url.</param>
+		/// <param name="events"> The events. </param>
+		/// <returns></returns>
+		public Subscription CreatePingbackSubscription(string url, AssetEvents events)
+		{
+			return ServiceProxy.Instance.CreatePingbackSubscription(this, url, events);
+		}
 
         #endregion
 
