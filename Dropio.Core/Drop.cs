@@ -355,7 +355,18 @@ namespace Dropio.Core
         /// <returns></return>
 		public Asset AddFileFromUrl(string url)
 		{
-			return ServiceProxy.Instance.AddFileFromUrl(this, url);
+			return this.AddFileFromUrl(url, string.Empty);
+		}
+		
+		/// <summary>
+        /// Adds a file via a url.
+        /// </summary>
+        /// <param name="url">The url.</param>
+        /// <param name="description">The description.</param>
+        /// <returns></return>
+		public Asset AddFileFromUrl(string url, string description)
+		{
+			return ServiceProxy.Instance.AddFileFromUrl(this, url, description);
 		}
 		
 		/// <summary>
@@ -374,16 +385,29 @@ namespace Dropio.Core
         /// </summary>
         /// <param name="file">The file.</param>
         /// <param name="comment">The comment.</param>
+        /// <param name="description">The description.</param>
+        /// <returns></return>
+		public Asset AddFile(string file, string comment, string description)
+		{
+			return this.AddFile(file, comment, description, null);
+		}
+		
+		/// <summary>
+        /// Adds the file.
+        /// </summary>
+        /// <param name="file">The file.</param>
+        /// <param name="comment">The comment.</param>
+        /// <param name="description">The description.</param>
         /// <param name="handler">The handler.</param>
         /// <returns></return>
-		public Asset AddFile(string file, string comment, ServiceAdapter.TransferProgressHandler handler)
+		public Asset AddFile(string file, string comment, string description, ServiceAdapter.TransferProgressHandler handler)
 		{
 			if (handler != null)
             {
                 ServiceProxy.Instance.ServiceAdapter.OnTransferProgress += handler;
             }
 
-            Asset a = ServiceProxy.Instance.AddFile(this, file, comment);
+            Asset a = ServiceProxy.Instance.AddFile(this, file, comment, description);
 
             if (handler != null)
             {
@@ -399,7 +423,7 @@ namespace Dropio.Core
         /// <returns></returns>
         public Asset AddFile(string file)
         {
-            return this.AddFile(file, null, null);
+            return this.AddFile(file, string.Empty, string.Empty, null);
         }
 
         /// <summary>
@@ -410,7 +434,7 @@ namespace Dropio.Core
         /// <returns></returns>
         public Asset AddFile(string file, ServiceAdapter.TransferProgressHandler handler)
         {
-            return this.AddFile(file, string.Empty, handler);
+            return this.AddFile(file, string.Empty, string.Empty, handler);
         }
 
         /// <summary>
@@ -418,10 +442,11 @@ namespace Dropio.Core
         /// </summary>
         /// <param name="title">The title.</param>
         /// <param name="contents">The contents.</param>
+        /// <param name="description">The description.</param>
         /// <returns></returns>
-        public Note CreateNote(string title, string contents)
+        public Note CreateNote(string title, string contents, string description)
         {
-            return ServiceProxy.Instance.CreateNote(this, title, contents);
+            return ServiceProxy.Instance.CreateNote(this, title, contents, description);
         }
 
         /// <summary>

@@ -672,8 +672,9 @@ namespace Dropio.Core
         /// <param name="drop">The drop.</param>
         /// <param name="title">The title.</param>
         /// <param name="contents">The contents.</param>
+        /// <param name="description">The description.</param>
         /// <returns></returns>
-        public Note CreateNote(Drop drop, string title, string contents)
+        public Note CreateNote(Drop drop, string title, string contents, string description)
         {
             if (drop == null)
                 throw new ArgumentNullException("drop", "The given drop can't be null");
@@ -686,6 +687,7 @@ namespace Dropio.Core
             parameters.Add("token", token);
             parameters.Add("title", title);
             parameters.Add("contents", contents);
+			parameters.Add("description", description);
 
             HttpWebRequest request = this.CreatePostRequest(this.CreateAssetUrl(drop.Name, string.Empty), parameters);
             CompleteRequest(request, delegate(HttpWebResponse response)
@@ -779,7 +781,8 @@ namespace Dropio.Core
             string token = string.IsNullOrEmpty(drop.AdminToken) ? drop.GuestToken : drop.AdminToken;
             parameters.Add("token", token);
             parameters.Add("name", asset.Name);
-
+			parameters.Add("description", asset.Description);
+			
             this.AddTypedProperties(parameters, asset);
 
             HttpWebRequest request = this.CreatePutRequest(this.CreateAssetUrl(drop.Name, asset.Name), parameters);
@@ -808,7 +811,6 @@ namespace Dropio.Core
             {
                 case "Link":
                     parameters.Add("title", ((Link)asset).Title);
-                    parameters.Add("description", ((Link)asset).Description);
                     parameters.Add("url", ((Link)asset).Url);
                     break;
                 case "Note":
@@ -1086,8 +1088,9 @@ namespace Dropio.Core
         /// </summary>
         /// <param name="drop">The drop.</param>
         /// <param name="url">The url.</param>
+        /// <param name="description">The description.</param>
         /// <returns></return>
-		public Asset AddFileFromUrl(Drop drop, string url)
+		public Asset AddFileFromUrl(Drop drop, string url, string description)
 		{
 			if (drop == null)
                 throw new ArgumentNullException("drop", "The given drop can't be null");
@@ -1099,6 +1102,7 @@ namespace Dropio.Core
             string token = string.IsNullOrEmpty(drop.AdminToken) ? drop.GuestToken : drop.AdminToken;
             parameters.Add("file_url", url);
 			parameters.Add("token", token);
+			parameters.Add("description", description);
 
             HttpWebRequest request = this.CreatePostRequest(this.CreateAssetUrl(drop.Name, string.Empty), parameters);
             CompleteRequest(request, delegate(HttpWebResponse response)
@@ -1119,8 +1123,9 @@ namespace Dropio.Core
         /// <param name="drop">The drop.</param>
         /// <param name="file">The file.</param>
         /// <param name="comment">The comment.</param>
+        /// <param name="description">The description.</param>
         /// <returns></returns>
-        public Asset AddFile(Drop drop, string file, string comment)
+        public Asset AddFile(Drop drop, string file, string comment, string description)
         {
             string requestUrl = this.UploadUrl;
 
@@ -1143,6 +1148,7 @@ namespace Dropio.Core
             parameters["drop_name"] = drop.Name;
             parameters["version"] = VERSION;
 			parameters["comment"] = comment;
+			parameters["description"] = description;
 
             StringBuilder sb = new StringBuilder();
             string fileName = Path.GetFileName(file);
@@ -1487,7 +1493,6 @@ namespace Dropio.Core
                 case "Link":
                     Link l = asset as Link;
                     l.Title = this.ExtractInnerText(node, "title");
-                    l.Description = this.ExtractInnerText(node, "description");
                     l.Url = this.ExtractInnerText(node, "url");
                     break;
             }
@@ -1505,6 +1510,7 @@ namespace Dropio.Core
             asset.Filesize = this.ExtractInt(node, "filesize");
             asset.Status = (Status)Enum.Parse(typeof(Status), this.ExtractInnerText(node,"status"), true);
             asset.Name = this.ExtractInnerText(node, "name");
+			asset.Description = this.ExtractInnerText(node, "description");
             asset.ThumbnailUrl = this.ExtractInnerText(node, "thumbnail");
             asset.ConvertedFileUrl = this.ExtractInnerText(node, "converted");
 			asset.HiddenUrl = this.ExtractInnerText(node, "hidden_url");

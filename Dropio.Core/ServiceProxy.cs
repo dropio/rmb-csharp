@@ -254,10 +254,11 @@ namespace Dropio.Core
         /// <param name="drop">The drop.</param>
         /// <param name="title">The title.</param>
         /// <param name="contents">The content.</param>
+        /// <param name="description">The description.</param>
         /// <returns></returns>
-        public Note CreateNote(Drop drop, string title, string contents)
+        public Note CreateNote(Drop drop, string title, string contents, string description)
         {
-            return this.ServiceAdapter.CreateNote(drop, title, contents);
+            return this.ServiceAdapter.CreateNote(drop, title, contents, description);
         }
 
         /// <summary>
@@ -352,10 +353,11 @@ namespace Dropio.Core
         /// </summary>
         /// <param name="drop">The drop.</param>
         /// <param name="url">The url.</param>
+        /// <param name="description">The description.</param>
         /// <returns></return>
-		public Asset AddFileFromUrl(Drop drop, string url)
+		public Asset AddFileFromUrl(Drop drop, string url, string description)
 		{
-			return this.ServiceAdapter.AddFileFromUrl(drop, url);
+			return this.ServiceAdapter.AddFileFromUrl(drop, url, description);
 		}
 
         /// <summary>
@@ -364,10 +366,11 @@ namespace Dropio.Core
         /// <param name="drop">The drop.</param>
         /// <param name="file">The file.</param>
         /// <param name="comment">The comment. </param>
+        /// <param name="description">The description.</param>
         /// <returns></returns>
-        public Asset AddFile(Drop drop, string file, string comment)
+        public Asset AddFile(Drop drop, string file, string comment, string description)
         {
-            return this.ServiceAdapter.AddFile(drop, file, comment);
+            return this.ServiceAdapter.AddFile(drop, file, comment, description);
         }
 		
 		/// <summary>

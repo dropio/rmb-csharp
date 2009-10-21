@@ -53,6 +53,12 @@ namespace Dropio.Core
         /// </summary>
         /// <value>The thumbnail URL.</value>
         public string ThumbnailUrl { get; set; }
+		
+		/// <summary>
+		/// Gets or sets the description.
+		/// </summary>
+		/// <value>The description.</value>
+		public string Description { get; set; }
 
         /// <summary>
         /// Gets or sets the drop.
@@ -97,10 +103,11 @@ namespace Dropio.Core
         /// </summary>
         /// <param name="title">The title.</param>
         /// <param name="content">The content.</param>
+        /// <param name="description">The description.</param>
         /// <returns></returns>
-        public static Note CreateNote(Drop drop, string title, string content)
+        public static Note CreateNote(Drop drop, string title, string content, string description)
         {
-            return ServiceProxy.Instance.CreateNote(drop, title, content);
+            return ServiceProxy.Instance.CreateNote(drop, title, content, description);
         }
 
         /// <summary>
