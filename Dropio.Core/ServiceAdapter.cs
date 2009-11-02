@@ -1511,6 +1511,8 @@ namespace Dropio.Core
             asset.Status = (Status)Enum.Parse(typeof(Status), this.ExtractInnerText(node,"status"), true);
             asset.Name = this.ExtractInnerText(node, "name");
 			asset.Description = this.ExtractInnerText(node, "description");
+			asset.OriginalFilename = this.ExtractInnerText(node, "original_filename");
+			asset.ConvertedFilename = this.ExtractInnerText(node, "converted_filename");
             asset.ThumbnailUrl = this.ExtractInnerText(node, "thumbnail");
             asset.ConvertedFileUrl = this.ExtractInnerText(node, "converted");
 			asset.HiddenUrl = this.ExtractInnerText(node, "hidden_url");

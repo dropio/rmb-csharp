@@ -41,6 +41,18 @@ namespace Dropio.Core
         /// </summary>
         /// <value>The created at.</value>
         public DateTime CreatedAt { get; set; }
+		
+		/// <summary>
+        /// Gets or sets the converted file name.
+        /// </summary>
+        /// <value>The converted file name.</value>
+        public string OriginalFilename { get; set; }
+		
+		/// <summary>
+        /// Gets or sets the converted file name.
+        /// </summary>
+        /// <value>The converted file name.</value>
+        public string ConvertedFilename { get; set; }
 
         /// <summary>
         /// Gets or sets the converted file URL.
