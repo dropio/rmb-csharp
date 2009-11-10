@@ -23,6 +23,7 @@ namespace Dropio.Core
         public const string FROM_API = "/from_api";
 		public const string EMBED_CODE = "/embed_code";
 		public const string UPLOAD_CODE = "/upload_code";
+		public const string DOWNLOAD_ORIGINAL = "/download/original";
 		public const string COPY = "/copy";
 		public const string MOVE = "/move";
         public const string VERSION = "2.0";
@@ -145,6 +146,21 @@ namespace Dropio.Core
             sb.Append(signature);
             sb.Append("&expires=");
             sb.Append(unixTime);
+            return sb.ToString();
+        }
+		
+		/// <summary>
+        /// Gets an original file download url.
+        /// </summary>
+        /// <param name="asset">The asset.</param>
+        /// <returns></returns>
+        public string OriginalFileUrl(Asset asset)
+        {
+            StringBuilder sb = new StringBuilder();
+            sb.Append(this.ApiBaseUrl + DROPS + asset.Drop.Name + ASSETS + asset.Name + DOWNLOAD_ORIGINAL);
+            sb.Append("?&version=2.0");
+            sb.Append("&api_key=");
+            sb.Append(this.ApiKey);
             return sb.ToString();
         }
 

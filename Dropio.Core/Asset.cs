@@ -45,8 +45,14 @@ namespace Dropio.Core
 		/// <summary>
         /// Gets or sets the converted file name.
         /// </summary>
-        /// <value>The converted file name.</value>
+        /// <value>The original file name.</value>
         public string OriginalFilename { get; set; }
+		
+		/// <summary>
+        /// Gets or sets the ability to download an original file.
+        /// </summary>
+        /// <value>The ability to download the original file.</value>
+        public bool CanDownloadOriginal { get; set; }
 		
 		/// <summary>
         /// Gets or sets the converted file name.
@@ -227,6 +233,15 @@ namespace Dropio.Core
         {
             return ServiceProxy.Instance.GenerateAuthenticatedAssetUrl(this);
         }
+		
+		/// <summary>
+        /// Gets an original file download url.
+        /// </summary>
+        /// <returns></returns>
+		public string OriginalFileUrl()
+		{
+			return ServiceProxy.Instance.OriginalFileUrl(this);
+		}
 
         /// <summary>
         /// Determines whether this instance can fax.

@@ -60,6 +60,16 @@ namespace Dropio.Core
         {
             return this.ServiceAdapter.GenerateAuthenticatedAssetUrl(asset);
         }
+		
+		/// <summary>
+        /// Gets an original file download url.
+        /// </summary>
+        /// <param name="asset">The asset.</param>
+        /// <returns></returns>
+        public string OriginalFileUrl(Asset asset)
+        {
+            return this.ServiceAdapter.OriginalFileUrl(asset);
+        }
 
         /// <summary>
         /// Creates the drop.
