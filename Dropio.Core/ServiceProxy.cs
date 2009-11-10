@@ -98,6 +98,17 @@ namespace Dropio.Core
         {
             return this.ServiceAdapter.FindDrop(name, token);
         }
+		
+		/// <summary>
+		/// Gets a paginated list of drops with the Manager Account. Requires Manager API Token.
+		/// </summary>
+		/// <param name="page">The page.</param>
+		/// <param name=managerApiToken"">The manager API token. </param>
+		/// <returns></returns>
+		public List<Drop> FindManagerDrops(string managerApiToken, int page)
+		{
+			return this.ServiceAdapter.FindManagerDrops(managerApiToken, page);
+		}
 
         /// <summary>
         /// Deletes the drop.

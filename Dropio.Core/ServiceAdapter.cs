@@ -13,6 +13,7 @@ namespace Dropio.Core
 {
     public abstract class ServiceAdapter
     {
+		public const string ACCOUNTS = "accounts/";
         public const string DROPS = "drops/";
 		public const string EMPTY_DROP = "/empty";
 		public const string PROMOTE_NICK = "/promote";
@@ -251,6 +252,41 @@ namespace Dropio.Core
 
             return d;
         }
+		
+		/// <summary>
+		/// Gets a paginated list of drops with the Manager Account. Requires Manager API Token.
+		/// </summary>
+		/// <param name="page">The page.</param>
+		/// <param name="managerApiToken">The manager API token. </param>
+		/// <returns></returns>
+		public List<Drop> FindManagerDrops(string managerApiToken, int page)
+		{
+			if (string.IsNullOrEmpty(managerApiToken))
+                throw new ArgumentNullException("managerApiToken", "The given manager api token can't be null");
+			
+			List<Drop> drops = new List<Drop>();
+
+            NameValueCollection parameters = new NameValueCollection();
+            parameters["page"] = page.ToString();
+			parameters["manager_api_token"] = managerApiToken;
+			
+            HttpWebRequest request = this.CreateGetRequest(this.CreateManagerDropsUrl(), parameters);
+            CompleteRequest(request, delegate(HttpWebResponse response)
+            {
+                ReadResponse(response, delegate(XmlDocument doc)
+                {
+                    XmlNodeList nodes = doc.SelectNodes("/drops/drop");
+
+                    foreach (XmlNode node in nodes)
+                    {
+                        Drop d = this.CreateAndMapDrop(node);
+                        drops.Add(d);
+                    }
+                });
+            });
+
+            return drops;
+		}
 		
 		/// <summary>
 		/// Gets the upload code for the drop.
@@ -1377,9 +1413,8 @@ namespace Dropio.Core
         /// <param name="d">The d.</param>
         /// <param name="doc">The doc.</param>
         /// <returns></returns>
-        protected void MapDrop(Drop d, XmlDocument doc)
+        protected void MapDrop(Drop d, XmlNode node)
         {
-            XmlNode node = doc.SelectSingleNode("drop");
             d.Name = this.ExtractInnerText(node, "name");
             d.AssetCount = this.ExtractInt(node, "asset_count");
             d.AdminToken = this.ExtractInnerText(node, "admin_token");
@@ -1410,12 +1445,12 @@ namespace Dropio.Core
         /// <summary>
         /// Creates and maps a drop.
         /// </summary>
-        /// <param name="doc">The doc.</param>
+        /// <param name="node">The node.</param>
         /// <returns></returns>
-        protected Drop CreateAndMapDrop(XmlDocument doc)
+        protected Drop CreateAndMapDrop(XmlNode node)
         {
             Drop d = new Drop();
-            this.MapDrop(d, doc);
+            this.MapDrop(d, node);
             return d;
         }
 		
@@ -1680,6 +1715,15 @@ namespace Dropio.Core
         protected string CreateDropUrl(string dropName)
         {
             return this.ApiBaseUrl + DROPS + dropName;
+        }
+		
+		/// <summary>
+        /// Creates the URL responsible for getting back a paginated list of Drops associated with the Manager Account.
+        /// </summary>
+        /// <returns></returns>
+        protected string CreateManagerDropsUrl()
+        {
+            return this.ApiBaseUrl + ACCOUNTS + DROPS;
         }
 		
 		/// <summary>

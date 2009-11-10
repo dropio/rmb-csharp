@@ -263,6 +263,28 @@ namespace Dropio.Core
         {
             return ServiceProxy.Instance.CreateDrop(name, guestsCanAdd, guestsCanComment, guestsCanDelete, expirationLength, password, adminPassword, premiumCode);
         }
+		
+		/// <summary>
+		/// Gets a paginated list of drops with the Manager Account. Requires Manager API Token.
+		/// </summary>
+		/// <param name="page">The page.</param>
+		/// <param name="managerApiToken">The manager API token. </param>
+		/// <returns></returns
+		public static List<Drop> FindManagerDrops(string managerApiToken)
+		{
+			return FindManagerDrops(managerApiToken, 1);
+		}
+		
+		/// <summary>
+		/// Gets a paginated list of drops with the Manager Account. Requires Manager API Token.
+		/// </summary>
+		/// <param name="page">The page.</param>
+		/// <param name="managerApiToken">The manager API token. </param>
+		/// <returns></returns
+		public static List<Drop> FindManagerDrops(string managerApiToken, int page)
+		{
+			return ServiceProxy.Instance.FindManagerDrops(managerApiToken, page);
+		}
 
         #endregion
 
