@@ -225,7 +225,7 @@ namespace Dropio.Core
             HttpWebRequest request = this.CreatePostRequest(this.CreateDropUrl(string.Empty), parameters);
             CompleteRequest(request, delegate(HttpWebResponse response)
             {
-                ReadResponse(response, (XmlDocument doc) => d = this.CreateAndMapDrop(doc));
+                ReadResponse(response, (XmlDocument doc) => d = this.CreateAndMapDrop(doc.SelectSingleNode("drop")));
             });
 
             return d;
@@ -247,7 +247,7 @@ namespace Dropio.Core
             HttpWebRequest request = this.CreateGetRequest(this.CreateDropUrl(name), token);
             CompleteRequest(request, delegate(HttpWebResponse response)
             {
-                ReadResponse(response, (XmlDocument doc) => d = this.CreateAndMapDrop(doc));
+                ReadResponse(response, (XmlDocument doc) => d = this.CreateAndMapDrop(doc.SelectSingleNode("drop")));
             });
 
             return d;
@@ -422,7 +422,7 @@ namespace Dropio.Core
             HttpWebRequest request = this.CreatePutRequest(this.CreateDropUrl(drop.Name), parameters);
             CompleteRequest(request, delegate(HttpWebResponse response)
             {
-                ReadResponse(response, (XmlDocument doc) => this.MapDrop(drop, doc));
+                ReadResponse(response, (XmlDocument doc) => this.MapDrop(drop, doc.SelectSingleNode("drop")));
                 updated = true;
             });
 
@@ -1415,30 +1415,31 @@ namespace Dropio.Core
         /// <returns></returns>
         protected void MapDrop(Drop d, XmlNode node)
         {
-            d.Name = this.ExtractInnerText(node, "name");
-            d.AssetCount = this.ExtractInt(node, "asset_count");
-            d.AdminToken = this.ExtractInnerText(node, "admin_token");
-            d.GuestToken = this.ExtractInnerText(node, "guest_token");
-            d.CurrentBytes = this.ExtractInt(node, "current_bytes");
-            d.MaxBytes = this.ExtractInt(node, "max_bytes");
-            d.Voicemail = this.ExtractInnerText(node, "voicemail");
-            d.Fax = this.ExtractInnerText(node, "fax");
-            d.Conference = this.ExtractInnerText(node, "conference");
-            d.Email = this.ExtractInnerText(node, "email");
-            d.Rss = this.ExtractInnerText(node, "rss");
-			d.ExpiresAt = this.ExtractDateTime(this.ExtractInnerText(node, "expires_at"));
-            d.Description = this.ExtractInnerText(node, "description");
-            d.GuestsCanAdd = this.ExtractBoolean(node, "guests_can_add");
-            d.GuestsCanComment = this.ExtractBoolean(node, "guests_can_comment");
-            d.GuestsCanDelete = this.ExtractBoolean(node, "guests_can_delete");
+			XmlNode dropNode = node;
+            d.Name = this.ExtractInnerText(dropNode, "name");
+            d.AssetCount = this.ExtractInt(dropNode, "asset_count");
+            d.AdminToken = this.ExtractInnerText(dropNode, "admin_token");
+            d.GuestToken = this.ExtractInnerText(dropNode, "guest_token");
+            d.CurrentBytes = this.ExtractInt(dropNode, "current_bytes");
+            d.MaxBytes = this.ExtractInt(dropNode, "max_bytes");
+            d.Voicemail = this.ExtractInnerText(dropNode, "voicemail");
+            d.Fax = this.ExtractInnerText(dropNode, "fax");
+            d.Conference = this.ExtractInnerText(dropNode, "conference");
+            d.Email = this.ExtractInnerText(dropNode, "email");
+            d.Rss = this.ExtractInnerText(dropNode, "rss");
+			d.ExpiresAt = this.ExtractDateTime(this.ExtractInnerText(dropNode, "expires_at"));
+            d.Description = this.ExtractInnerText(dropNode, "description");
+            d.GuestsCanAdd = this.ExtractBoolean(dropNode, "guests_can_add");
+            d.GuestsCanComment = this.ExtractBoolean(dropNode, "guests_can_comment");
+            d.GuestsCanDelete = this.ExtractBoolean(dropNode, "guests_can_delete");
 
-			d.HiddenUploadUrl = this.ExtractInnerText(node, "hidden_upload_url");
-			d.ChatPassword = this.ExtractInnerText(node, "chat_password");
-			d.DefaultView = this.ExtractInnerText(node, "default_view");
-			d.AdminEmail = this.ExtractInnerText(node, "admin_email");
-			d.EmailKey = this.ExtractInnerText(node, "email_key");
+			d.HiddenUploadUrl = this.ExtractInnerText(dropNode, "hidden_upload_url");
+			d.ChatPassword = this.ExtractInnerText(dropNode, "chat_password");
+			d.DefaultView = this.ExtractInnerText(dropNode, "default_view");
+			d.AdminEmail = this.ExtractInnerText(dropNode, "admin_email");
+			d.EmailKey = this.ExtractInnerText(dropNode, "email_key");
 
-            d.ExpirationLength = this.ExtractExpirationLength(this.ExtractInnerText(node, "expiration_length"));
+            d.ExpirationLength = this.ExtractExpirationLength(this.ExtractInnerText(dropNode, "expiration_length"));
 
         }
 
