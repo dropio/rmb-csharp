@@ -1520,7 +1520,7 @@ namespace Dropio.Core
                 case "Audio":
                     Audio a = asset as Audio;
                     a.Artist = this.ExtractInnerText(node, "artist");
-                    a.Title = this.ExtractInnerText(node, "title");
+                    a.TrackTitle = this.ExtractInnerText(node, "track_title");
                     a.Duration = this.ExtractInt(node, "duration");
                     break;
                 case "Document":
@@ -1530,7 +1530,6 @@ namespace Dropio.Core
                     break;
                 case "Note":
                     Note n = asset as Note;
-                    n.Title = this.ExtractInnerText(node, "title");
                     n.Contents = this.ExtractInnerText(node, "contents");
                     break;
                 case "Image":
@@ -1544,7 +1543,6 @@ namespace Dropio.Core
                     break;
                 case "Link":
                     Link l = asset as Link;
-                    l.Title = this.ExtractInnerText(node, "title");
                     l.Url = this.ExtractInnerText(node, "url");
                     break;
             }
@@ -1568,6 +1566,7 @@ namespace Dropio.Core
             asset.ThumbnailUrl = this.ExtractInnerText(node, "thumbnail");
             asset.ConvertedFileUrl = this.ExtractInnerText(node, "converted");
 			asset.HiddenUrl = this.ExtractInnerText(node, "hidden_url");
+			asset.Title = this.ExtractInnerText(node,"title");
             asset.Drop = drop;
 
             this.MapTypedData(asset, node);

@@ -23,6 +23,12 @@ namespace Dropio.Core
         /// </summary>
         /// <value>The name.</value>
         public string Name { get; set; }
+		
+		/// <summary>
+		/// Gets or sets the title of the Asset.
+		/// </summary>
+		/// <value>The title.</value>
+		public string Title { get; set; }
 
         /// <summary>
         /// Gets or sets the status.
