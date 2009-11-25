@@ -1536,10 +1536,12 @@ namespace Dropio.Core
                     Image i = asset as Image;
                     i.Height = this.ExtractInt(node, "height");
                     i.Width = this.ExtractInt(node, "width");
+				    i.LargeThumbnailUrl = this.ExtractInnerText(node, "large_thumbnail");
                     break;
                 case "Movie":
                     Movie m = asset as Movie;
                     m.Duration = this.ExtractInt(node, "duration");
+				    m.LargeThumbnailUrl = this.ExtractInnerText(node, "large_thumbnail");
                     break;
                 case "Link":
                     Link l = asset as Link;
