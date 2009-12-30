@@ -1042,17 +1042,32 @@ namespace Dropio.Core
         /// <param name="dropToken">Drop token.</param>
         public void SendToDrop(Asset asset, string dropName, string dropToken)
         {
-            NameValueCollection parameters = new NameValueCollection();
-            parameters.Add("medium", "drop");
-            parameters.Add("drop_name", dropName);
-			
-			if (!string.IsNullOrEmpty(dropToken))
-			{
-				parameters.Add("drop_token", dropToken);
-			}
-			
-            this.Send(asset, parameters);
+            this.Copy(asset, dropName, dropToken);
         }
+		
+		protected bool Copy(Asset asset, string dropName, string dropToken)
+		{
+			if (asset == null)
+                throw new ArgumentNullException("asset", "The given asset can't be null");
+			
+			if (asset == null)
+                throw new ArgumentNullException("drop", "The given drop can't be null");
+
+			bool copied = false;
+            Drop drop = asset.Drop;
+
+            NameValueCollection parameters = new NameValueCollection();
+
+            string token = string.IsNullOrEmpty(drop.AdminToken) ? drop.GuestToken : drop.AdminToken;
+            parameters.Add("token", token);
+            parameters.Add("drop_name", dropName);
+			parameters.Add("drop_token", dropToken);
+
+            HttpWebRequest request = this.CreatePostRequest(this.CreateAssetCopyUrl(drop.Name, asset.Name), parameters);
+            CompleteRequest(request, (HttpWebResponse response) => { copied = true; });
+
+            return copied;
+		}
 
         /// <summary>
         /// Sends the specified parameters.
@@ -1081,27 +1096,8 @@ namespace Dropio.Core
 		/// <returns></returns>
 		public bool CopyAsset(Asset asset, Drop targetDrop)
 		{
-			if (asset == null)
-                throw new ArgumentNullException("asset", "The given asset can't be null");
-			
-			if (asset == null)
-                throw new ArgumentNullException("drop", "The given drop can't be null");
-
-			bool copied = false;
-            Drop drop = asset.Drop;
-
-            NameValueCollection parameters = new NameValueCollection();
-
-            string token = string.IsNullOrEmpty(drop.AdminToken) ? drop.GuestToken : drop.AdminToken;
-			string targetToken = string.IsNullOrEmpty(targetDrop.AdminToken) ? targetDrop.GuestToken : targetDrop.AdminToken;
-            parameters.Add("token", token);
-            parameters.Add("drop_name", targetDrop.Name);
-			parameters.Add("drop_token", targetToken);
-
-            HttpWebRequest request = this.CreatePostRequest(this.CreateAssetCopyUrl(drop.Name, asset.Name), parameters);
-            CompleteRequest(request, (HttpWebResponse response) => { copied = true; });
-
-            return copied;
+			string targetDropToken = string.IsNullOrEmpty(targetDrop.AdminToken) ? targetDrop.GuestToken : targetDrop.AdminToken;
+			return this.Copy(asset, targetDrop.Name,targetDropToken);
 		}
 		
 		/// <summary>
