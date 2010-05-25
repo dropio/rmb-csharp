@@ -1212,7 +1212,6 @@ namespace Dropio.Core
             // File
             sb.Append("--" + boundary + "\r\n");
             sb.Append("Content-Disposition: form-data; name=\"file\"; filename=\"" + fileName + "\"\r\n");
-            sb.Append("Content-Type: " + this.GetMimeType(file) + "\r\n");
             sb.Append("\r\n");
 
             UTF8Encoding encoding = new UTF8Encoding();
@@ -1269,23 +1268,7 @@ namespace Dropio.Core
             });
 
             return a;
-        }
-
-        /// <summary>
-        /// Gets the type of the MIME.
-        /// </summary>
-        /// <param name="fileName">Name of the file.</param>
-        /// <returns></returns>
-        protected string GetMimeType(string fileName)
-        {
-            string mime = "application/octetstream";
-            string ext = System.IO.Path.GetExtension(fileName).ToLower();
-            Microsoft.Win32.RegistryKey rk = Microsoft.Win32.Registry.ClassesRoot.OpenSubKey(ext);
-            if (rk != null && rk.GetValue("Content Type") != null)
-                mime = rk.GetValue("Content Type").ToString();
-            return mime;
-        }
-
+		}
 
         /// <summary>
         /// Handles the exception.
