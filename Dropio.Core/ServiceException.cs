@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Text;
 
@@ -11,7 +11,12 @@ namespace Dropio.Core
         /// Gets or sets the service error.
         /// </summary>
         /// <value>The service error.</value>
-        public ServiceError ServiceError { get; set; }
+        public ServiceError serviceError { get; set; }
+        
+		/// <summary>
+		/// Gets or sets the service message (the message that is sent back from drop.io)
+		/// </summary>
+        public string serviceMessage { get; set; }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ServiceException"/> class.
@@ -19,7 +24,7 @@ namespace Dropio.Core
         /// <param name="error">The error.</param>
         public ServiceException(ServiceError error)
         {
-            this.ServiceError = error;
+            this.serviceError = error;
         }
 
         /// <summary>
@@ -29,7 +34,8 @@ namespace Dropio.Core
         /// <param name="message">The message.</param>
         public ServiceException(ServiceError error, string message):base(message)
         {
-            this.ServiceError = error;
+            this.serviceError = error;
+            this.serviceMessage = message;
         }
     }
 }

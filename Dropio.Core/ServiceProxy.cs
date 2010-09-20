@@ -1,8 +1,8 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Net;
-using Dropio.Core.Types;
+//using Dropio.Core.Types;
 
 namespace Dropio.Core
 {
@@ -40,26 +40,6 @@ namespace Dropio.Core
         }
 
         #region Service Abstractions
-
-        /// <summary>
-        /// Generates the authenticated drop URL.
-        /// </summary>
-        /// <param name="drop">The drop.</param>
-        /// <returns></returns>
-        public string GenerateAuthenticatedDropUrl(Drop drop)
-        {
-            return this.ServiceAdapter.GenerateAuthenticatedDropUrl(drop);
-        }
-
-        /// <summary>
-        /// Generates the authenticated asset URL.
-        /// </summary>
-        /// <param name="asset">The asset.</param>
-        /// <returns></returns>
-        public string GenerateAuthenticatedAssetUrl(Asset asset)
-        {
-            return this.ServiceAdapter.GenerateAuthenticatedAssetUrl(asset);
-        }
 		
 		/// <summary>
         /// Gets an original file download url.
@@ -71,21 +51,33 @@ namespace Dropio.Core
             return this.ServiceAdapter.OriginalFileUrl(asset);
         }
 
-        /// <summary>
-        /// Creates the drop.
-        /// </summary>
-        /// <param name="name">The name.</param>
-        /// <param name="guestsCanAdd">if set to <c>true</c> [guests can add].</param>
-        /// <param name="guestsCanComment">if set to <c>true</c> [guests can comment].</param>
-        /// <param name="guestsCanDelete">if set to <c>true</c> [guests can delete].</param>
-        /// <param name="expirationLength">Length of the expiration.</param>
-        /// <param name="password">The password.</param>
-        /// <param name="adminPassword">The admin password.</param>
-        /// <param name="premiumCode">The premium code.</param>
-        /// <returns></returns>
-        public Drop CreateDrop(string name, bool guestsCanAdd, bool guestsCanComment, bool guestsCanDelete, ExpirationLength expirationLength, string password, string adminPassword, string premiumCode)
+		/// <summary>
+		/// Create a drop
+		/// </summary>
+		/// <param name="name">
+		/// A <see cref="System.String"/>
+		/// </param>
+		/// <param name="password">
+		/// A <see cref="System.String"/>
+		/// </param>
+		/// <param name="description">
+		/// A <see cref="System.String"/>
+		/// </param>
+		/// <param name="emailKey">
+		/// A <see cref="System.String"/>
+		/// </param>
+		/// <param name="maxSize">
+		/// A <see cref="System.Int32"/>
+		/// </param>
+		/// <param name="chatPassword">
+		/// A <see cref="System.String"/>
+		/// </param>
+		/// <returns>
+		/// A <see cref="Drop"/>
+		/// </returns>
+        public Drop CreateDrop(string name, string description, string emailKey, int maxSize, string chatPassword)
         {
-            return this.ServiceAdapter.CreateDrop(name, guestsCanAdd, guestsCanComment, guestsCanDelete, expirationLength, password, adminPassword, premiumCode);
+            return this.ServiceAdapter.CreateDrop(name, description, emailKey, maxSize, chatPassword);
         }
 
         /// <summary>
@@ -94,20 +86,19 @@ namespace Dropio.Core
         /// <param name="name">The name.</param>
         /// <param name="token">The token.</param>
         /// <returns></returns>
-        public Drop FindDrop(string name, string token)
+        public Drop FindDrop(string name) //, string token)
         {
-            return this.ServiceAdapter.FindDrop(name, token);
+            return this.ServiceAdapter.FindDrop(name); //, token);
         }
 		
 		/// <summary>
 		/// Gets a paginated list of drops with the Manager Account. Requires Manager API Token.
 		/// </summary>
 		/// <param name="page">The page.</param>
-		/// <param name=managerApiToken"">The manager API token. </param>
 		/// <returns></returns>
-		public List<Drop> FindManagerDrops(string managerApiToken, int page)
+		public List<Drop> FindManagerDrops(int page)
 		{
-			return this.ServiceAdapter.FindManagerDrops(managerApiToken, page);
+			return this.ServiceAdapter.FindManagerDrops(page);
 		}
 
         /// <summary>
@@ -119,37 +110,31 @@ namespace Dropio.Core
         {
             return this.ServiceAdapter.DeleteDrop(drop);
         }
+		
+		/// <summary>
+		/// Empty the drop of all assets
+		/// </summary>
+		/// <param name="drop">
+		/// A <see cref="Drop"/>
+		/// </param>
+		/// <returns>
+		/// A <see cref="System.Boolean"/>
+		/// </returns>
+		public bool EmptyDrop(Drop drop)
+		{
+			return this.ServiceAdapter.EmptyDrop(drop);
+		}
 
         /// <summary>
         /// Updates the drop.
         /// </summary>
         /// <param name="drop">The drop.</param>
         /// <returns></returns>
-        public bool UpdateDrop(Drop drop, string password, string adminPassword, string premiumCode)
+        public bool UpdateDrop(Drop drop, string name, string chatPassword)
         {
-            return this.ServiceAdapter.UpdateDrop(drop, password, adminPassword, premiumCode);
+			Console.WriteLine( "Serviceproxy: " + name);
+            return this.ServiceAdapter.UpdateDrop(drop, name, chatPassword);
         }
-		
-		/// <summary>
-		/// Gets the drops upload code.
-		/// </summary>
-		/// <param name="drop"></param>
-		/// <returns></returns>
-		public string GetDropUploadCode(Drop drop)
-		{
-			return this.ServiceAdapter.GetDropUploadCode(drop);
-		}
-		
-		/// <summary>
-		/// Promotes the nick in chat.
-		/// </summary>
-		/// <param name="drop">The drop.</param>
-		/// <param name="nick">The nick.</param>
-		/// <returns></returns>
-		public bool PromoteNick(Drop drop, string nick)
-		{
-			return this.ServiceAdapter.PromoteNick(drop, nick);
-		}
 
         /// <summary>
         /// Finds the asset.
@@ -202,21 +187,7 @@ namespace Dropio.Core
 		{
 			return this.ServiceAdapter.FindSubscriptions(drop,page);
 		}
-		
-		/// <summary>
-		/// Creates a Twitter subscription
-		/// </summary>
-		/// <param name="drop">The drop.</param>
-		/// <param name="username">The username.</param>
-		/// <param name="password">The password</param>
-		/// <param name="message">The message,</param>
-		/// <param name="events">The events.</param>
-		/// <returns></returns>
-		public Subscription CreateTwitterSubscription(Drop drop, string username, string password, string message, AssetEvents events)
-		{
-			return this.ServiceAdapter.CreateTwitterSubscription(drop, username, password, message, events);
-		}
-		
+				
 		/// <summary>
 		/// Creates a pingback subscription. When the events happen, the url will be sent a POST request with the pertinent data.
 		/// </summary>
@@ -228,23 +199,7 @@ namespace Dropio.Core
 		{
 			return this.ServiceAdapter.CreatePingbackSubscription(drop, url, events);
 		}
-		
-		/// <summary>
-		/// Creates an email subscription
-		/// </summary>
-		/// <param name="drop">The drop.</param>
-		/// <param name="email">The email.</param>
-		/// <param name="message">The message,</param>
-		/// <param name="welcomeFrom">The welcome message from address.</param>
-		/// <param name="welcomeSubject">The welcome message subject.</param>
-		/// <param name="welcomeMessage">The welcome message.</param>
-		/// <param name="events">The events.</param>
-		/// <returns></returns>
-		public Subscription CreateEmailSubscription(Drop drop, string email, string message, string welcomeFrom, string welcomeSubject, string welcomeMessage, AssetEvents events)
-		{
-			return this.ServiceAdapter.CreateEmailSubscription(drop, email, message, welcomeFrom, welcomeSubject, welcomeMessage, events);
-		}
-		
+
 		/// <summary>
         /// Deletes the subscription.
         /// </summary>
@@ -267,8 +222,6 @@ namespace Dropio.Core
             return this.ServiceAdapter.FindAssets(drop, page, order);
         }
 
-        
-
         /// <summary>
         /// Creates the note.
         /// </summary>
@@ -277,7 +230,7 @@ namespace Dropio.Core
         /// <param name="contents">The content.</param>
         /// <param name="description">The description.</param>
         /// <returns></returns>
-        public Note CreateNote(Drop drop, string title, string contents, string description)
+        public Asset CreateNote(Drop drop, string title, string contents, string description)
         {
             return this.ServiceAdapter.CreateNote(drop, title, contents, description);
         }
@@ -290,72 +243,9 @@ namespace Dropio.Core
         /// <param name="description">The description.</param>
         /// <param name="url">The url.</param>
         /// <returns></returns>
-        public Link CreateLink(Drop drop, string title, string description, string url)
+        public Asset CreateLink(Drop drop, string title, string description, string url)
         {
             return this.ServiceAdapter.CreateLink(drop, title, description, url);
-        }
-
-        /// <summary>
-        /// Finds the comments.
-        /// </summary>
-        /// <param name="asset">The asset.</param>
-        /// <param name="page">The page.</param>
-        /// <returns></returns>
-        public List<Comment> FindComments(Asset asset, int page)
-        {
-            return this.ServiceAdapter.FindComments(asset, page);
-        }
-
-        /// <summary>
-        /// Creates the comment.
-        /// </summary>
-        /// <param name="asset">The asset.</param>
-        /// <param name="contents">The contents.</param>
-        /// <returns></returns>
-        public Comment CreateComment(Asset asset, string contents)
-        {
-            return this.ServiceAdapter.CreateComment(asset, contents);
-        }
-
-        /// <summary>
-        /// Updates the comment.
-        /// </summary>
-        /// <param name="comment">The comment.</param>
-        /// <returns></returns>
-        public bool UpdateComment(Comment comment)
-        {
-            return this.ServiceAdapter.UpdateComment(comment);
-        }
-
-        /// <summary>
-        /// Deletes the comment.
-        /// </summary>
-        /// <param name="comment">The comment.</param>
-        /// <returns></returns>
-        public bool DeleteComment(Comment comment)
-        {
-            return this.ServiceAdapter.DeleteComment(comment);
-        }
-
-        /// <summary>
-        /// Sends to fax.
-        /// </summary>
-        /// <param name="asset">The asset.</param>
-        /// <param name="faxNumber">The fax number.</param>
-        public void SendToFax(Asset asset, string faxNumber)
-        {
-            this.ServiceAdapter.SendToFax(asset, faxNumber);
-        }
-
-        /// <summary>
-        /// Sends to emails.
-        /// </summary>
-        /// <param name="asset">The asset.</param>
-        /// <param name="emails">The emails.</param>
-        /// <param name="message">The message.</param>
-        public void SendToEmails(Asset asset, List<string> emails, string message)
-        {
-            this.ServiceAdapter.SendToEmails(asset, emails, message);
         }
 
         /// <summary>
@@ -368,18 +258,6 @@ namespace Dropio.Core
         {
             this.ServiceAdapter.SendToDrop(asset, dropName, dropToken);
         }
-		
-		/// <summary>
-        /// Adds a file via a url.
-        /// </summary>
-        /// <param name="drop">The drop.</param>
-        /// <param name="url">The url.</param>
-        /// <param name="description">The description.</param>
-        /// <returns></return>
-		public Asset AddFileFromUrl(Drop drop, string url, string description)
-		{
-			return this.ServiceAdapter.AddFileFromUrl(drop, url, description);
-		}
 
         /// <summary>
         /// Adds the file to the drop..

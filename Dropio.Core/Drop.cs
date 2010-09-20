@@ -1,13 +1,13 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Text;
-using Dropio.Core.Types;
+//using Dropio.Core.Types;
 
 namespace Dropio.Core
 {
     public class Drop
     {
-
+    
         #region Properties
 
         /// <summary>
@@ -27,18 +27,6 @@ namespace Dropio.Core
         /// </summary>
         /// <value>The email.</value>
         public string Email { get; set; }
-
-        /// <summary>
-        /// Gets or sets the voicemail.
-        /// </summary>
-        /// <value>The voicemail.</value>
-        public string Voicemail { get; set; }
-
-        /// <summary>
-        /// Gets or sets the fax.
-        /// </summary>
-        /// <value>The fax.</value>
-        public string Fax { get; set; }
 		
 		/// <summary>
         /// Gets or sets the description.
@@ -47,28 +35,10 @@ namespace Dropio.Core
         public string Description { get; set; }
 
         /// <summary>
-        /// Gets or sets the conference.
-        /// </summary>
-        /// <value>The conference.</value>
-        public string Conference { get; set; }
-
-        /// <summary>
         /// Gets or sets the admin token.
         /// </summary>
         /// <value>The admin token.</value>
         public string AdminToken { get; set; }
-
-        /// <summary>
-        /// Gets or sets the guest token.
-        /// </summary>
-        /// <value>The guest token.</value>
-        public string GuestToken { get; set; }
-
-        /// <summary>
-        /// Gets or sets the RSS.
-        /// </summary>
-        /// <value>The RSS.</value>
-        public string Rss { get; set; }
 
         /// <summary>
         /// Gets or sets the max bytes.
@@ -83,24 +53,6 @@ namespace Dropio.Core
         public int CurrentBytes { get; set; }
 
         /// <summary>
-        /// Gets or sets a value indicating whether [guests can add].
-        /// </summary>
-        /// <value><c>true</c> if [guests can add]; otherwise, <c>false</c>.</value>
-        public bool GuestsCanAdd { get; set; }
-
-        /// <summary>
-        /// Gets or sets a value indicating whether [guests can comment].
-        /// </summary>
-        /// <value><c>true</c> if [guests can comment]; otherwise, <c>false</c>.</value>
-        public bool GuestsCanComment { get; set; }
-
-        /// <summary>
-        /// Gets or sets a value indicating whether [guests can delete].
-        /// </summary>
-        /// <value><c>true</c> if [guests can delete]; otherwise, <c>false</c>.</value>
-        public bool GuestsCanDelete { get; set; }
-
-        /// <summary>
         /// Gets or sets the length of the expiration.
         /// </summary>
         /// <value>The length of the expiration.</value>
@@ -111,42 +63,12 @@ namespace Dropio.Core
 		/// </summary>
 		/// <value>The expiration date.</value>
 		public DateTime ExpiresAt { get; set; }
-		
-        /// <summary>
-        /// Gets or sets the hidden upload url.
-        /// </summary>
-        /// <value>The hidden upload url.</value>
-        public string HiddenUploadUrl { get; set; }
 
         /// <summary>
         /// Gets or sets the chat password.
         /// </summary>
         /// <value>The chat password.</value>
         public string ChatPassword { get; set; }
-
-        /// <summary>
-        /// Gets or sets the default view.
-        /// </summary>
-        /// <value>The default view.</value>
-        public string DefaultView { get; set; }
-
-        /// <summary>
-        /// Gets or sets the upload url.
-        /// </summary>
-        /// <value>The upload url.</value>
-        public string UploadUrl { get; set; }
-
-		/// <summary>
-        /// Gets or sets the admin email.
-        /// </summary>
-        /// <value>The admin email.</value>
-        public string AdminEmail { get; set; }
-
-        /// <summary>
-        /// Gets or sets the email key.
-        /// </summary>
-        /// <value>The email key.</value>
-        public string EmailKey { get; set; }
 
         /// <summary>
         /// Gets the assets, defaulting to page 1.
@@ -198,21 +120,6 @@ namespace Dropio.Core
         }
         #endregion
 
-        #region Permissions
-
-        /// <summary>
-        /// Gets a value indicating whether you have admin access to this Drop.
-        /// </summary>
-        /// <value><c>true</c> if this instance is admin; otherwise, <c>false</c>.</value>
-        public bool IsAdmin
-        {
-            get
-            {
-                return !string.IsNullOrEmpty(this.AdminToken);
-            }
-        }
-        #endregion
-
         #region Create / Read
 
         /// <summary>
@@ -222,81 +129,90 @@ namespace Dropio.Core
         /// <returns></returns>
         public static Drop Find(string name)
         {
-            return Find(name, string.Empty);
+            return ServiceProxy.Instance.FindDrop(name);
         }
-
+	
+		/// <summary>
+		/// Create a new drop with a random name
+		/// </summary>
+		/// <returns>
+		/// A <see cref="Drop"/>
+		/// </returns>
+		public static Drop Create()
+		{
+			return ServiceProxy.Instance.CreateDrop( string.Empty, string.Empty, string.Empty, 0, string.Empty);
+		}
+		
         /// <summary>
-        /// Finds the drop by name.
+        /// Creates a drop with the given name.
         /// </summary>
         /// <param name="name">The name.</param>
-        /// <param name="token">The token.</param>
         /// <returns></returns>
-        public static Drop Find(string name, string token)
+        public static Drop Create(string name)
         {
-            return ServiceProxy.Instance.FindDrop(name, token);
+            return ServiceProxy.Instance.CreateDrop( name, string.Empty, string.Empty, 0, string.Empty );
         }
 
-        /// <summary>
-        /// Creates a drop.
-        /// </summary>
-        /// <param name="name">The name.</param>
-        /// <param name="adminPassword">The admin password.</param>
-        /// <returns></returns>
-        public static Drop Create(string name, string adminPassword)
+		/// <summary>
+		/// Create a new drop (with more options). All parameters are optional, pass "string.Empty" for any that you
+		/// don't want to specify (or 0 for "maxSize", which will cause the default to be used)
+		/// </summary>
+		/// <param name="name">
+		/// A <see cref="System.String"/>. The name of the drop.
+		/// </param>
+		/// <param name="description">
+		/// A <see cref="System.String"/>. The description for the drop
+		/// </param>
+		/// <param name="emailKey">
+		/// A <see cref="System.String"/>. The security key for the drop's email address
+		/// </param>
+		/// <param name="maxSize">
+		/// A <see cref="System.Int32"/>. The maximum size of the drop in megabytes. "0" will create a drop of default
+		/// size.
+		/// </param>
+		/// <param name="chatPassword">
+		/// A <see cref="System.String"/>. The chat password for the drop.
+		/// </param>
+		/// <returns>
+		/// A <see cref="Drop"/> representing the newly created drop.
+		/// </returns>
+        public static Drop Create(string name, string description, string emailKey, int maxSize, string chatPassword)
         {
-            return ServiceProxy.Instance.CreateDrop(name, true, true, false, ExpirationLength.OneYearFromLastView, string.Empty, adminPassword, string.Empty);
-        }
-
-        /// <summary>
-        /// Creates the specified name.
-        /// </summary>
-        /// <param name="name">The name.</param>
-        /// <param name="guestsCanAdd">if set to <c>true</c> [guests can add].</param>
-        /// <param name="guestsCanComment">if set to <c>true</c> [guests can comment].</param>
-        /// <param name="guestsCanDelete">if set to <c>true</c> [guests can delete].</param>
-        /// <param name="expirationLength">Length of the expiration.</param>
-        /// <param name="password">The password.</param>
-        /// <param name="adminPassword">The admin password.</param>
-        /// <param name="premiumCode">The premium code.</param>
-        /// <returns></returns>
-        public static Drop Create(string name, bool guestsCanAdd, bool guestsCanComment, bool guestsCanDelete, ExpirationLength expirationLength, string password, string adminPassword, string premiumCode)
-        {
-            return ServiceProxy.Instance.CreateDrop(name, guestsCanAdd, guestsCanComment, guestsCanDelete, expirationLength, password, adminPassword, premiumCode);
+            return ServiceProxy.Instance.CreateDrop(name, description, emailKey, maxSize, chatPassword);
         }
 		
 		/// <summary>
-		/// Gets a paginated list of drops with the Manager Account. Requires Manager API Token.
+		/// Gets a paginated list of drops with the Manager Account.
 		/// </summary>
-		/// <param name="page">The page.</param>
-		/// <param name="managerApiToken">The manager API token. </param>
-		/// <returns></returns
-		public static List<Drop> FindManagerDrops(string managerApiToken)
+		/// <returns></returns>
+		public static List<Drop> FindManagerDrops()
 		{
-			return FindManagerDrops(managerApiToken, 1);
+			return FindManagerDrops(1);
 		}
 		
 		/// <summary>
 		/// Gets a paginated list of drops with the Manager Account. Requires Manager API Token.
 		/// </summary>
 		/// <param name="page">The page.</param>
-		/// <param name="managerApiToken">The manager API token. </param>
 		/// <returns></returns
-		public static List<Drop> FindManagerDrops(string managerApiToken, int page)
+		public static List<Drop> FindManagerDrops(int page)
 		{
-			return ServiceProxy.Instance.FindManagerDrops(managerApiToken, page);
+			return ServiceProxy.Instance.FindManagerDrops(page);
 		}
 
         #endregion
 
         #region Update / Delete
 
+		
         /// <summary>
         /// Saves this instance.
         /// </summary>
         /// <returns></returns>
-        public bool Save()
+        public bool Update()
         {
-            return ServiceProxy.Instance.UpdateDrop(this, string.Empty, string.Empty, string.Empty);
+			return ServiceProxy.Instance.UpdateDrop( this, string.Empty, string.Empty );
+          //  return ServiceProxy.Instance.UpdateDrop(this, string.Empty, string.Empty, string.Empty);
         }
 
         /// <summary>
@@ -304,30 +220,26 @@ namespace Dropio.Core
         /// </summary>
         /// <param name="newPassword">The new password.</param>
         /// <returns></returns>
-        public bool ChangePassword(string newPassword)
+        public bool ChangeChatPassword(string newPassword)
         {
-            return ServiceProxy.Instance.UpdateDrop(this, newPassword, string.Empty, string.Empty);
+            return ServiceProxy.Instance.UpdateDrop(this, string.Empty, newPassword );
         }
-
-        /// <summary>
-        /// Changes the admin password.
-        /// </summary>
-        /// <param name="adminPassword">The admin password.</param>
-        /// <returns></returns>
-        public bool ChangeAdminPassword(string adminPassword)
-        {
-            return ServiceProxy.Instance.UpdateDrop(this, string.Empty, adminPassword, string.Empty);
-        }
-
-        /// <summary>
-        /// Applies the premium code.
-        /// </summary>
-        /// <param name="premiumCode">The premium code.</param>
-        /// <returns></returns>
-        public bool ApplyPremiumCode(string premiumCode)
-        {
-            return ServiceProxy.Instance.UpdateDrop(this, string.Empty, string.Empty, premiumCode);
-        }
+		
+		public bool ChangeName(string newName)
+		{
+			return ServiceProxy.Instance.UpdateDrop(this, newName, string.Empty);
+		}
+		
+		/// <summary>
+		/// Empty the drop of all assets.
+		/// </summary>
+		/// <returns>
+		/// A <see cref="System.Boolean"/>
+		/// </returns>
+		public bool Empty()
+		{
+			return ServiceProxy.Instance.EmptyDrop(this);
+		}
 
         /// <summary>
         /// Deletes this instance.
@@ -341,55 +253,6 @@ namespace Dropio.Core
         #endregion
 
         #region Actions
-		
-		/// <summary>
-		/// Promotes the nick in chat.
-		/// </summary>
-		/// <param name="nick">The nick.</param>
-		/// <returns></returns>
-		public bool PromoteNick(string nick)
-		{
-			return ServiceProxy.Instance.PromoteNick(this, nick);
-		}
-		
-		/// <summary>
-		/// Gets the upload code for the Drop.
-		/// </summary>
-		/// <returns></returns>
-		public string GetUploadCode()
-		{
-			return ServiceProxy.Instance.GetDropUploadCode(this);
-		}
-
-        /// <summary>
-        /// Generates the authenticated URL.
-        /// </summary>
-        /// <returns></returns>
-        public string GenerateAuthenticatedUrl()
-        {
-            return ServiceProxy.Instance.GenerateAuthenticatedDropUrl(this);
-        }
-		
-		/// <summary>
-        /// Adds a file via a url.
-        /// </summary>
-        /// <param name="url">The url.</param>
-        /// <returns></return>
-		public Asset AddFileFromUrl(string url)
-		{
-			return this.AddFileFromUrl(url, string.Empty);
-		}
-		
-		/// <summary>
-        /// Adds a file via a url.
-        /// </summary>
-        /// <param name="url">The url.</param>
-        /// <param name="description">The description.</param>
-        /// <returns></return>
-		public Asset AddFileFromUrl(string url, string description)
-		{
-			return ServiceProxy.Instance.AddFileFromUrl(this, url, description);
-		}
 		
 		/// <summary>
         /// Adds the file.
@@ -466,7 +329,7 @@ namespace Dropio.Core
         /// <param name="contents">The contents.</param>
         /// <param name="description">The description.</param>
         /// <returns></returns>
-        public Note CreateNote(string title, string contents, string description)
+        public Asset CreateNote(string title, string contents, string description)
         {
             return ServiceProxy.Instance.CreateNote(this, title, contents, description);
         }
@@ -478,80 +341,10 @@ namespace Dropio.Core
         /// <param name="description">The description.</param>
         /// <param name="url">The URL.</param>
         /// <returns></returns>
-        public Link CreateLink(string title, string description, string url)
+        public Asset CreateLink(string title, string description, string url)
         {
             return ServiceProxy.Instance.CreateLink(this, title, description, url);
         }
-
-		/// <summary>
-        /// Creates a Twitter subscription.
-        /// </summary>
-        /// <param name="username">The username.</param>
-        /// <param name="password">The password.</param>
-        /// <returns></returns>
-		public Subscription CreateTwitterSubscription(string username, string password)
-		{
-			return this.CreateTwitterSubscription(username, password, string.Empty, AssetEvents.AssetAdded);
-		}
-		
-		/// <summary>
-        /// Creates a Twitter subscription.
-        /// There are variables which you can use to format the message that will be replaced with their values.
-        /// Variables include: [item name], [item type], [item url], [item comment], [drop url]
-        /// Example: "the [item type] [item name] was just added to [drop url]" yields "the image test.jpg was just added to http://drop.io/test_drop"
-        /// </summary>
-        /// <param name="username">The username.</param>
-        /// <param name="password">The password.</param>
-        /// <param name="message">The message.</param>
-        /// <param name="events">The events.</param>
-        /// <returns></returns>
-		public Subscription CreateTwitterSubscription(string username, string password, string message, AssetEvents events)
-		{
-			return ServiceProxy.Instance.CreateTwitterSubscription(this, username, password, message, events);
-		}
-		
-		/// <summary>
-        /// Creates an email subscription.
-        /// </summary>
-        /// <param name="email">The email.</param>
-        /// <returns></returns>
-		public Subscription CreateEmailSubscription(string email)
-		{
-			return this.CreateEmailSubscription(email, string.Empty, string.Empty, string.Empty, string.Empty, AssetEvents.AssetAdded);
-		}
-		
-		/// <summary>
-        /// Creates an email subscription.
-        /// There are variables which you can use to format the message that will be replaced with their values.
-        /// Variables include: [item name], [item type], [item url], [item comment], [drop url]
-        /// Example: "the [item type] [item name] was just added to [drop url]" yields "the image test.jpg was just added to http://drop.io/test_drop"
-        /// </summary>
-        /// <param name="email">The email.</param>
-        /// <param name="message">The message.</param>
-        /// <param name="events">The events.</param>
-        /// <returns></returns>
-		public Subscription CreateEmailSubscription(string email, string message, AssetEvents events)
-		{
-			return this.CreateEmailSubscription(email, message, string.Empty, string.Empty, string.Empty, events);
-		}
-
-		/// <summary>
-        /// Creates an email subscription.
-        /// There are variables which you can use to format the message that will be replaced with their values.
-        /// Variables include: [item name], [item type], [item url], [item comment], [drop url]
-        /// Example: "the [item type] [item name] was just added to [drop url]" yields "the image test.jpg was just added to http://drop.io/test_drop"
-        /// </summary>
-        /// <param name="email">The email.</param>
-        /// <param name="message">The message.</param>
-		/// <param name="welcomeFrom">The welcome message from address.</param>
-		/// <param name="welcomeSubject">The welcome message subject.</param>
-		/// <param name="welcomeMessage">The welcome message.</param>
-		/// <param name="events">The events.</param>
-        /// <returns></returns>		
-		public Subscription CreateEmailSubscription(string email, string message, string welcomeFrom, string welcomeSubject, string welcomeMessage, AssetEvents events)
-		{
-			return ServiceProxy.Instance.CreateEmailSubscription(this, email, message, welcomeFrom, welcomeSubject, welcomeMessage, events);
-		}
 		
 		/// <summary>
 		/// Creates a pingback subscription. When the events happen, the url will be sent a POST request with the pertinent data.
@@ -565,6 +358,5 @@ namespace Dropio.Core
 		}
 
         #endregion
-
     }
 }

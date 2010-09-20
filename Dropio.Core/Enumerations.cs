@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Text;
 
@@ -21,12 +21,12 @@ namespace Dropio.Core
 	[Flags]
 	public enum AssetEvents
 	{
-		AssetAdded = 0x0,
+		AssetCreated = 0x0,
 		AssetUpdated = 0x1,
 		AssetDeleted = 0x2,
-		CommentAdded = 0x4,
-		CommentUpdated = 0x8,
-		CommentDeleted = 0x10,
+		JobStarted = 0x4,
+		JobProgress = 0x8,
+		JobComplete = 0x10,
 	}
 	
 	public enum Order
@@ -34,8 +34,6 @@ namespace Dropio.Core
 		Oldest, 
 		Newest
 	};
-	
-	public enum FaxStatus { None, Pending, Failed, Success };
 
     public enum ServiceError { NotAuthorized, NotFound, BadRequest, ServerError };
 

@@ -21,13 +21,15 @@ namespace Dropio.Core
         /// Gets or sets the username.
         /// </summary>
         /// <value>The contents.</value>
-        public string Username { get; set; }
+//        public string Username { get; set; }
 
 		/// <summary>
         /// Gets or sets the message.
         /// </summary>
         /// <value>The contents.</value>
-        public string Message { get; set; }
+//        public string Message { get; set; }
+		
+		public string Url { get; set; }
 
         /// <summary>
         /// Gets or sets the drop.

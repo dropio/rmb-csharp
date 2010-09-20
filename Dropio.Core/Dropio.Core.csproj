@@ -1,5 +1,5 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="3.5" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="3.5">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
@@ -47,7 +47,6 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Asset.cs" />
-    <Compile Include="Comment.cs" />
     <Compile Include="Drop.cs" />
     <Compile Include="Enumerations.cs" />
     <Compile Include="ProductionService.cs" />
@@ -56,15 +55,9 @@
     <Compile Include="ServiceException.cs" />
     <Compile Include="ServiceProxy.cs" />
     <Compile Include="Subscription.cs" />
-    <Compile Include="Types\Audio.cs" />
-    <Compile Include="Types\Document.cs" />
-    <Compile Include="Types\Image.cs" />
-    <Compile Include="Types\Link.cs" />
-    <Compile Include="Types\Movie.cs" />
-    <Compile Include="Types\Note.cs" />
     <Compile Include="TransferProgressEventArgs.cs" />
   </ItemGroup>
-  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">
@@ -72,4 +65,7 @@
   <Target Name="AfterBuild">
   </Target>
   -->
+  <ItemGroup>
+    <None Include="Comment.cs" />
+  </ItemGroup>
 </Project>
