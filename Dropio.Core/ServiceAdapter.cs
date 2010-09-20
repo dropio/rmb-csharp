@@ -6,7 +6,6 @@ using System.IO;
 using System.Xml;
 using System.Collections.Specialized;
 using System.Collections;
-//using Dropio.Core.Types;
 using System.Security.Cryptography;
 using System.Web;
 
@@ -131,8 +130,9 @@ namespace Dropio.Core
 				{
 					StringToSign.Append( key + "=" + parameters[key] );
 				}
-				string signature = GenerateSignature( StringToSign.Append( this.ApiSecret ).ToString() );
 				
+				string signature = GenerateSignature( StringToSign.Append( this.ApiSecret ).ToString() );
+
 				// Add signature as a parameter
 				parameters.Add( "signature", signature );
 				
@@ -146,11 +146,18 @@ namespace Dropio.Core
         /// <returns></returns>
         public string OriginalFileUrl(Asset asset)
         {
+			Hashtable parameters = new Hashtable();
             StringBuilder sb = new StringBuilder();
+			
             sb.Append(this.ApiBaseUrl + DROPS + asset.Drop.Name + ASSETS + asset.Name + DOWNLOAD_ORIGINAL);
-            sb.Append("?&version=2.0");
-            sb.Append("&api_key=");
-            sb.Append(this.ApiKey);
+			
+			AddCommonParameters( ref parameters );
+			SignIfNeeded( ref parameters );
+			
+			sb.Append("?");
+			
+			sb.Append( BuildParameterString( parameters ));
+
             return sb.ToString();
         }
 
@@ -321,7 +328,6 @@ namespace Dropio.Core
         /// <returns></returns>
         public bool UpdateDrop(Drop drop, string name, string chatPassword)
         {
-			Console.WriteLine( "service adapter: " + name );
             if (drop == null)
                 throw new ArgumentNullException("drop", "The given drop can't be null");
 
@@ -493,9 +499,6 @@ namespace Dropio.Core
 
             Hashtable parameters = new Hashtable();
 
-            string token = drop.AdminToken;
-            parameters.Add("token", token);
-
             HttpWebRequest request = this.CreateDeleteRequest(this.CreateSubscriptionUrl(drop.Name, subscription.Id), parameters);
             CompleteRequest(request, (HttpWebResponse response) => { destroyed = true; });
 
@@ -624,7 +627,7 @@ namespace Dropio.Core
         /// </summary>
         /// <param name="asset">The asset.</param>
         /// <returns></returns>
-        public bool UpdateAsset(Asset asset)
+        public bool UpdateAsset(Asset asset, string newName, string newDescription)
         {
             if (asset == null)
                 throw new ArgumentNullException("asset", "The given asset can't be null");
@@ -633,9 +636,12 @@ namespace Dropio.Core
             Drop drop = asset.Drop;
 
             Hashtable parameters = new Hashtable();
-
-            parameters.Add("name", asset.Name);
-			parameters.Add("description", asset.Description);
+				
+			if( !string.IsNullOrEmpty( newName ))
+				parameters.Add("name", newName);
+			if( !string.IsNullOrEmpty( newDescription ))
+				parameters.Add("description", newDescription );
+			//if( !string.IsNullOrEmpty( asset.))
 			
             HttpWebRequest request = this.CreatePutRequest(this.CreateAssetUrl(drop.Name, asset.Name), parameters);
             CompleteRequest(request, delegate(HttpWebResponse response)
@@ -930,30 +936,30 @@ namespace Dropio.Core
         /// </summary>
         /// <param name="expirationLength">Length of the expiration.</param>
         /// <returns></returns>
-        protected string MapExpirationLength(ExpirationLength expirationLength)
-        {
-            switch (expirationLength)
-            {
-                case ExpirationLength.OneDayFromLastView:
-                    return "1_DAY_FROM_LAST_VIEW";
-                case ExpirationLength.OneWeekFromLastView:
-                    return "1_WEEK_FROM_LAST_VIEW";
-                case ExpirationLength.OneMonthFromLastView:
-                    return "1_MONTH_FROM_LAST_VIEW";
-                case ExpirationLength.OneYearFromLastView:
-                    return "1_YEAR_FROM_LAST_VIEW";
-                case ExpirationLength.OneDayFromNow:
-                    return "1_DAY_FROM_NOW";
-                case ExpirationLength.OneWeekFromNow:
-                    return "1_WEEK_FROM_NOW";
-                case ExpirationLength.OneMonthFromNow:
-                    return "1_MONTH_FROM_NOW";
-                case ExpirationLength.OneYearFromNow:
-                    return "1_YEAR_FROM_NOW";
-            }
-
-            return string.Empty;
-        }
+//        protected string MapExpirationLength(ExpirationLength expirationLength)
+//        {
+//            switch (expirationLength)
+//            {
+//                case ExpirationLength.OneDayFromLastView:
+//                    return "1_DAY_FROM_LAST_VIEW";
+//                case ExpirationLength.OneWeekFromLastView:
+//                    return "1_WEEK_FROM_LAST_VIEW";
+//                case ExpirationLength.OneMonthFromLastView:
+//                    return "1_MONTH_FROM_LAST_VIEW";
+//                case ExpirationLength.OneYearFromLastView:
+//                    return "1_YEAR_FROM_LAST_VIEW";
+//                case ExpirationLength.OneDayFromNow:
+//                    return "1_DAY_FROM_NOW";
+//                case ExpirationLength.OneWeekFromNow:
+//                    return "1_WEEK_FROM_NOW";
+//                case ExpirationLength.OneMonthFromNow:
+//                    return "1_MONTH_FROM_NOW";
+//                case ExpirationLength.OneYearFromNow:
+//                    return "1_YEAR_FROM_NOW";
+//            }
+//
+//            return string.Empty;
+//        }
 
         /// <summary>
         /// Extracts the length of the expiration.
@@ -996,11 +1002,10 @@ namespace Dropio.Core
 			XmlNode dropNode = node;
             d.Name = this.ExtractInnerText(dropNode, "name");
             d.AssetCount = this.ExtractInt(dropNode, "asset_count");
-            d.AdminToken = this.ExtractInnerText(dropNode, "admin_token");
             d.CurrentBytes = this.ExtractInt(dropNode, "current_bytes");
             d.MaxBytes = this.ExtractInt(dropNode, "max_bytes");
             d.Email = this.ExtractInnerText(dropNode, "email");
-			d.ExpiresAt = this.ExtractDateTime(this.ExtractInnerText(dropNode, "expires_at"));
+			//d.ExpiresAt = this.ExtractDateTime(this.ExtractInnerText(dropNode, "expires_at"));
             d.Description = this.ExtractInnerText(dropNode, "description");
 			d.ChatPassword = this.ExtractInnerText(dropNode, "chat_password");
             d.ExpirationLength = this.ExtractExpirationLength(this.ExtractInnerText(dropNode, "expiration_length"));
@@ -1058,7 +1063,7 @@ namespace Dropio.Core
 			asset.Description = this.ExtractInnerText(node, "description");
 			asset.Title = this.ExtractInnerText(node,"title");
             asset.Name = this.ExtractInnerText(node, "name");        
-            asset.Type = this.ExtractInnerText(node, "type");
+            asset.Type = this.MapAssetType( this.ExtractInnerText(node, "type") );
 			asset.Drop = drop;
 			
 			asset.Roles = new List<AssetRoleAndLocations>();
@@ -1097,6 +1102,28 @@ namespace Dropio.Core
 
             return asset;
         }
+		
+		protected AssetType MapAssetType( string Type )
+		{
+			switch( Type )
+			{
+				case "image":
+					return AssetType.Image;
+				case "other":
+					return AssetType.Other;
+				case "audio":
+					return AssetType.Audio;
+				case "document":
+					return AssetType.Document;
+				case "movie":
+					return AssetType.Movie;
+				case "link":
+					return AssetType.Link;
+				default:
+					throw new ArgumentException( "UnknownArgument", "Asset type " + Type + " is unknown"  );
+			}
+			
+		}
 		
 		/// <summary>
         /// Maps the subscription.
@@ -1427,19 +1454,17 @@ namespace Dropio.Core
         /// <returns></returns>
         protected HttpWebRequest CreateRequestWithParameters(string url, string method, Hashtable parameters)
         {
-		Console.WriteLine( "are you using this?");
             HttpWebRequest request = HttpWebRequest.Create(url) as HttpWebRequest;
 
             request.Method = method;
             request.ContentType = "application/x-www-form-urlencoded";
 			AddCommonParameters( ref parameters );
 			SignIfNeeded( ref parameters );
-            StringBuilder p = new StringBuilder();
-            foreach (DictionaryEntry key in parameters)
-            {
-                p.Append(HttpUtility.UrlEncode(key.Key.ToString()) + "=" + HttpUtility.UrlEncode(key.Value.ToString()) + "&");
-            }
-			Console.WriteLine( p.ToString() );
+            StringBuilder p = new StringBuilder( BuildParameterString( parameters ));
+//            foreach (DictionaryEntry key in parameters)
+//            {
+//                p.Append(HttpUtility.UrlEncode(key.Key.ToString()) + "=" + HttpUtility.UrlEncode(key.Value.ToString()) + "&");
+//            }
 
             byte[] bytes = System.Text.Encoding.UTF8.GetBytes(p.ToString());
             request.ContentLength = bytes.Length;
@@ -1474,6 +1499,20 @@ namespace Dropio.Core
 			parameters.Add( "version", VERSION );
 			parameters.Add( "format", "xml" );
 			parameters.Add( "api_key", this.ApiKey );
+		}
+		
+		protected string BuildParameterString( Hashtable parameters )
+		{
+			StringBuilder paramString = new StringBuilder();
+			
+			//paramString.Append( "?" );
+			
+			foreach( DictionaryEntry key in parameters)
+			{
+				paramString.Append(HttpUtility.UrlEncode(key.Key.ToString()) + "=" + HttpUtility.UrlEncode(key.Value.ToString()) + "&");
+			}
+			
+			return paramString.ToString();
 		}
 
     }

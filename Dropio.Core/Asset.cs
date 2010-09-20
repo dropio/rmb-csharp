@@ -6,12 +6,6 @@ using System.Collections;
 
 namespace Dropio.Core
 {
-
-    public enum Status
-    {
-        Unconverted,
-        Converted
-    }
     
 	public struct AssetRoleAndLocations
 	{
@@ -41,7 +35,7 @@ namespace Dropio.Core
 		/// Sets and gets the file type.
 		/// </summary>
 		/// <value>The file type</value>
-		public string Type { get; set; }
+		public AssetType Type { get; set; }
 		
         /// <summary>
         /// Gets or sets the filesize.
@@ -94,10 +88,10 @@ namespace Dropio.Core
         /// <param name="content">The content.</param>
         /// <param name="description">The description.</param>
         /// <returns></returns>
-        public static Asset CreateNote(Drop drop, string title, string content, string description)
-        {
-            return ServiceProxy.Instance.CreateNote(drop, title, content, description);
-        }
+//        public static Asset CreateNote(Drop drop, string title, string content, string description)
+//        {
+//            return ServiceProxy.Instance.CreateNote(drop, title, content, description);
+//        }
 
         /// <summary>
         /// Creates the link.
@@ -106,34 +100,50 @@ namespace Dropio.Core
         /// <param name="description">The description.</param>
         /// <param name="url">The URL.</param>
         /// <returns></returns>
-        public static Asset CreateLink(Drop drop, string title, string description, string url)
-        {
-            return ServiceProxy.Instance.CreateLink(drop, title, description, url);
-        }
+//        public static Asset CreateLink(Drop drop, string title, string description, string url)
+//        {
+//            return ServiceProxy.Instance.CreateLink(drop, title, description, url);
+//        }
 
         #endregion
 
         #region Update/Delete
+		
+		/// <summary>
+		/// Change the name of the asset
+		/// </summary>
+		/// <param name="newName">
+		/// A <see cref="newName"/>
+		/// </param>
+		/// <returns>
+		/// A <see cref="System.Boolean"/>
+		/// </returns>
+//		public bool ChangeName( string newName )
+//		{
+//			return ServiceProxy.Instance.UpdateAsset( this, newName );
+//		}
 
         /// <summary>
         /// Saves this instance.
+        /// Do not use this to change the name of the asset, use ChangeName for that
         /// </summary>
         /// <returns></returns>
-        public bool Update()
+        public bool Update( string newName, string newDescription )
         {
-            return ServiceProxy.Instance.UpdateAsset(this);
+            return ServiceProxy.Instance.UpdateAsset(this, newName, newDescription );
         }
 
         /// <summary>
-        /// Deletes this instance.
+        /// Deletes the asset from the drop
         /// </summary>
         /// <returns></returns>
-        public bool Delete()
+        public bool Destroy()
         {
             return ServiceProxy.Instance.DeleteAsset(this);
         }
 
         #endregion
+		
 
         #region Actions
 		
@@ -142,7 +152,7 @@ namespace Dropio.Core
 		/// </summary>
 		/// <param name="targetDrop">The target drop.</param>
 		/// <returns></returns>
-		public bool Copy(Drop targetDrop)
+		public bool CopyTo(Drop targetDrop)
 		{
 			return ServiceProxy.Instance.CopyAsset(this, targetDrop);
 		}
@@ -152,19 +162,22 @@ namespace Dropio.Core
 		/// </summary>
 		/// <param name="targetDrop">The target drop.</param>
 		/// <returns></returns>
-		public bool Move(Drop targetDrop)
+		public bool MoveTo(Drop targetDrop)
 		{
 			return ServiceProxy.Instance.MoveAsset(this, targetDrop);
 		}
 
+		
 		/// <summary>
         /// Gets an original file download url.
+        /// This currently only works when used WITHOUT an api secret due to a bug
+        /// Instead for now use the url that is included in an asset response
         /// </summary>
         /// <returns></returns>
-		public string OriginalFileUrl()
-		{
-			return ServiceProxy.Instance.OriginalFileUrl(this);
-		}
+//		public string GenerateOriginalFileUrl()
+//		{
+//			return ServiceProxy.Instance.OriginalFileUrl(this);
+//		}
 
         #endregion
 

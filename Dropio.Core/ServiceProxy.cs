@@ -132,7 +132,6 @@ namespace Dropio.Core
         /// <returns></returns>
         public bool UpdateDrop(Drop drop, string name, string chatPassword)
         {
-			Console.WriteLine( "Serviceproxy: " + name);
             return this.ServiceAdapter.UpdateDrop(drop, name, chatPassword);
         }
 
@@ -172,9 +171,9 @@ namespace Dropio.Core
         /// </summary>
         /// <param name="asset">The asset.</param>
         /// <returns></returns>
-        public bool UpdateAsset(Asset asset)
+        public bool UpdateAsset(Asset asset, string newName, string newDescription )
         {
-            return this.ServiceAdapter.UpdateAsset(asset);
+            return this.ServiceAdapter.UpdateAsset(asset, newName, newDescription );
         }
 		
 		/// <summary>

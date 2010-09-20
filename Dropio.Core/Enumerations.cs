@@ -4,7 +4,16 @@ using System.Text;
 
 namespace Dropio.Core
 {
-    public enum SendTo { Drop, Email, Fax };
+
+	public enum AssetType
+	{
+		Image,
+		Other,
+		Audio,
+		Document,
+		Movie,
+		Link
+	};
 
     public enum ExpirationLength
     {

@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
-//using Dropio.Core.Types;
 
 namespace Dropio.Core
 {
@@ -38,7 +37,7 @@ namespace Dropio.Core
         /// Gets or sets the admin token.
         /// </summary>
         /// <value>The admin token.</value>
-        public string AdminToken { get; set; }
+        //public string AdminToken { get; set; }
 
         /// <summary>
         /// Gets or sets the max bytes.
@@ -62,7 +61,7 @@ namespace Dropio.Core
 		/// Gets or sets the expiration date.
 		/// </summary>
 		/// <value>The expiration date.</value>
-		public DateTime ExpiresAt { get; set; }
+		//public DateTime ExpiresAt { get; set; }
 
         /// <summary>
         /// Gets or sets the chat password.
@@ -74,9 +73,9 @@ namespace Dropio.Core
         /// Gets the assets, defaulting to page 1.
         /// </summary>
         /// <returns></returns>
-        public List<Asset> GetAssets()
+        public List<Asset> Assets()
         {
-            return this.GetAssets(1);
+            return this.Assets(1);
         }
 
         /// <summary>
@@ -84,9 +83,9 @@ namespace Dropio.Core
         /// </summary>
         /// <param name="page">The page.</param>
         /// <returns></returns>
-        public List<Asset> GetAssets(int page)
+        public List<Asset> Assets(int page)
         {
-            return this.GetAssets(page,Order.Oldest);
+            return this.Assets(page,Order.Oldest);
         }
 		
 		/// <summary>
@@ -95,7 +94,7 @@ namespace Dropio.Core
         /// <param name="page">The page.</param>
         /// <param name="order">The order.</param>
         /// <returns></returns>
-        public List<Asset> GetAssets(int page, Order order)
+        public List<Asset> Assets(int page, Order order)
         {
             return ServiceProxy.Instance.FindAssets(this, page, order);
         }
@@ -225,6 +224,15 @@ namespace Dropio.Core
             return ServiceProxy.Instance.UpdateDrop(this, string.Empty, newPassword );
         }
 		
+		/// <summary>
+		/// Change the name of the drop
+		/// </summary>
+		/// <param name="newName">
+		/// A <see cref="System.String"/>
+		/// </param>
+		/// <returns>
+		/// A <see cref="System.Boolean"/> indicating true 
+		/// </returns>
 		public bool ChangeName(string newName)
 		{
 			return ServiceProxy.Instance.UpdateDrop(this, newName, string.Empty);
@@ -245,7 +253,7 @@ namespace Dropio.Core
         /// Deletes this instance.
         /// </summary>
         /// <returns></returns>
-        public bool Delete()
+        public bool Destroy()
         {
             return ServiceProxy.Instance.DeleteDrop(this);
         }
@@ -329,10 +337,10 @@ namespace Dropio.Core
         /// <param name="contents">The contents.</param>
         /// <param name="description">The description.</param>
         /// <returns></returns>
-        public Asset CreateNote(string title, string contents, string description)
-        {
-            return ServiceProxy.Instance.CreateNote(this, title, contents, description);
-        }
+//        public Asset CreateNote(string title, string contents, string description)
+//        {
+//            return ServiceProxy.Instance.CreateNote(this, title, contents, description);
+//        }
 
         /// <summary>
         /// Creates a link.
@@ -341,10 +349,10 @@ namespace Dropio.Core
         /// <param name="description">The description.</param>
         /// <param name="url">The URL.</param>
         /// <returns></returns>
-        public Asset CreateLink(string title, string description, string url)
-        {
-            return ServiceProxy.Instance.CreateLink(this, title, description, url);
-        }
+//        public Asset CreateLink(string title, string description, string url)
+//        {
+//            return ServiceProxy.Instance.CreateLink(this, title, description, url);
+//        }
 		
 		/// <summary>
 		/// Creates a pingback subscription. When the events happen, the url will be sent a POST request with the pertinent data.

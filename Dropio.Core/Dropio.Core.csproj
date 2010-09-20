@@ -65,7 +65,4 @@
   <Target Name="AfterBuild">
   </Target>
   -->
-  <ItemGroup>
-    <None Include="Comment.cs" />
-  </ItemGroup>
 </Project>
