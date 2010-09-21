@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Text;
 
@@ -30,8 +30,15 @@ namespace Dropio.Core
         /// <summary>
         /// Initializes a new instance of the <see cref="TransferProgressEventArgs"/> class.
         /// </summary>
-        /// <param name="bytes">The bytes.</param>
-        /// <param name="complete">if set to <c>true</c> [completed].</param>
+        /// <param name="bytes">
+        /// The bytes.
+        /// </param>
+        /// <param name="totalBytes">
+        /// 
+        /// </param>
+        /// <param name="completed">
+        /// if set to <c>true</c> [completed].
+        /// </param>
         public TransferProgressEventArgs(long bytes, long totalBytes, bool completed)
         {
             this.Bytes = bytes;

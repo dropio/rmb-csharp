@@ -11,28 +11,91 @@ using System.Web;
 
 namespace Dropio.Core
 {
+	/// <summary>
+	/// 
+	/// </summary>
     public abstract class ServiceAdapter
     {
+		/// <summary>
+		/// 
+		/// </summary>
 		public const string ACCOUNTS = "accounts/";
+		/// <summary>
+		/// 
+		/// </summary>
         public const string DROPS = "drops/";
+		/// <summary>
+		/// 
+		/// </summary>
 		public const string EMPTY_DROP = "/empty";
+		/// <summary>
+		/// 
+		/// </summary>
 		public const string PROMOTE_NICK = "/promote";
+		/// <summary>
+		/// 
+		/// </summary>
         public const string ASSETS = "/assets/";
+		/// <summary>
+		/// 
+		/// </summary>
         public const string COMMENTS = "/comments/";
+		/// <summary>
+		/// 
+		/// </summary>
         public const string SUBSCRIPTIONS = "/subscriptions/";
+		/// <summary>
+		/// 
+		/// </summary>
         public const string SEND_TO = "/send_to/";
+		/// <summary>
+		/// 
+		/// </summary>
         public const string FROM_API = "/from_api";
+		/// <summary>
+		/// 
+		/// </summary>
 		public const string EMBED_CODE = "/embed_code";
+		/// <summary>
+		/// 
+		/// </summary>
 		public const string UPLOAD_CODE = "/upload_code";
+		/// <summary>
+		/// 
+		/// </summary>
 		public const string DOWNLOAD_ORIGINAL = "/download/original";
+		/// <summary>
+		/// 
+		/// </summary>
 		public const string COPY = "/copy";
+		/// <summary>
+		/// 
+		/// </summary>
 		public const string MOVE = "/move";
+		/// <summary>
+		/// 
+		/// </summary>
         public const string VERSION = "3.0";
 
+		/// <summary>
+		/// 
+		/// </summary>
         public abstract string BaseUrl { get; }
+		/// <summary>
+		/// 
+		/// </summary>
         public abstract string ApiBaseUrl { get; }
+		/// <summary>
+		/// 
+		/// </summary>
         public abstract string UploadUrl { get; }
+		/// <summary>
+		/// 
+		/// </summary>
         public string ApiKey { get; set; }
+		/// <summary>
+		/// 
+		/// </summary>
 		public string ApiSecret { get; set; }
 
         delegate void GetResponse(HttpWebResponse response);
@@ -95,7 +158,12 @@ namespace Dropio.Core
         /// <summary>
         /// Reads the response.
         /// </summary>
-        /// <param name="response">The response.</param>
+        /// <param name="response">
+        /// The response.
+        /// </param>
+        /// <param name="read">
+        /// 
+		/// </param>
         private void ReadResponse(HttpWebResponse response, ReadDocument read)
         {
             using (StreamReader reader = new StreamReader(response.GetResponseStream()))
@@ -110,6 +178,12 @@ namespace Dropio.Core
             }
         }
 		
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="parameters">
+		/// A <see cref="Hashtable"/>
+		/// </param>
 		public void SignIfNeeded( ref Hashtable parameters )
 		{
 			// only sign if a secret key has been set
@@ -164,8 +238,9 @@ namespace Dropio.Core
         /// <summary>
         /// Generates the signature.
         /// </summary>
-        /// <param name="drop">The drop.</param>
-        /// <param name="expires">The expires.</param>
+		/// <param name="StringToSign">
+		/// The string of charaters to be signed
+		/// </param>
         /// <returns></returns>
         protected string GenerateSignature( string StringToSign )
         {
@@ -189,19 +264,17 @@ namespace Dropio.Core
             return (long) ts.TotalSeconds;
         }
 
-		// STAY
         /// <summary>
         /// Creates a Drop.
         /// </summary>
         /// <param name="name">The name.</param>
-        /// <param name="guestsCanAdd">if set to <c>true</c> [guests can add].</param>
-        /// <param name="guestsCanComment">if set to <c>true</c> [guests can comment].</param>
-        /// <param name="guestsCanDelete">if set to <c>true</c> [guests can delete].</param>
-        /// <param name="expirationLength">Length of the expiration.</param>
-        /// <param name="password">The password.</param>
-        /// <param name="adminPassword">The admin password.</param>
-        /// <param name="premiumCode">The premium code.</param>
-        /// <returns></returns>
+        /// <param name="description"></param>
+        /// <param name="emailKey">The password.</param>
+        /// <param name="maxSize">The admin password.</param>
+        /// <param name="chatPassword">The premium code.</param>
+        /// <returns>
+        /// 
+        /// </returns>
         public Drop CreateDrop(string name, string description, string emailKey, int maxSize, string chatPassword ) 
         {
             Drop d = null;
@@ -233,9 +306,8 @@ namespace Dropio.Core
         /// Finds a drop by name.
         /// </summary>
         /// <param name="name">The name.</param>
-        /// <param name="token">The token.</param>
         /// <returns></returns>
-        public Drop FindDrop(string name) // , string token)
+        public Drop FindDrop(string name)
         {
             if (string.IsNullOrEmpty(name))
                 throw new ArgumentNullException("name", "The given name can't be blank.");
@@ -255,7 +327,6 @@ namespace Dropio.Core
 		/// Gets a paginated list of drops with the Manager Account. Requires Manager API Token.
 		/// </summary>
 		/// <param name="page">The page.</param>
-		/// <param name="managerApiToken">The manager API token. </param>
 		/// <returns></returns>
 		public List<Drop> FindManagerDrops(int page)
 		{
@@ -306,7 +377,7 @@ namespace Dropio.Core
         /// </summary>
         /// <param name="drop">The drop.</param>
         /// <returns></returns>
-        public bool DeleteDrop(Drop drop)
+        public bool DestroyDrop(Drop drop)
         {
             if (drop == null)
                 throw new ArgumentNullException("drop", "The given drop can't be null");
@@ -325,6 +396,8 @@ namespace Dropio.Core
         /// Updates the drop.
         /// </summary>
         /// <param name="drop">The drop.</param>
+        /// <param name="name"></param>
+        /// <param name="chatPassword"></param>
         /// <returns></returns>
         public bool UpdateDrop(Drop drop, string name, string chatPassword)
         {
@@ -353,7 +426,7 @@ namespace Dropio.Core
         /// <summary>
         /// Finds the asset.
         /// </summary>
-        /// <param name="dropUrl">The drop name.</param>
+        /// <param name="drop"></param>
         /// <param name="name">The asset name.</param>
         /// <returns></returns>
         public Asset FindAsset(Drop drop, string name)
@@ -396,7 +469,7 @@ namespace Dropio.Core
 
 			Hashtable parameters = new Hashtable();
 			parameters.Add( "page", page.ToString() );
-            parameters.Add( "order", (order == Order.Newest ) ? "newest" : "older" );
+            parameters.Add( "order", (order == Order.Newest ) ? "latest" : "oldest" );
             HttpWebRequest request = this.CreateGetRequest(this.CreateAssetUrl(drop.Name, string.Empty), parameters);
             CompleteRequest(request, delegate(HttpWebResponse response)
             {
@@ -420,7 +493,7 @@ namespace Dropio.Core
         /// </summary>
         /// <param name="drop">The drop.</param>
         /// <param name="page">The page.</param>
-        /// <returns></returns
+        /// <returns></returns>
 		public List<Subscription> FindSubscriptions(Drop drop, int page)
 		{
 			if (drop == null)
@@ -626,6 +699,8 @@ namespace Dropio.Core
         /// Updates the asset.
         /// </summary>
         /// <param name="asset">The asset.</param>
+        /// <param name="newName"></param>
+        /// <param name="newDescription"></param>
         /// <returns></returns>
         public bool UpdateAsset(Asset asset, string newName, string newDescription)
         {
@@ -668,6 +743,18 @@ namespace Dropio.Core
             this.Copy(asset, dropName);
         }
 		
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="asset">
+		/// A <see cref="Asset"/>
+		/// </param>
+		/// <param name="dropName">
+		/// A <see cref="System.String"/>
+		/// </param>
+		/// <returns>
+		/// A <see cref="System.Boolean"/>
+		/// </returns>
 		protected bool Copy(Asset asset, string dropName)
 		{
 			if (asset == null)
@@ -692,6 +779,7 @@ namespace Dropio.Core
         /// <summary>
         /// Sends the specified parameters.
         /// </summary>
+        /// <param name="a"></param>
         /// <param name="parameters">The parameters.</param>
         protected void Send(Asset a, Hashtable parameters)
         {
@@ -742,47 +830,14 @@ namespace Dropio.Core
             return moved;
 		}
 		
-		/// <summary>
-        /// Adds a file via a url.
-        /// </summary>
-        /// <param name="drop">The drop.</param>
-        /// <param name="url">The url.</param>
-        /// <param name="description">The description.</param>
-        /// <returns></return>
-//		public Asset AddFileFromUrl(Drop drop, string url, string description)
-//		{
-//			if (drop == null)
-//                throw new ArgumentNullException("drop", "The given drop can't be null");
-//
-//            Asset a = null;
-//
-//            Hashtable parameters = new Hashtable();
-//
-//            parameters.Add("file_url", url);
-//			parameters.Add("description", description);
-//
-//            HttpWebRequest request = this.CreatePostRequest(this.CreateAssetUrl(drop.Name, string.Empty), parameters);
-//            CompleteRequest(request, delegate(HttpWebResponse response)
-//            {
-//                ReadResponse(response, delegate(XmlDocument doc)
-//                {
-//                    XmlNodeList nodes = doc.SelectNodes("/asset");
-////                    a = this.CreateAndMapAsset(drop, nodes[0]) as Asset;
-//                });
-//            });
-//
-//            return a;
-//		}
-
         /// <summary>
         /// Adds the file.
         /// </summary>
         /// <param name="drop">The drop.</param>
         /// <param name="file">The file.</param>
-        /// <param name="comment">The comment.</param>
         /// <param name="description">The description.</param>
         /// <returns></returns>
-        public Asset AddFile(Drop drop, string file, string comment, string description)
+        public Asset AddFile(Drop drop, string file, string description)
         {
             string requestUrl = this.UploadUrl;
 
@@ -932,70 +987,10 @@ namespace Dropio.Core
         #region Mapping
 
         /// <summary>
-        /// Maps the length of the expiration.
-        /// </summary>
-        /// <param name="expirationLength">Length of the expiration.</param>
-        /// <returns></returns>
-//        protected string MapExpirationLength(ExpirationLength expirationLength)
-//        {
-//            switch (expirationLength)
-//            {
-//                case ExpirationLength.OneDayFromLastView:
-//                    return "1_DAY_FROM_LAST_VIEW";
-//                case ExpirationLength.OneWeekFromLastView:
-//                    return "1_WEEK_FROM_LAST_VIEW";
-//                case ExpirationLength.OneMonthFromLastView:
-//                    return "1_MONTH_FROM_LAST_VIEW";
-//                case ExpirationLength.OneYearFromLastView:
-//                    return "1_YEAR_FROM_LAST_VIEW";
-//                case ExpirationLength.OneDayFromNow:
-//                    return "1_DAY_FROM_NOW";
-//                case ExpirationLength.OneWeekFromNow:
-//                    return "1_WEEK_FROM_NOW";
-//                case ExpirationLength.OneMonthFromNow:
-//                    return "1_MONTH_FROM_NOW";
-//                case ExpirationLength.OneYearFromNow:
-//                    return "1_YEAR_FROM_NOW";
-//            }
-//
-//            return string.Empty;
-//        }
-
-        /// <summary>
-        /// Extracts the length of the expiration.
-        /// </summary>
-        /// <param name="expirationLength">Length of the expiration.</param>
-        /// <returns></returns>
-        protected ExpirationLength ExtractExpirationLength(string expirationLength)
-        {
-            switch (expirationLength)
-            {
-                case "1_DAY_FROM_LAST_VIEW":
-                    return ExpirationLength.OneDayFromLastView;
-                case "1_WEEK_FROM_LAST_VIEW":
-                    return ExpirationLength.OneWeekFromLastView;
-                case "1_MONTH_FROM_LAST_VIEW":
-                    return ExpirationLength.OneMonthFromLastView;
-                case "1_YEAR_FROM_LAST_VIEW":
-                    return ExpirationLength.OneYearFromLastView;
-                case "1_DAY_FROM_NOW":
-                    return ExpirationLength.OneDayFromNow;
-                case "1_WEEK_FROM_NOW":
-                    return ExpirationLength.OneWeekFromNow;
-                case "1_MONTH_FROM_NOW":
-                    return ExpirationLength.OneMonthFromNow;
-                case "1_YEAR_FROM_NOW":
-                    return ExpirationLength.OneYearFromNow;
-            }
-
-            return ExpirationLength.OneYearFromLastView;
-        }
-
-        /// <summary>
         /// Maps the drop.
         /// </summary>
         /// <param name="d">The d.</param>
-        /// <param name="doc">The doc.</param>
+        /// <param name="node">The doc.</param>
         /// <returns></returns>
         protected void MapDrop(Drop d, XmlNode node)
         {
@@ -1005,11 +1000,8 @@ namespace Dropio.Core
             d.CurrentBytes = this.ExtractInt(dropNode, "current_bytes");
             d.MaxBytes = this.ExtractInt(dropNode, "max_bytes");
             d.Email = this.ExtractInnerText(dropNode, "email");
-			//d.ExpiresAt = this.ExtractDateTime(this.ExtractInnerText(dropNode, "expires_at"));
             d.Description = this.ExtractInnerText(dropNode, "description");
 			d.ChatPassword = this.ExtractInnerText(dropNode, "chat_password");
-            d.ExpirationLength = this.ExtractExpirationLength(this.ExtractInnerText(dropNode, "expiration_length"));
-
         }
 
         /// <summary>
@@ -1103,6 +1095,15 @@ namespace Dropio.Core
             return asset;
         }
 		
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="Type">
+		/// A <see cref="System.String"/>
+		/// </param>
+		/// <returns>
+		/// A <see cref="AssetType"/>
+		/// </returns>
 		protected AssetType MapAssetType( string Type )
 		{
 			switch( Type )
@@ -1360,23 +1361,15 @@ namespace Dropio.Core
         }
 
         /// <summary>
-        /// Creates a delete request.
-        /// </summary>
-        /// <param name="url">The url.</param>
-        /// <param name="parameters">The parameters.</param>
-        /// <returns></returns>
-//        protected HttpWebRequest CreateDeleteRequest(string url, Hashtable parameters)
-//        {
-//            return this.CreateRequestWithParameters(url, "DELETE", parameters);
-//        }
-
-        /// <summary>
         /// Creates a get request.
         /// </summary>
-        /// <param name="url">The url.</param>
-        /// <param name="token">The token.</param>
-        /// <returns></returns>
-        protected HttpWebRequest CreateGetRequest(string url) //, string token)
+        /// <param name="url">
+        /// The url.
+        /// </param>
+        /// <returns>
+        /// 
+        /// </returns>
+        protected HttpWebRequest CreateGetRequest(string url)
         {
             //NameValueCollection null_parms = new NameValueCollection();
             //null_parms = null;
@@ -1409,9 +1402,18 @@ namespace Dropio.Core
             return request;
         }
 		
-		// this needs to be merged with "CreateGetRequest"
-		// C# is complaining about not being allow to send data when you do a
-		// DELETE, just like when you do a GET
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="url">
+		/// A <see cref="System.String"/>
+		/// </param>
+		/// <param name="parameters">
+		/// A <see cref="Hashtable"/>
+		/// </param>
+		/// <returns>
+		/// A <see cref="HttpWebRequest"/>
+		/// </returns>
 		protected HttpWebRequest CreateDeleteRequest(string url, Hashtable parameters )
         {
 
@@ -1437,9 +1439,15 @@ namespace Dropio.Core
         /// <summary>
         /// Creates a post request.
         /// </summary>
-        /// <param name="name">The url.</param>
-        /// <param name="url">The parameters.</param>
-        /// <returns></returns>
+        /// <param name="url">
+        /// The parameters.
+        /// </param>
+        /// <param name="parameters">
+        /// 
+        /// </param>
+        /// <returns>
+        /// 
+        /// </returns>
         protected HttpWebRequest CreatePostRequest(string url, Hashtable parameters)
         {
             return this.CreateRequestWithParameters(url, "POST", parameters);
@@ -1494,6 +1502,12 @@ namespace Dropio.Core
 
         #endregion
 		
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="parameters">
+		/// A <see cref="Hashtable"/>
+		/// </param>
 		protected void AddCommonParameters( ref Hashtable parameters )
 		{
 			parameters.Add( "version", VERSION );
@@ -1501,6 +1515,15 @@ namespace Dropio.Core
 			parameters.Add( "api_key", this.ApiKey );
 		}
 		
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="parameters">
+		/// A <see cref="Hashtable"/>
+		/// </param>
+		/// <returns>
+		/// A <see cref="System.String"/>
+		/// </returns>
 		protected string BuildParameterString( Hashtable parameters )
 		{
 			StringBuilder paramString = new StringBuilder();

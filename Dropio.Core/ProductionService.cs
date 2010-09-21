@@ -1,15 +1,21 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Text;
 
 namespace Dropio.Core
 {
+	/// <summary>
+	/// 
+	/// </summary>
     public class ProductionService : ServiceAdapter
     {
         private string _baseUrl;
         private string _apiBaseUrl;
         private string _uploadUrl;
 
+		/// <summary>
+		/// 
+		/// </summary>
         public ProductionService()
         {
             this._baseUrl = "http://drop.io/";

@@ -2,6 +2,9 @@ using System;
 
 namespace Dropio.Core
 {
+	/// <summary>
+	/// 
+	/// </summary>
 	public class Subscription
 	{
 

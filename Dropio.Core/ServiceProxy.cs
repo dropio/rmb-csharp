@@ -6,11 +6,17 @@ using System.Net;
 
 namespace Dropio.Core
 {
+	/// <summary>
+	/// 
+	/// </summary>
     public sealed class ServiceProxy
     {
         private static volatile ServiceProxy instance;
         private static object syncRoot = new Object();
 
+		/// <summary>
+		/// 
+		/// </summary>
         public ServiceAdapter ServiceAdapter { get; set; }
 
         private ServiceProxy() { }
@@ -57,9 +63,6 @@ namespace Dropio.Core
 		/// <param name="name">
 		/// A <see cref="System.String"/>
 		/// </param>
-		/// <param name="password">
-		/// A <see cref="System.String"/>
-		/// </param>
 		/// <param name="description">
 		/// A <see cref="System.String"/>
 		/// </param>
@@ -83,12 +86,15 @@ namespace Dropio.Core
         /// <summary>
         /// Finds the drop.
         /// </summary>
-        /// <param name="name">The name.</param>
-        /// <param name="token">The token.</param>
-        /// <returns></returns>
-        public Drop FindDrop(string name) //, string token)
+        /// <param name="name">
+        /// The name.
+        /// </param>
+        /// <returns>
+        /// 
+        /// </returns>
+        public Drop FindDrop(string name)
         {
-            return this.ServiceAdapter.FindDrop(name); //, token);
+            return this.ServiceAdapter.FindDrop(name);
         }
 		
 		/// <summary>
@@ -106,9 +112,9 @@ namespace Dropio.Core
         /// </summary>
         /// <param name="drop">The drop.</param>
         /// <returns></returns>
-        public bool DeleteDrop(Drop drop)
+        public bool DestroyDrop(Drop drop)
         {
-            return this.ServiceAdapter.DeleteDrop(drop);
+            return this.ServiceAdapter.DestroyDrop(drop);
         }
 		
 		/// <summary>
@@ -128,8 +134,18 @@ namespace Dropio.Core
         /// <summary>
         /// Updates the drop.
         /// </summary>
-        /// <param name="drop">The drop.</param>
-        /// <returns></returns>
+        /// <param name="drop">
+        /// The drop.
+        /// </param>
+        /// <param name="name">
+        /// 
+        /// </param>
+        /// <param name="chatPassword">
+        /// 
+        /// </param>
+        /// <returns>
+        /// 
+        /// </returns>
         public bool UpdateDrop(Drop drop, string name, string chatPassword)
         {
             return this.ServiceAdapter.UpdateDrop(drop, name, chatPassword);
@@ -169,7 +185,15 @@ namespace Dropio.Core
         /// <summary>
         /// Saves the asset.
         /// </summary>
-        /// <param name="asset">The asset.</param>
+        /// <param name="asset">
+        /// The asset.
+        /// </param>
+        /// <param name="newName">
+        /// 
+        /// </param>
+        /// <param name="newDescription">
+        /// 
+        /// </param>
         /// <returns></returns>
         public bool UpdateAsset(Asset asset, string newName, string newDescription )
         {
@@ -179,9 +203,15 @@ namespace Dropio.Core
 		/// <summary>
         /// Finds the subscriptions.
         /// </summary>
-        /// <param name="drop">The drop.</param>
-        /// <param name="page">The page.</param>
-        /// <returns></returns
+        /// <param name="drop">
+        /// The drop.
+        /// </param>
+        /// <param name="page">
+        /// The page.
+        /// </param>
+        /// <returns>
+        /// 
+        /// </returns>
 		public List<Subscription> FindSubscriptions(Drop drop, int page)
 		{
 			return this.ServiceAdapter.FindSubscriptions(drop,page);
@@ -263,12 +293,11 @@ namespace Dropio.Core
         /// </summary>
         /// <param name="drop">The drop.</param>
         /// <param name="file">The file.</param>
-        /// <param name="comment">The comment. </param>
         /// <param name="description">The description.</param>
         /// <returns></returns>
-        public Asset AddFile(Drop drop, string file, string comment, string description)
+        public Asset AddFile(Drop drop, string file, string description)
         {
-            return this.ServiceAdapter.AddFile(drop, file, comment, description);
+            return this.ServiceAdapter.AddFile(drop, file, description);
         }
 		
 		/// <summary>

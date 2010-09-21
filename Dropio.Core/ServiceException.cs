@@ -4,7 +4,9 @@ using System.Text;
 
 namespace Dropio.Core
 {
-    
+    /// <summary>
+    /// 
+    /// </summary>
     public class ServiceException : Exception
     {
         /// <summary>
