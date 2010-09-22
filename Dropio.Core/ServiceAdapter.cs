@@ -336,7 +336,7 @@ namespace Dropio.Core
 			Hashtable parameters = new Hashtable();
 			parameters.Add( "page", page.ToString() );
 			
-            HttpWebRequest request = this.CreateGetRequest(this.CreateManagerDropsUrl()); //, parameters);
+            HttpWebRequest request = this.CreateGetRequest(this.CreateManagerDropsUrl(), parameters);
             CompleteRequest(request, delegate(HttpWebResponse response)
             {
                 ReadResponse(response, delegate(XmlDocument doc)
