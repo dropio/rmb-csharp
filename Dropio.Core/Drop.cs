@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Web.UI.WebControls;
 
 namespace Dropio.Core
 {
@@ -173,37 +174,64 @@ namespace Dropio.Core
 
         #region Actions
 		
-		/// <summary>Add a file to a drop</summary>
-        /// <param name="file">A <see cref="string"> type specifying the path to the file</param>
+		/// <summary>Add a file to a drop (using a FileUpload object)</summary>
+        /// <param name="file">A <see cref="FileUpload"> object specifying the path to the file</param>
         /// <param name="description">A <see cref="string"> type specifying a description for the file. Pass
 		/// <see cref="string.Empty"/> if you don't want to set a description</param>
         /// <returns>An <see cref="Asset"> object of the newly created asset</returns>
-		public Asset AddFile(string file, string description)
+		public Asset AddFile (FileUpload file, string description)
 		{
-			return this.AddFile(file, description, null);
+			return this.AddFile (file, description, null);
+		}
+
+		/// <summary>Add a file to a drop (using a string type to specify the filepath)</summary>
+		/// <param name="file">A <see cref="string"> type specifying the path to the file</param>
+		/// <param name="description">A <see cref="string"> type specifying a description for the file. Pass
+		/// <see cref="string.Empty"/> if you don't want to set a description</param>
+		/// <returns>An <see cref="Asset"> object of the newly created asset</returns		
+		public Asset AddFile (string file, string description)
+		{
+			return this.AddFile (file, description, null);
 		}
 		
-		/// <summary>Add a file to a drop</summary>
+		/// <summary>Add a file to a drop (using a FileUpload object)</summary>
+		/// <param name="file">A <see cref="FileUpload"> object specifying the path to the file</param>
+		/// <param name="description">A <see cref="string"> type specifying a description for the file. Pass
+		/// <see cref="string.Empty"/> if you don't want to set a description</param>
+		/// <param name="handler">A <see cref="ServiceAdapter.TransferProgressHandler"/> object to keep track of bytes
+		/// transfered. If you don't want to specify this just use the AddFile(string, string) prototype</param>
+		/// <returns>An <see cref="Asset"/> object of the newly created asset</returns>		
+		public Asset AddFile (FileUpload file, string description, ServiceAdapter.TransferProgressHandler handler)
+		{
+			if (handler != null)
+				ServiceProxy.Instance.ServiceAdapter.OnTransferProgress += handler;
+			
+			Asset a = ServiceProxy.Instance.AddFile (this, file, description);
+			
+			if (handler != null)
+				ServiceProxy.Instance.ServiceAdapter.OnTransferProgress -= handler;
+			
+			return a;
+		}
+
+		/// <summary>Add a file to a drop (using a string type to specify the filepath)</summary>
         /// <param name="file">A <see cref="string"> type specifying the path to the file</param>
         /// <param name="description">A <see cref="string"> type specifying a description for the file. Pass
 		/// <see cref="string.Empty"/> if you don't want to set a description</param>
         /// <param name="handler">A <see cref="ServiceAdapter.TransferProgressHandler"/> object to keep track of bytes
 		/// transfered. If you don't want to specify this just use the AddFile(string, string) prototype</param>
         /// <returns>An <see cref="Asset"/> object of the newly created asset</returns>
-		public Asset AddFile(string file, string description, ServiceAdapter.TransferProgressHandler handler)
+		public Asset AddFile (string file, string description, ServiceAdapter.TransferProgressHandler handler)
 		{
 			if (handler != null)
-            {
-                ServiceProxy.Instance.ServiceAdapter.OnTransferProgress += handler;
-            }
+				ServiceProxy.Instance.ServiceAdapter.OnTransferProgress += handler;
 
-            Asset a = ServiceProxy.Instance.AddFile(this, file, description);
+            Asset a = ServiceProxy.Instance.AddFile (this, file, description);
 
             if (handler != null)
-            {
-                ServiceProxy.Instance.ServiceAdapter.OnTransferProgress -= handler;
-            }
-            return a;
+				ServiceProxy.Instance.ServiceAdapter.OnTransferProgress -= handler;
+			
+			return a;
 		}
 
 		/// <summary>Creates a pingback subscription. When the events happen, the url will be sent a POST request with the

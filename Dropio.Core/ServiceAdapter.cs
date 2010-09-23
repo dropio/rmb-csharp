@@ -8,6 +8,7 @@ using System.Collections.Specialized;
 using System.Collections;
 using System.Security.Cryptography;
 using System.Web;
+using System.Web.UI.WebControls;
 
 namespace Dropio.Core
 {
@@ -830,15 +831,48 @@ namespace Dropio.Core
             return moved;
 		}
 		
+		public Asset AddFileInit (Drop drop, string file, string description)
+		{
+			// get the name of the file
+			string fileName = Path.GetFileName (file);
+			
+			// length of file in bytes
+			long fileLength = new FileInfo (file).Length;
+			
+			// create Stream object for file access
+			Stream fs = new FileStream (file, FileMode.Open, FileAccess.Read);
+			
+			return this.AddFile (drop, fileName, description, fileLength, fs);
+		}
+		
+		public Asset AddFileInit (Drop drop, FileUpload file, string description)
+		{
+			// get the name of the file
+			string fileName = file.FileName;
+			
+			// length of file in bytes
+			long fileLength = (long)file.PostedFile.ContentLength;
+			
+			// create Stream object for file access
+			Stream fs = file.PostedFile.InputStream;
+			
+			return this.AddFile (drop, fileName, description, fileLength, fs);	
+		}
+		
+		
         /// <summary>
         /// Adds the file.
         /// </summary>
         /// <param name="drop">The drop.</param>
-        /// <param name="file">The file.</param>
+        /// <param name="fileName">The file.</param>
         /// <param name="description">The description.</param>
+        /// <param name="fileLength"></param>
+        /// <param name="fs"></param>
         /// <returns></returns>
-        public Asset AddFile(Drop drop, string file, string description)
+        //public Asset AddFile (Drop drop, string file, string description)
+		public Asset AddFile (Drop drop, string fileName, string description, long fileLength, Stream fs )
         {
+
             string requestUrl = this.UploadUrl;
 
             Hashtable parameters = new Hashtable();
@@ -859,7 +893,8 @@ namespace Dropio.Core
 			SignIfNeeded( ref parameters );
 			
             StringBuilder sb = new StringBuilder();
-            string fileName = Path.GetFileName(file);
+            //string fileName = Path.GetFileName(file);
+			//string fileName = file.FileName;
 
             foreach (DictionaryEntry parameter in parameters)
             {
@@ -879,8 +914,10 @@ namespace Dropio.Core
             byte[] postContents = encoding.GetBytes(sb.ToString());
             byte[] postFooter = encoding.GetBytes("\r\n--" + boundary + "--\r\n");
 
-            request.ContentLength = postContents.Length + new FileInfo(file).Length + postFooter.Length;
-
+            //request.ContentLength = postContents.Length + new FileInfo(file).Length + postFooter.Length;
+			//request.ContentLength = postContents.Length + file.PostedFile.ContentLength + postFooter.Length;
+			request.ContentLength = postContents.Length + fileLength + postFooter.Length;
+			
             request.AllowWriteStreamBuffering = false;
             Stream resStream = request.GetRequestStream();
             resStream.Write(postContents, 0, postContents.Length);
@@ -890,12 +927,14 @@ namespace Dropio.Core
                 OnTransferProgress(this, new TransferProgressEventArgs(postContents.LongLength, request.ContentLength, false));
             }
 
-            FileStream fs = new FileStream(file, FileMode.Open, FileAccess.Read);
+            //FileStream fs = new FileStream(file, FileMode.Open, FileAccess.Read);
+			//Stream fs = file.PostedFile.InputStream;
             long size = Math.Min(Math.Max(request.ContentLength / 100, 50 * 1024), 1024 * 1024);
 
             byte[] buffer = new byte[size];
             int bytesOut = 0;
             int bytesSoFar = 0;
+
             while ((bytesOut = fs.Read(buffer, 0, buffer.Length)) != 0)
             {
                 resStream.Write(buffer, 0, bytesOut);
@@ -926,7 +965,7 @@ namespace Dropio.Core
                     a = this.CreateAndMapAsset(drop, node);
                 });
             });
-
+			
             return a;
 		}
 

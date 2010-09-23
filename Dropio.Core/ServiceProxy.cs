@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Net;
-//using Dropio.Core.Types;
+using System.Web.UI.WebControls;
 
 namespace Dropio.Core
 {
@@ -295,10 +295,15 @@ namespace Dropio.Core
         /// <param name="file">The file.</param>
         /// <param name="description">The description.</param>
         /// <returns></returns>
-        public Asset AddFile(Drop drop, string file, string description)
+        public Asset AddFile (Drop drop, string file, string description)
         {
-            return this.ServiceAdapter.AddFile(drop, file, description);
-        }
+        	return this.ServiceAdapter.AddFileInit (drop, file, description);
+		}
+		
+		public Asset AddFile (Drop drop, FileUpload file, string description)
+		{
+			return this.ServiceAdapter.AddFileInit (drop, file, description);
+		}
 		
 		/// <summary>
 		/// Copies the asset to the given drop and returns the new asset.

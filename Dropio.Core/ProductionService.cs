@@ -16,11 +16,14 @@ namespace Dropio.Core
 		/// <summary>
 		/// 
 		/// </summary>
-        public ProductionService()
+        public ProductionService ()
         {
-            this._baseUrl = "http://drop.io/";
-            this._apiBaseUrl = "http://api.drop.io/";
-            this._uploadUrl = "http://assets.drop.io/upload";
+        	this._baseUrl = "http://drop.io/";
+        	//this._baseUrl = "http://stage-release.drop.io";
+        	this._apiBaseUrl = "http://api.drop.io/";
+        	//this._apiBaseUrl = "http://stage-release-api.drop.io";
+        	this._uploadUrl = "http://assets.drop.io/upload";
+        	//this._uploadUrl = "http://stage-release-assets.drop.io/upload";
         }
 
         /// <summary>
