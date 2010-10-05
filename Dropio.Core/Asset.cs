@@ -77,6 +77,10 @@ namespace Dropio.Core
 		/// </value>
 		public string Title { get; set; }
 		
+		public string Id { get; set; }
+		
+		public string DropName { get; set; }
+		
         /// <summary>
         /// Gets or sets the drop.
         /// </summary>
@@ -122,7 +126,7 @@ namespace Dropio.Core
         /// Saves this instance.
         /// Do not use this to change the name of the asset, use ChangeName for that
         /// </summary>
-        /// <param name="newName">
+        /// <param name="newTitle">
         /// 
         /// </param>
         /// <param name="newDescription">
@@ -131,9 +135,9 @@ namespace Dropio.Core
         /// <returns>
         /// 
         /// </returns>
-        public bool Update( string newName, string newDescription )
+        public bool Update( string newTitle, string newDescription )
         {
-            return ServiceProxy.Instance.UpdateAsset(this, newName, newDescription );
+            return ServiceProxy.Instance.UpdateAsset(this, newTitle, newDescription );
         }
 
         /// <summary>
@@ -181,16 +185,19 @@ namespace Dropio.Core
 
 		/// <summary>
 		/// Gets an original file download url.
-		/// This currently only works when used WITHOUT an api secret due to a bug
-		/// Instead for now use the url that is included in an asset response
 		/// </summary>
 		/// <returns></returns>
-//		public string GenerateOriginalFileUrl()
-//		{
-//			return ServiceProxy.Instance.OriginalFileUrl(this);
-//		}
+		public string GenerateOriginalFileUrl()
+		{
+			return ServiceProxy.Instance.OriginalFileUrl(this);
+		}
 
         #endregion
+        
+        public bool Convert (AssetType type, List<Hashtable> inputs, List<Hashtable> outputs, string plugin, string pingback_url)
+        {
+        	return ServiceProxy.Instance.CreateJob( type, inputs, outputs, plugin, pingback_url);
+        }
 
     }
 }

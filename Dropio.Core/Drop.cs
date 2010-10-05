@@ -1,6 +1,8 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Text;
+using System.Web;
 using System.Web.UI.WebControls;
 
 namespace Dropio.Core
@@ -128,17 +130,17 @@ namespace Dropio.Core
 		
 		/// <summary>Get the first page of the list of drops associated with the RMB account</summary>
 		/// <returns>A List of <see cref="Drop"> objects (up to 30)</returns>
-		public static List<Drop> FindManagerDrops()
+		public static List<Drop> FindAll()
 		{
-			return FindManagerDrops(1);
+			return FindAll(1);
 		}
 		
 		/// <summary>Get the specified results page of the list of drops associated with the RMB account</summary>
 		/// <param name="page">An <see cref="int"> type specifying the page of results to return</summary>
 		/// <returns>A List of <see cref="Drop"> objects of the returned drops</returns>
-		public static List<Drop> FindManagerDrops(int page)
+		public static List<Drop> FindAll(int page)
 		{
-			return ServiceProxy.Instance.FindManagerDrops(page);
+			return ServiceProxy.Instance.FindAll(page);
 		}
 
         #endregion
@@ -146,14 +148,15 @@ namespace Dropio.Core
         #region Update / Delete
 		
         /// <summary>Update information associated with a drop. All parameters are optional, pass <see cref="string.Empty">
-		/// to any you do not want to set.</summary>
+		/// to any you do not want to set. The <see cref="Drop"/> object is updated with the new information.</summary>
 		/// <param name="newName">A <see cref="string"> type specifying the new name for the drop</param>
 		/// <param name="newDescription">A <see cref="string"> type specifying the new description for the drop</param>
 		/// <param name="newChatPassword">A <see cref="string"> type specifying the new chat password for the drop</param>
+		/// <param name="newMaxSize">A <see cref="int"> type specifying the new maximum size for the drop</param>
         /// <returns>A <see cref="bool"> indicating whether the action sucessfully completed</returns>
-        public bool Update()
+        public bool Update( string newName, string newDescription, string newChatPassword, int newMaxSize )
         {
-			return ServiceProxy.Instance.UpdateDrop( this, string.Empty, string.Empty );
+			return ServiceProxy.Instance.UpdateDrop( this, newName, newDescription, newChatPassword, newMaxSize );
         }
 
 		/// <summary>Empty the drop of all assets</summary>
@@ -174,39 +177,50 @@ namespace Dropio.Core
 
         #region Actions
 		
-		/// <summary>Add a file to a drop (using a FileUpload object)</summary>
-        /// <param name="file">A <see cref="FileUpload"> object specifying the path to the file</param>
+		/// <summary>Add a file to a drop (using a HttpPostedFile object)</summary>
+        /// <param name="file">A <see cref="HttpPostedFile"> object specifying the path to the file</param>
         /// <param name="description">A <see cref="string"> type specifying a description for the file. Pass
 		/// <see cref="string.Empty"/> if you don't want to set a description</param>
         /// <returns>An <see cref="Asset"> object of the newly created asset</returns>
-		public Asset AddFile (FileUpload file, string description)
+//		public Asset AddFile (FileUpload file, string description)
+		public Asset AddFile ( HttpPostedFile file, string description )
 		{
-			return this.AddFile (file, description, null);
+			return this.AddFile (file, description, false, string.Empty, string.Empty, null);
+		}
+		
+		public Asset AddFile (HttpPostedFile file, string description, bool conversion, string pingbackUrl, string outputLocations )
+		{
+			return this.AddFile( file, description, conversion, pingbackUrl, outputLocations, null );
 		}
 
 		/// <summary>Add a file to a drop (using a string type to specify the filepath)</summary>
 		/// <param name="file">A <see cref="string"> type specifying the path to the file</param>
 		/// <param name="description">A <see cref="string"> type specifying a description for the file. Pass
 		/// <see cref="string.Empty"/> if you don't want to set a description</param>
-		/// <returns>An <see cref="Asset"> object of the newly created asset</returns		
+		/// <returns>An <see cref="Asset"> object of the newly created asset</returns	
 		public Asset AddFile (string file, string description)
 		{
-			return this.AddFile (file, description, null);
+			return this.AddFile (file, description, false, string.Empty, string.Empty, null);
+		}
+				
+		public Asset AddFile (string file, string description, bool conversion, string pingbackUrl, string outputLocations)
+		{
+			return this.AddFile (file, description, conversion, pingbackUrl, outputLocations, null);
 		}
 		
-		/// <summary>Add a file to a drop (using a FileUpload object)</summary>
-		/// <param name="file">A <see cref="FileUpload"> object specifying the path to the file</param>
+		/// <summary>Add a file to a drop (using a HttpPostedFile object)</summary>
+		/// <param name="file">A <see cref="HttpPostedFile"> object specifying the path to the file</param>
 		/// <param name="description">A <see cref="string"> type specifying a description for the file. Pass
 		/// <see cref="string.Empty"/> if you don't want to set a description</param>
 		/// <param name="handler">A <see cref="ServiceAdapter.TransferProgressHandler"/> object to keep track of bytes
 		/// transfered. If you don't want to specify this just use the AddFile(string, string) prototype</param>
 		/// <returns>An <see cref="Asset"/> object of the newly created asset</returns>		
-		public Asset AddFile (FileUpload file, string description, ServiceAdapter.TransferProgressHandler handler)
+		public Asset AddFile (HttpPostedFile file, string description, bool conversion, string pingbackUrl, string outputLocations, ServiceAdapter.TransferProgressHandler handler)
 		{
 			if (handler != null)
 				ServiceProxy.Instance.ServiceAdapter.OnTransferProgress += handler;
 			
-			Asset a = ServiceProxy.Instance.AddFile (this, file, description);
+			Asset a = ServiceProxy.Instance.AddFile (this, file, description, conversion, pingbackUrl, outputLocations);
 			
 			if (handler != null)
 				ServiceProxy.Instance.ServiceAdapter.OnTransferProgress -= handler;
@@ -221,12 +235,12 @@ namespace Dropio.Core
         /// <param name="handler">A <see cref="ServiceAdapter.TransferProgressHandler"/> object to keep track of bytes
 		/// transfered. If you don't want to specify this just use the AddFile(string, string) prototype</param>
         /// <returns>An <see cref="Asset"/> object of the newly created asset</returns>
-		public Asset AddFile (string file, string description, ServiceAdapter.TransferProgressHandler handler)
+		public Asset AddFile (string file, string description, bool conversion, string pingbackUrl, string outputLocations, ServiceAdapter.TransferProgressHandler handler)
 		{
 			if (handler != null)
 				ServiceProxy.Instance.ServiceAdapter.OnTransferProgress += handler;
 
-            Asset a = ServiceProxy.Instance.AddFile (this, file, description);
+            Asset a = ServiceProxy.Instance.AddFile (this, file, description, conversion, pingbackUrl, outputLocations);
 
             if (handler != null)
 				ServiceProxy.Instance.ServiceAdapter.OnTransferProgress -= handler;
@@ -246,7 +260,46 @@ namespace Dropio.Core
 		{
 			return ServiceProxy.Instance.CreatePingbackSubscription(this, url, events);
 		}
-
+        
+        /// <summary>
+        /// returns a string that contain the entire <script> needed to embed an uploadify uploader on a web page.
+        /// The uploader is created using the following defaults:
+        ///		'uploader':'uploadify/uploadify.swf'
+        ///		'script':'http://assets.drop.io/upload'
+        ///		'multi':true
+        ///		'cancelImg':'uploadify/cancel.png'
+        ///		'auto':true
+        ///		'scriptData': (dynamically generated on each call)
+        /// You can set (or override) any of these options by passing a Hashtable object to the method that specifies what
+        /// options you want (though overriding "scriptData" is not recommended and will probably break uploadify). Make 
+        /// sure the value is formatted correctly (if the value requires quote marks, make sure you add them to the string).
+        /// Do not add any quote marks for the keys, just the values where required.
+        /// </summary>
+        /// <param name="uploadifyOptions">
+        /// A <see cref="Hashtable"/> that contains any options to add to uploadify. Can also be used to override default values.
+        /// </param>
+        /// <returns>
+        /// A <see cref="System.String"/> that contains all the javascript needed for the uploadify uploader. Can be
+        /// directly embedded in the page or added using <see cref="ClientScriptManager"/>.
+        /// </returns>
+        public string GetUploadifyForm( Hashtable uploadifyOptions )
+        {
+        	return ServiceProxy.Instance.GetUploadifyForm(this, uploadifyOptions );
+        }
+        
+        /// <summary>
+        /// Returns a string that contains the entire <script> needed to embed an uploadify uploader on a web page,
+        /// using only the default uploadify options.
+        /// </summary>
+        /// <returns>
+        /// A <see cref="System.String"/> that contains all the javascript needed for the uploadify uploader. Can be
+        /// directly embedded in the page or added using <see cref="ClientScriptManager"/>.
+        /// </returns>
+        public string GetUploadifyForm()
+        {
+        	return this.GetUploadifyForm( null );
+        }
+        
         #endregion
     }
 }

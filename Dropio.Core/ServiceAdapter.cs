@@ -9,6 +9,7 @@ using System.Collections;
 using System.Security.Cryptography;
 using System.Web;
 using System.Web.UI.WebControls;
+using System.Web.Script.Serialization;
 
 namespace Dropio.Core
 {
@@ -18,85 +19,33 @@ namespace Dropio.Core
     public abstract class ServiceAdapter
     {
 		/// <summary>
-		/// 
+		/// The following consts are for creating the various API urls
 		/// </summary>
 		public const string ACCOUNTS = "accounts/";
-		/// <summary>
-		/// 
-		/// </summary>
         public const string DROPS = "drops/";
-		/// <summary>
-		/// 
-		/// </summary>
 		public const string EMPTY_DROP = "/empty";
-		/// <summary>
-		/// 
-		/// </summary>
-		public const string PROMOTE_NICK = "/promote";
-		/// <summary>
-		/// 
-		/// </summary>
         public const string ASSETS = "/assets/";
-		/// <summary>
-		/// 
-		/// </summary>
-        public const string COMMENTS = "/comments/";
-		/// <summary>
-		/// 
-		/// </summary>
         public const string SUBSCRIPTIONS = "/subscriptions/";
-		/// <summary>
-		/// 
-		/// </summary>
-        public const string SEND_TO = "/send_to/";
-		/// <summary>
-		/// 
-		/// </summary>
-        public const string FROM_API = "/from_api";
-		/// <summary>
-		/// 
-		/// </summary>
-		public const string EMBED_CODE = "/embed_code";
-		/// <summary>
-		/// 
-		/// </summary>
-		public const string UPLOAD_CODE = "/upload_code";
-		/// <summary>
-		/// 
-		/// </summary>
 		public const string DOWNLOAD_ORIGINAL = "/download/original";
-		/// <summary>
-		/// 
-		/// </summary>
 		public const string COPY = "/copy";
-		/// <summary>
-		/// 
-		/// </summary>
 		public const string MOVE = "/move";
+		public const string JOBS = "jobs/";
 		/// <summary>
 		/// 
 		/// </summary>
         public const string VERSION = "3.0";
 
 		/// <summary>
-		/// 
+		/// getters for the base API urls
 		/// </summary>
         public abstract string BaseUrl { get; }
-		/// <summary>
-		/// 
-		/// </summary>
         public abstract string ApiBaseUrl { get; }
-		/// <summary>
-		/// 
-		/// </summary>
         public abstract string UploadUrl { get; }
+        
 		/// <summary>
-		/// 
+		/// getters for API key(s)
 		/// </summary>
         public string ApiKey { get; set; }
-		/// <summary>
-		/// 
-		/// </summary>
 		public string ApiSecret { get; set; }
 
         delegate void GetResponse(HttpWebResponse response);
@@ -126,11 +75,13 @@ namespace Dropio.Core
             HttpWebResponse response = null;
             
             try
-            {
+            {	
+            	// get the request response
                 response = request.GetResponse() as HttpWebResponse;
 
                 if (response.StatusCode == HttpStatusCode.OK)
                 {
+                	// request response returned status code OK, procede if a delagate was specified 
                     if (respond != null)
                     {
                         respond(response);
@@ -138,6 +89,7 @@ namespace Dropio.Core
                 }
                 else
                 {
+                	// status code was anything but OK
                     throw new ServiceException(ServiceError.BadRequest, "There was a problem with your request.");
                 }
             }
@@ -147,6 +99,7 @@ namespace Dropio.Core
             }
             finally
             {
+            	// close the connection (if we had a respose to read)
                 if (response != null)
                 {
                     response.Close();
@@ -157,19 +110,20 @@ namespace Dropio.Core
         }
 
         /// <summary>
-        /// Reads the response.
+        /// Reads a <see cref="HttpWebResponse"/> response.
         /// </summary>
         /// <param name="response">
-        /// The response.
+        /// The <see cref="HttpWebResponse"/> object being read.
         /// </param>
         /// <param name="read">
-        /// 
+        /// A <see cref="ReadDocument"/> delagate that can be used to put the response into a <see cref="XmlDocument"/>
+        /// object.
 		/// </param>
         private void ReadResponse(HttpWebResponse response, ReadDocument read)
         {
             using (StreamReader reader = new StreamReader(response.GetResponseStream()))
             {
-            
+            	// create new XmlDocument, load the XML response into it, then run the delagate if one is specified
                 XmlDocument doc = new XmlDocument();
                 doc.Load(reader);
                 if (read != null)
@@ -178,90 +132,61 @@ namespace Dropio.Core
                 }
             }
         }
-		
-		/// <summary>
-		/// 
-		/// </summary>
-		/// <param name="parameters">
-		/// A <see cref="Hashtable"/>
-		/// </param>
-		public void SignIfNeeded( ref Hashtable parameters )
-		{
-			// only sign if a secret key has been set
-			if( !String.IsNullOrEmpty( this.ApiSecret ) )
-			{
-				// add the timestamp to our parameters
-				string timestamp = GenerateUnixTimestamp().ToString();
-				parameters.Add( "timestamp", timestamp );
-				
-				// the parameters must be in alpha order before signing
-				// create an array from the hash keys, and use that to sort the parameters
-				ArrayList ParameterKeys = new ArrayList( parameters.Keys );
-				ParameterKeys.Sort();
-				
-				// concatenate the parameters and values together then add the secret and sign it
-				StringBuilder StringToSign = new StringBuilder();
-				foreach( object key in ParameterKeys )
-				{
-					StringToSign.Append( key + "=" + parameters[key] );
-				}
-				
-				string signature = GenerateSignature( StringToSign.Append( this.ApiSecret ).ToString() );
 
-				// Add signature as a parameter
-				parameters.Add( "signature", signature );
-				
-			}
-		}
-		
 		/// <summary>
         /// Gets an original file download url.
         /// </summary>
-        /// <param name="asset">The asset.</param>
+        /// <param name="asset">An <see cref="Asset"/> object</param>
         /// <returns></returns>
-        public string OriginalFileUrl(Asset asset)
+        public string OriginalFileUrl (Asset asset)
         {
-			Hashtable parameters = new Hashtable();
-            StringBuilder sb = new StringBuilder();
-			
-            sb.Append(this.ApiBaseUrl + DROPS + asset.Drop.Name + ASSETS + asset.Name + DOWNLOAD_ORIGINAL);
-			
+			// create the API call
+            StringBuilder sb = new StringBuilder ();
+            sb.Append (this.ApiBaseUrl + DROPS + asset.Drop.Name + ASSETS + asset.Id + DOWNLOAD_ORIGINAL);
+            
+            // we just need the "common" parameters for this request, and sign if secret was provided
+			Hashtable parameters = new Hashtable ();
 			AddCommonParameters( ref parameters );
 			SignIfNeeded( ref parameters );
 			
+			// add the parameters to the end of the url
 			sb.Append("?");
-			
 			sb.Append( BuildParameterString( parameters ));
 
+			// return as a string
             return sb.ToString();
         }
 
         /// <summary>
-        /// Generates the signature.
+        /// Generates a SHA1 hash signature for the specified string
         /// </summary>
 		/// <param name="StringToSign">
-		/// The string of charaters to be signed
+		/// The <see cref="string"/> of parameters to sign.
 		/// </param>
-        /// <returns></returns>
+        /// <returns>
+        /// 
+        /// </returns>
         protected string GenerateSignature( string StringToSign )
         {
-            
             SHA1 sha1 = new SHA1CryptoServiceProvider();
+            
+            // the string must be converted to an array of byte's before it can be encoded
             byte[] input = Encoding.UTF8.GetBytes( StringToSign );
             byte[] result = sha1.ComputeHash(input);
-			// returned hash has a dash between each byte, remove and convert to lowercase
+            
+			// value returned from ComputeHash() has a dash between each byte, remove and convert to lowercase
             return BitConverter.ToString(result).Replace( "-", "" ).ToLower();
-
-
         }
 
         /// <summary>
-        /// Generates the unix timestamp.
+        /// Generates a unix timestamp 10 minutes in the future
         /// </summary>
         /// <returns></returns>
         protected long GenerateUnixTimestamp()
         {
+        	// now + 10 minutes
             TimeSpan ts = (DateTime.UtcNow.AddMinutes(10) - new DateTime(1970, 1, 1, 0, 0, 0));
+            // return the time span as just the total seconds (since that's what we mean by unix time)
             return (long) ts.TotalSeconds;
         }
 
@@ -278,11 +203,11 @@ namespace Dropio.Core
         /// </returns>
         public Drop CreateDrop(string name, string description, string emailKey, int maxSize, string chatPassword ) 
         {
+        	// drop object that will be returned
             Drop d = null;
 
+			// add any specified parameters to a Hashtable. All parameters are optional, so only add if they've been specified
 			Hashtable parameters = new Hashtable();
-
-			// Since all these parameters are options, we only want to add the ones that have been explicitly specified
 			if( name != string.Empty)
 	            parameters.Add("name", name);
 			if( description != string.Empty)
@@ -294,6 +219,7 @@ namespace Dropio.Core
 			if( chatPassword != string.Empty)
 				parameters.Add("chat_password", chatPassword);
 
+			// do the request and load to response into the Drop object
             HttpWebRequest request = this.CreatePostRequest(this.CreateDropUrl(string.Empty), parameters);
             CompleteRequest(request, delegate(HttpWebResponse response)
             {
@@ -304,18 +230,21 @@ namespace Dropio.Core
         }
 
         /// <summary>
-        /// Finds a drop by name.
+        /// Find a drop by name.
         /// </summary>
-        /// <param name="name">The name.</param>
+        /// <param name="name">A <see cref="string"/> specifying the name of the drop to find.</param>
         /// <returns></returns>
         public Drop FindDrop(string name)
         {
+        	// can't find a drop if we don't have a name...
             if (string.IsNullOrEmpty(name))
                 throw new ArgumentNullException("name", "The given name can't be blank.");
 
+			// drop object to be returned
             Drop d = null;
 
-            HttpWebRequest request = this.CreateGetRequest(this.CreateDropUrl(name)); //, token);
+			// do the request, load response into Drop object
+            HttpWebRequest request = this.CreateUrlEncodedRequest("GET", this.CreateDropUrl(name));
             CompleteRequest(request, delegate(HttpWebResponse response)
             {
                 ReadResponse(response, (XmlDocument doc) => d = this.CreateAndMapDrop(doc.SelectSingleNode("drop")));
@@ -325,25 +254,28 @@ namespace Dropio.Core
         }
 		
 		/// <summary>
-		/// Gets a paginated list of drops with the Manager Account. Requires Manager API Token.
+		/// Gets a paginated list of drops associated with the ApiKey
 		/// </summary>
-		/// <param name="page">The page.</param>
+		/// <param name="page">An <see cref="int"/> specifying the page of results to get.</param>
 		/// <returns></returns>
-		public List<Drop> FindManagerDrops(int page)
+		public List<Drop> FindAll(int page)
 		{
-			
+			// List<Drop> object to return
 			List<Drop> drops = new List<Drop>();
 
+			// add the page parameter
 			Hashtable parameters = new Hashtable();
 			parameters.Add( "page", page.ToString() );
 			
-            HttpWebRequest request = this.CreateGetRequest(this.CreateManagerDropsUrl(), parameters);
+			// do the request and load the response into the drop list
+            HttpWebRequest request = this.CreateUrlEncodedRequest("GET", this.CreateAllDropsUrl(), parameters);
             CompleteRequest(request, delegate(HttpWebResponse response)
             {
                 ReadResponse(response, delegate(XmlDocument doc)
                 {
                     XmlNodeList nodes = doc.SelectNodes("/drops/drop");
-
+					
+					// go through each returned drop XML node. load into Drop object and Add() to List
                     foreach (XmlNode node in nodes)
                     {
                         Drop d = this.CreateAndMapDrop(node);
@@ -356,17 +288,20 @@ namespace Dropio.Core
 		}
 
 		/// <summary>
-        /// Empties the drop.
+        /// Empties a drop of all assets
         /// </summary>
-        /// <param name="drop">The drop.</param>
+        /// <param name="drop">The <see cref="Drop"/> to be emptied</param>
         /// <returns></returns>
         public bool EmptyDrop(Drop drop)
         {
+        	// can't do much if we don't have a drop to act on...
             if (drop == null)
                 throw new ArgumentNullException("drop", "The given drop can't be null");
 
+			// bool to return
             bool emptied = false;
 
+			// do request and change "emptied" to true if request succeeds 
             HttpWebRequest request = this.CreatePutRequest(this.CreateEmptyDropUrl(drop.Name), new Hashtable() );
             CompleteRequest(request, (HttpWebResponse response) => { emptied = true; });
 
@@ -378,16 +313,17 @@ namespace Dropio.Core
         /// </summary>
         /// <param name="drop">The drop.</param>
         /// <returns></returns>
-        public bool DestroyDrop(Drop drop)
+        public bool DestroyDrop (Drop drop)
         {
+        	// can't do much if we don't have a drop to act on...
             if (drop == null)
                 throw new ArgumentNullException("drop", "The given drop can't be null");
 
+			// bool to return
             bool destroyed = false;
 
-            Hashtable parameters = new Hashtable();
-
-            HttpWebRequest request = this.CreateDeleteRequest(this.CreateDropUrl(drop.Name), parameters);
+			// do request and change "destroyed" to true if request succeeds
+            HttpWebRequest request = this.CreateUrlEncodedRequest("DELETE",this.CreateDropUrl(drop.Name), new Hashtable() );
             CompleteRequest(request, (HttpWebResponse response) => { destroyed = true; });
 
             return destroyed;
@@ -400,23 +336,31 @@ namespace Dropio.Core
         /// <param name="name"></param>
         /// <param name="chatPassword"></param>
         /// <returns></returns>
-        public bool UpdateDrop(Drop drop, string name, string chatPassword)
+        public bool UpdateDrop (Drop drop, string newName, string newDescription, string newChatPassword, int newMaxSize)
         {
+        	// can't do much if we don't have a drop to act on...
             if (drop == null)
                 throw new ArgumentNullException("drop", "The given drop can't be null");
 
+			// bool to return
             bool updated = false;
 			
+			// add the parameters (that were actually specified) to a hashtable of parameters
             Hashtable parameters = new Hashtable();
-
-			if( !String.IsNullOrEmpty( name ))
-				parameters.Add("name", name);
-			if( !String.IsNullOrEmpty( chatPassword ))
-				parameters.Add("chat_password", chatPassword);
+			if( !String.IsNullOrEmpty( newName ))
+				parameters.Add("name", newName);
+			if( !String.IsNullOrEmpty( newDescription ))
+				parameters.Add("description", newDescription);
+			if( !String.IsNullOrEmpty( newChatPassword ))
+				parameters.Add("chat_password", newChatPassword);
+			if( newMaxSize > 0 )
+				parameters.Add( "max_size", newMaxSize.ToString());
 			
+			// do the request and change updated to "true" if request succeeded
             HttpWebRequest request = this.CreatePutRequest(this.CreateDropUrl(drop.Name), parameters);
             CompleteRequest(request, delegate(HttpWebResponse response)
             {
+            	// the response includes the updated drop information, load it into the drop object we passed
                 ReadResponse(response, (XmlDocument doc) => this.MapDrop(drop, doc.SelectSingleNode("drop")));
                 updated = true;
             });
@@ -425,27 +369,29 @@ namespace Dropio.Core
         }
 
         /// <summary>
-        /// Finds the asset.
+        /// Finds an asset.
         /// </summary>
         /// <param name="drop"></param>
         /// <param name="name">The asset name.</param>
         /// <returns></returns>
-        public Asset FindAsset(Drop drop, string name)
+        public Asset FindAsset(Drop drop, string assetId)
         {
+        	// we can't do much without a drop or asset ID...
             if (drop == null)
                 throw new ArgumentNullException("drop", "The given drop can't be null");
+            if (assetId == null)
+                throw new ArgumentNullException("assetId", "The given asset ID can't be null");
 
-            if (name == null)
-                throw new ArgumentNullException("name", "The given drop name can't be null");
-
+			// asset object to return
             Asset a = null;
 
-            HttpWebRequest request = this.CreateGetRequest(this.CreateAssetUrl(drop.Name, name)); //, token);
-
+			// do the request
+            HttpWebRequest request = this.CreateUrlEncodedRequest("GET", this.CreateAssetUrl(drop.Name, assetId, string.Empty));
             CompleteRequest(request, delegate(HttpWebResponse response)
             {
                 ReadResponse(response, delegate(XmlDocument doc) 
                 {
+                	// read the XML response into the Asset object
                     XmlNode node = doc.SelectSingleNode( "/asset");
                     a = this.CreateAndMapAsset(drop, node);
                 });
@@ -463,21 +409,26 @@ namespace Dropio.Core
         /// <returns></returns>
         public List<Asset> FindAssets(Drop drop, int page, Order order)
         {
+        	// can't do much without a drop to act on
             if (drop == null)
                 throw new ArgumentNullException("drop", "The given drop can't be null");
 
+			// the Asset list to return
             List<Asset> assets = new List<Asset>();
 
+			// create a new hashtable and add the passed in parameters
 			Hashtable parameters = new Hashtable();
 			parameters.Add( "page", page.ToString() );
             parameters.Add( "order", (order == Order.Newest ) ? "latest" : "oldest" );
-            HttpWebRequest request = this.CreateGetRequest(this.CreateAssetUrl(drop.Name, string.Empty), parameters);
+            
+            // do the request
+            HttpWebRequest request = this.CreateUrlEncodedRequest("GET", this.CreateAssetUrl(drop.Name, string.Empty, string.Empty), parameters);
             CompleteRequest(request, delegate(HttpWebResponse response)
             {
                 ReadResponse(response, delegate(XmlDocument doc)
                 {
+                	// get all the asset XML nodes, load each one into an Asset object and load into the Asset list
                     XmlNodeList nodes = doc.SelectNodes("//assets/asset");
-
                     foreach (XmlNode node in nodes)
                     {
                         Asset a = this.CreateAndMapAsset(drop, node);
@@ -504,7 +455,7 @@ namespace Dropio.Core
 
 			Hashtable parameters = new Hashtable();
 			parameters.Add( "page", page.ToString() );
-            HttpWebRequest request = this.CreateGetRequest(this.CreateSubscriptionsUrl(drop.Name)); //, parameters);
+            HttpWebRequest request = this.CreateUrlEncodedRequest("GET", this.CreateSubscriptionsUrl(drop.Name)); //, parameters);
             CompleteRequest(request, delegate(HttpWebResponse response)
             {
                 ReadResponse(response, delegate(XmlDocument doc)
@@ -573,107 +524,11 @@ namespace Dropio.Core
 
             Hashtable parameters = new Hashtable();
 
-            HttpWebRequest request = this.CreateDeleteRequest(this.CreateSubscriptionUrl(drop.Name, subscription.Id), parameters);
+            HttpWebRequest request = this.CreateUrlEncodedRequest("DELETE",this.CreateSubscriptionUrl(drop.Name, subscription.Id), parameters);
             CompleteRequest(request, (HttpWebResponse response) => { destroyed = true; });
 
             return destroyed;
 		}
-		
-		/// <summary>
-		/// Gets the embed code for the asset.
-		/// </summary>
-		/// <param name="asset">The asset.</param>
-		/// <returns></returns>
-		public string GetAssetEmbedCode(Asset asset)
-		{
-			if (asset == null)
-                throw new ArgumentNullException("asset", "The given asset can't be null");
-
-			Drop drop = asset.Drop;
-			string embed_code = string.Empty;
-			
-            HttpWebRequest request = this.CreateGetRequest(this.CreateAssetEmbedCodeUrl(drop.Name, asset.Name)); //, token);
-
-            CompleteRequest(request, delegate(HttpWebResponse response)
-            {
-                ReadResponse(response, delegate(XmlDocument doc) 
-                {
-                    XmlNodeList nodes = doc.SelectNodes("/response");
-                    embed_code = this.ExtractInnerText(nodes[0],"embed_code");
-                });
-            });
-
-            return embed_code;
-		}
-
-        /// <summary>
-        /// Creates the note.
-        /// </summary>
-        /// <param name="drop">The drop.</param>
-        /// <param name="title">The title.</param>
-        /// <param name="contents">The contents.</param>
-        /// <param name="description">The description.</param>
-        /// <returns></returns>
-        public Asset CreateNote(Drop drop, string title, string contents, string description)
-        {
-            if (drop == null)
-                throw new ArgumentNullException("drop", "The given drop can't be null");
-
-            Asset a = null;
-
-            Hashtable parameters = new Hashtable();
-
-            parameters.Add("title", title);
-            parameters.Add("contents", contents);
-			parameters.Add("description", description);
-
-            HttpWebRequest request = this.CreatePostRequest(this.CreateAssetUrl(drop.Name, string.Empty), parameters);
-            CompleteRequest(request, delegate(HttpWebResponse response)
-            {
-                ReadResponse(response, delegate(XmlDocument doc)
-                {
-                    XmlNode node = doc.SelectSingleNode( "/asset" );
-					a = this.CreateAndMapAsset(drop, node);
-                });
-            });
-
-            return a;
-        }
-
-        /// <summary>
-        /// Creates the link.
-        /// </summary>
-        /// <param name="drop">The drop.</param>
-        /// <param name="title">The title.</param>
-        /// <param name="description">The description.</param>
-        /// <param name="url">The url.</param>
-        /// <returns></returns>
-        public Asset CreateLink(Drop drop, string title, string description, string url)
-        {
-            if (drop == null)
-                throw new ArgumentNullException("drop", "The given drop can't be null");
-
-            Asset a = null;
-
-            Hashtable parameters = new Hashtable();
-
-            parameters.Add("title", title);
-            parameters.Add("description", description);
-            parameters.Add("url", url);
-
-            HttpWebRequest request = this.CreatePostRequest(this.CreateAssetUrl(drop.Name, string.Empty), parameters);
-
-            CompleteRequest(request, delegate(HttpWebResponse response)
-            {
-                ReadResponse(response, delegate(XmlDocument doc)
-                {
-					XmlNode node = doc.SelectSingleNode("/asset");
-                    a = this.CreateAndMapAsset(drop, node);
-                });
-            });
-
-            return a;
-        }
 
         /// <summary>
         /// Deletes the asset.
@@ -690,7 +545,7 @@ namespace Dropio.Core
 
             Hashtable parameters = new Hashtable();
 
-            HttpWebRequest request = this.CreateDeleteRequest(this.CreateAssetUrl(drop.Name, asset.Name), parameters);
+            HttpWebRequest request = this.CreateUrlEncodedRequest("DELETE",this.CreateAssetUrl(drop.Name, asset.Name, string.Empty), parameters);
             CompleteRequest(request, (HttpWebResponse response) => { destroyed = true; });
 
             return destroyed;
@@ -700,10 +555,10 @@ namespace Dropio.Core
         /// Updates the asset.
         /// </summary>
         /// <param name="asset">The asset.</param>
-        /// <param name="newName"></param>
+        /// <param name="newTitle"></param>
         /// <param name="newDescription"></param>
         /// <returns></returns>
-        public bool UpdateAsset(Asset asset, string newName, string newDescription)
+        public bool UpdateAsset(Asset asset, string newTitle, string newDescription)
         {
             if (asset == null)
                 throw new ArgumentNullException("asset", "The given asset can't be null");
@@ -713,13 +568,13 @@ namespace Dropio.Core
 
             Hashtable parameters = new Hashtable();
 				
-			if( !string.IsNullOrEmpty( newName ))
-				parameters.Add("name", newName);
+			if( !string.IsNullOrEmpty( newTitle ))
+				parameters.Add("name", newTitle);
 			if( !string.IsNullOrEmpty( newDescription ))
 				parameters.Add("description", newDescription );
 			//if( !string.IsNullOrEmpty( asset.))
 			
-            HttpWebRequest request = this.CreatePutRequest(this.CreateAssetUrl(drop.Name, asset.Name), parameters);
+            HttpWebRequest request = this.CreatePutRequest(this.CreateAssetUrl(drop.Name, asset.Name, string.Empty), parameters);
             CompleteRequest(request, delegate(HttpWebResponse response)
             {
                 ReadResponse(response, delegate(XmlDocument doc)
@@ -731,17 +586,6 @@ namespace Dropio.Core
             });
 
             return updated;
-        }
-
-        /// <summary>
-        /// Sends to drop.
-        /// </summary>
-        /// <param name="asset">The asset.</param>
-        /// <param name="dropName">Name of the drop.</param>
-        /// <param name="dropToken">Drop token.</param>
-        public void SendToDrop(Asset asset, string dropName, string dropToken)
-        {
-            this.Copy(asset, dropName);
         }
 		
 		/// <summary>
@@ -756,82 +600,27 @@ namespace Dropio.Core
 		/// <returns>
 		/// A <see cref="System.Boolean"/>
 		/// </returns>
-		protected bool Copy(Asset asset, string dropName)
+		public bool CopyAsset(Asset asset, Drop drop, bool keepOriginal)
 		{
 			if (asset == null)
                 throw new ArgumentNullException("asset", "The given asset can't be null");
 			
-			if (asset == null)
+			if (drop == null)
                 throw new ArgumentNullException("drop", "The given drop can't be null");
 
 			bool copied = false;
-            Drop drop = asset.Drop;
 
             Hashtable parameters = new Hashtable();
 
-            parameters.Add("drop_name", dropName);
+            parameters.Add("drop_name", drop.Name);
 
-            HttpWebRequest request = this.CreatePostRequest(this.CreateAssetCopyUrl(drop.Name, asset.Name), parameters);
+            HttpWebRequest request = this.CreatePostRequest(this.CreateAssetUrl(asset.Drop.Name, asset.Id, keepOriginal == true ? COPY : MOVE ), parameters);
             CompleteRequest(request, (HttpWebResponse response) => { copied = true; });
 
             return copied;
 		}
-
-        /// <summary>
-        /// Sends the specified parameters.
-        /// </summary>
-        /// <param name="a"></param>
-        /// <param name="parameters">The parameters.</param>
-        protected void Send(Asset a, Hashtable parameters)
-        {
-            if (a == null)
-                throw new ArgumentNullException("a", "The given asset can't be null");
-
-            Drop drop = a.Drop;
-
-            HttpWebRequest request = this.CreatePostRequest(this.CreateSendToUrl(drop.Name, a.Name), parameters);
-            CompleteRequest(request, null);
-        }
-		
-		/// <summary>
-		/// Copies the asset to the given drop and returns the new asset.
-		/// </summary>
-		/// <param name="asset">The asset.</param>
-		/// <param name="targetDrop">The target drop.</param>
-		/// <returns></returns>
-		public bool CopyAsset(Asset asset, Drop targetDrop)
-		{
-			return this.Copy(asset, targetDrop.Name);
-		}
-		
-		/// <summary>
-		/// Moves the asset to the given drop.
-		/// </summary>
-		/// <param name="asset">The asset.</param>
-		/// <param name="targetDrop">The target drop.</param>
-		/// <returns></returns>
-		public bool MoveAsset(Asset asset, Drop targetDrop)
-		{
-			if (asset == null)
-                throw new ArgumentNullException("asset", "The given asset can't be null");
-			
-			if (asset == null)
-                throw new ArgumentNullException("drop", "The given drop can't be null");
-
-			bool moved = false;
-            Drop drop = asset.Drop;
-
-            Hashtable parameters = new Hashtable();
-
-            parameters.Add("drop_name", targetDrop.Name);
-
-            HttpWebRequest request = this.CreatePostRequest(this.CreateAssetMoveUrl(drop.Name, asset.Name), parameters);
-            CompleteRequest(request, (HttpWebResponse response) => { moved = true; });
-
-            return moved;
-		}
-		
-		public Asset AddFileInit (Drop drop, string file, string description)
+	
+		public Asset AddFileInit (Drop drop, string file, string description, bool conversion, string pingbackUrl, string outputLocations )
 		{
 			// get the name of the file
 			string fileName = Path.GetFileName (file);
@@ -842,21 +631,22 @@ namespace Dropio.Core
 			// create Stream object for file access
 			Stream fs = new FileStream (file, FileMode.Open, FileAccess.Read);
 			
-			return this.AddFile (drop, fileName, description, fileLength, fs);
+			return this.AddFile (drop, fileName, description, fileLength, fs, conversion, pingbackUrl, outputLocations);
 		}
 		
-		public Asset AddFileInit (Drop drop, FileUpload file, string description)
+		public Asset AddFileInit (Drop drop, HttpPostedFile file, string description, bool conversion, string pingbackUrl, string outputLocations )
 		{
+
 			// get the name of the file
 			string fileName = file.FileName;
 			
 			// length of file in bytes
-			long fileLength = (long)file.PostedFile.ContentLength;
+			long fileLength = (long)file.ContentLength;
 			
 			// create Stream object for file access
-			Stream fs = file.PostedFile.InputStream;
+			Stream fs = file.InputStream;
 			
-			return this.AddFile (drop, fileName, description, fileLength, fs);	
+			return this.AddFile (drop, fileName, description, fileLength, fs, conversion, pingbackUrl, outputLocations);	
 		}
 		
 		
@@ -870,7 +660,7 @@ namespace Dropio.Core
         /// <param name="fs"></param>
         /// <returns></returns>
         //public Asset AddFile (Drop drop, string file, string description)
-		public Asset AddFile (Drop drop, string fileName, string description, long fileLength, Stream fs )
+		public Asset AddFile (Drop drop, string fileName, string description, long fileLength, Stream fs, bool conversion, string pingbackUrl, string outputLoations )
         {
 
             string requestUrl = this.UploadUrl;
@@ -887,7 +677,14 @@ namespace Dropio.Core
             request.Expect = "";
 
 			parameters.Add( "drop_name", drop.Name );
-			parameters.Add( "description", description );
+			if( !String.IsNullOrEmpty(description))
+				parameters.Add( "description", description );
+			if( conversion == true )
+				parameters.Add( "conversion", "BASE" );
+			if( !String.IsNullOrEmpty(pingbackUrl))
+				parameters.Add( "pingback_url", pingbackUrl );
+			if( !String.IsNullOrEmpty( outputLoations ))
+				parameters.Add( "output_locations", outputLoations );
 			
 			AddCommonParameters( ref parameters );
 			SignIfNeeded( ref parameters );
@@ -1000,6 +797,105 @@ namespace Dropio.Core
 
             throw exc;
         }
+        
+        public bool CreateJob (AssetType type, List<Hashtable> inputs, List<Hashtable> outputs, string plugin, string pingback_url)
+		{
+			bool success = false;
+			Hashtable parameters = new Hashtable ();
+			
+			parameters.Add ("job_type", type.ToString ().ToUpper ());
+			parameters.Add ("using", plugin);
+			
+			parameters.Add ("inputs", inputs);
+			parameters.Add ("outputs", outputs);
+			
+			//Console.Write( ToJson( parameters ) );
+			
+			HttpWebRequest request = this.CreatePostRequest (this.ApiBaseUrl + JOBS, parameters);
+			CompleteRequest (request, (HttpWebResponse response) => { success = true; });
+			
+			return success;
+			
+		}
+		
+		public string GetUploadifyForm (Drop drop, Hashtable uploadifyOptions)
+		{
+			Hashtable parameters = new Hashtable ();
+			
+			AddCommonParameters (ref parameters);
+			
+			parameters.Add ("drop_name", drop.Name);
+			
+			StringBuilder sb = new StringBuilder ();
+			
+			
+			sb.AppendLine ("<script type=\"text/javascript\" src=\"uploadify/jquery-1.3.2.min.js\"></script>");
+			sb.AppendLine ("<script type=\"text/javascript\" src=\"uploadify/swfobject.js\"></script>");
+			sb.AppendLine ("<script type=\"text/javascript\" src=\"uploadify/jquery.uploadify.v2.1.0.min.js\"></script>");
+			sb.AppendLine ("<link rel=\"stylesheet\" type=\"text/css\" media=\"screen, projection\" href=\"uploadify/uploadify.css\" />");
+			
+			sb.AppendLine ("<script type=\"text/javascript\">// <![CDATA[");
+			sb.AppendLine ("$(document).ready(function() {");
+			sb.AppendLine ("$('#file').uploadify({");
+			
+			// UPLOADER
+			if ((uploadifyOptions != null) && uploadifyOptions.Contains ("uploader")) {
+				sb.AppendLine ("'uploader':" + uploadifyOptions["uploader"] + ",");
+				uploadifyOptions.Remove ("uploader");
+			} else
+				sb.AppendLine ("'uploader':'uploadify/uploadify.swf',");
+			
+			// SCRIPT
+			if ((uploadifyOptions != null) && uploadifyOptions.Contains ("script")) {
+				sb.AppendLine ("'script':" + uploadifyOptions["script"] + ",");
+				uploadifyOptions.Remove ("script");
+			} else
+				sb.AppendLine ("'script':'http://assets.drop.io/upload',");
+			
+			// MULTI
+			if ((uploadifyOptions != null) && uploadifyOptions.Contains ("multi")) {
+				sb.AppendLine ("'multi':" + uploadifyOptions["multi"] + ",");
+				uploadifyOptions.Remove ("multi");
+			} else
+				sb.AppendLine ("'multi':true,");
+			
+			// SCRIPTDATA
+			if ((uploadifyOptions != null) && uploadifyOptions.Contains ("scriptData")) {
+				sb.AppendLine ("'scriptData':" + uploadifyOptions["scriptData"]);
+				uploadifyOptions.Remove ("scriptData");
+			} else
+				sb.Append ("'scriptData': ").AppendLine (ToJson (parameters) + ",");
+			
+			// CANCELIMG
+			if ((uploadifyOptions != null) && uploadifyOptions.Contains ("cancelImg")) {
+				sb.AppendLine ("'cancelImg':" + uploadifyOptions["cancelImg"] + ",");
+				uploadifyOptions.Remove ("cancelImg");
+			} else
+				sb.AppendLine ("'cancelImg':'uploadify/cancel.png',");
+			
+			// AUTO
+			if ((uploadifyOptions != null) && uploadifyOptions.Contains ("auto")) {
+				sb.AppendLine ("'auto':" + uploadifyOptions["auto"] + ",");
+				uploadifyOptions.Remove ("auto");
+			} else
+				sb.AppendLine ("'auto':true,");
+			
+			// add any other options that don't have default options
+			if (uploadifyOptions != null) {
+				foreach (object obj in uploadifyOptions.Keys) {
+					sb.AppendLine ("'" + obj + "':" + uploadifyOptions[obj] + ",");
+				}
+			}
+			
+			// ONCOMPLETE
+			//sb.AppendLine ("'onComplete' : function(event, queueID, fileObj, response, data){ alert('all done'); }");
+			sb.AppendLine ("});");
+			sb.AppendLine ("});");
+			sb.AppendLine ("// ]]></script>");
+			
+			return sb.ToString ();
+			
+		}
 
         /// <summary>
         /// Extracts the error message.
@@ -1093,7 +989,9 @@ namespace Dropio.Core
             asset.Filesize = this.ExtractInt(node, "filesize");
 			asset.Description = this.ExtractInnerText(node, "description");
 			asset.Title = this.ExtractInnerText(node,"title");
-            asset.Name = this.ExtractInnerText(node, "name");        
+            asset.Name = this.ExtractInnerText(node, "name");
+            asset.Id = this.ExtractInnerText(node, "id");
+            asset.DropName = this.ExtractInnerText(node, "drop_name");
             asset.Type = this.MapAssetType( this.ExtractInnerText(node, "type") );
 			asset.Drop = drop;
 			
@@ -1265,7 +1163,7 @@ namespace Dropio.Core
         /// Creates the URL responsible for getting back a paginated list of Drops associated with the Manager Account.
         /// </summary>
         /// <returns></returns>
-        protected string CreateManagerDropsUrl()
+        protected string CreateAllDropsUrl()
         {
             return this.ApiBaseUrl + ACCOUNTS + DROPS;
         }
@@ -1279,80 +1177,16 @@ namespace Dropio.Core
         {
             return this.ApiBaseUrl + DROPS + dropName + EMPTY_DROP;
         }
-		
-		/// <summary>
-        /// Creates the promote nick URL.
-        /// </summary>
-        /// <param name="dropName">Name of the drop.</param>
-        /// <returns></returns>
-        protected string CreatePromoteNickUrl(string dropName)
-        {
-            return this.ApiBaseUrl + DROPS + dropName + PROMOTE_NICK;
-        }
-		
-		/// <summary>
-        /// Creates the drop upload code URL.
-        /// </summary>
-        /// <param name="dropName">Name of the drop.</param>
-        /// <returns></returns>
-        protected string CreateDropUploadCodeUrl(string dropName)
-        {
-            return this.ApiBaseUrl + DROPS + dropName + UPLOAD_CODE;
-        }
 
-        /// <summary>
-        /// Creates the asset URL.
-        /// </summary>
-        /// <param name="dropName">Name of the drop.</param>
-        /// <param name="assetName">Name of the asset.</param>
-        /// <returns></returns>
-        protected string CreateAssetUrl(string dropName, string assetName)
-        {
-            return this.ApiBaseUrl + DROPS + dropName + ASSETS + assetName;
-        }
-		
 		/// <summary>
         /// Creates the asset embed code URL.
         /// </summary>
         /// <param name="dropName">Name of the drop.</param>
         /// <param name="assetName">Name of the asset.</param>
         /// <returns></returns>
-        protected string CreateAssetEmbedCodeUrl(string dropName, string assetName)
+        protected string CreateAssetUrl (string dropName, string assetName, string action)
         {
-            return this.ApiBaseUrl + DROPS + dropName + ASSETS + assetName + EMBED_CODE;
-        }
-		
-		/// <summary>
-        /// Creates the asset embed code URL.
-        /// </summary>
-        /// <param name="dropName">Name of the drop.</param>
-        /// <param name="assetName">Name of the asset.</param>
-        /// <returns></returns>
-        protected string CreateAssetCopyUrl(string dropName, string assetName)
-        {
-            return this.ApiBaseUrl + DROPS + dropName + ASSETS + assetName + COPY;
-        }
-		
-		/// <summary>
-        /// Creates the asset embed code URL.
-        /// </summary>
-        /// <param name="dropName">Name of the drop.</param>
-        /// <param name="assetName">Name of the asset.</param>
-        /// <returns></returns>
-        protected string CreateAssetMoveUrl(string dropName, string assetName)
-        {
-            return this.ApiBaseUrl + DROPS + dropName + ASSETS + assetName + MOVE;
-        }
-
-        /// <summary>
-        /// Creates the comment URL.
-        /// </summary>
-        /// <param name="dropName">Name of the drop.</param>
-        /// <param name="assetName">Name of the asset.</param>
-        /// <returns></returns>
-        protected string CreateCommentsUrl(string dropName, string assetName)
-        {
-            return this.ApiBaseUrl + DROPS + dropName + ASSETS + assetName + COMMENTS;
+            return this.ApiBaseUrl + DROPS + dropName + ASSETS + assetName + action;
         }
 		
 		/// <summary>
@@ -1377,29 +1211,6 @@ namespace Dropio.Core
         }
 
         /// <summary>
-        /// Creates the comment URL.
-        /// </summary>
-        /// <param name="dropName">Name of the drop.</param>
-        /// <param name="assetName">Name of the asset.</param>
-        /// <param name="commentId">The comment id.</param>
-        /// <returns></returns>
-        protected string CreateCommentUrl(string dropName, string assetName, int commentId)
-        {
-            return this.ApiBaseUrl + DROPS + dropName + ASSETS + assetName + COMMENTS + commentId.ToString();
-        }
-
-        /// <summary>
-        /// Creates the send to URL.
-        /// </summary>
-        /// <param name="dropName">Name of the drop.</param>
-        /// <param name="assetName">Name of the asset.</param>
-        /// <returns></returns>
-        protected string CreateSendToUrl(string dropName, string assetName)
-        {
-            return this.ApiBaseUrl + DROPS + dropName + ASSETS + assetName + SEND_TO;
-        }
-
-        /// <summary>
         /// Creates a get request.
         /// </summary>
         /// <param name="url">
@@ -1408,11 +1219,9 @@ namespace Dropio.Core
         /// <returns>
         /// 
         /// </returns>
-        protected HttpWebRequest CreateGetRequest(string url)
+        protected HttpWebRequest CreateUrlEncodedRequest(string method, string url)
         {
-            //NameValueCollection null_parms = new NameValueCollection();
-            //null_parms = null;
-            return this.CreateGetRequest(url, new Hashtable() );
+            return this.CreateUrlEncodedRequest(method, url, new Hashtable() );
         }
 
         /// <summary>
@@ -1421,57 +1230,28 @@ namespace Dropio.Core
         /// <param name="url">The URL.</param>
         /// <param name="parameters">The parameters.</param>
         /// <returns></returns>
-        protected HttpWebRequest CreateGetRequest(string url, Hashtable parameters )
+        protected HttpWebRequest CreateUrlEncodedRequest(string method, string url, Hashtable parameters )
         {
 
 			this.AddCommonParameters( ref parameters );
 			
 			this.SignIfNeeded( ref parameters );
 			
-			url += "?";
+			StringBuilder sb = new StringBuilder( url );
 			
-            if ( parameters != null )
-			{
-           		foreach (string key in parameters.Keys)
-            	{
-                	url += "&" + key + "=" + parameters[key];
-            	}
-			}
-            HttpWebRequest request = HttpWebRequest.Create(url) as HttpWebRequest;
-            return request;
-        }
-		
-		/// <summary>
-		/// 
-		/// </summary>
-		/// <param name="url">
-		/// A <see cref="System.String"/>
-		/// </param>
-		/// <param name="parameters">
-		/// A <see cref="Hashtable"/>
-		/// </param>
-		/// <returns>
-		/// A <see cref="HttpWebRequest"/>
-		/// </returns>
-		protected HttpWebRequest CreateDeleteRequest(string url, Hashtable parameters )
-        {
+			sb.Append( "?" );
+			
+			int index=0;
+           	foreach (string key in parameters.Keys)
+            {
+            	index++;
+            	sb.Append( HttpUtility.UrlEncode( key ) + "=" + HttpUtility.UrlEncode( parameters[key].ToString() ));
+               	if( index < parameters.Count )
+               		sb.Append( "&" );
+            }
 
-			this.AddCommonParameters( ref parameters );
-			
-			this.SignIfNeeded( ref parameters );
-			
-			url += "?";
-			
-            if ( parameters != null )
-			{
-           		foreach (string key in parameters.Keys)
-            	{
-                	url += "&" + key + "=" + parameters[key];
-            	}
-			}
-			
-            HttpWebRequest request = HttpWebRequest.Create(url) as HttpWebRequest;
-			request.Method = "DELETE";
+            HttpWebRequest request = HttpWebRequest.Create(sb.ToString()) as HttpWebRequest;
+            request.Method = method;
             return request;
         }
 
@@ -1504,15 +1284,13 @@ namespace Dropio.Core
             HttpWebRequest request = HttpWebRequest.Create(url) as HttpWebRequest;
 
             request.Method = method;
-            request.ContentType = "application/x-www-form-urlencoded";
+
+			request.ContentType = "application/json";
 			AddCommonParameters( ref parameters );
 			SignIfNeeded( ref parameters );
-            StringBuilder p = new StringBuilder( BuildParameterString( parameters ));
-//            foreach (DictionaryEntry key in parameters)
-//            {
-//                p.Append(HttpUtility.UrlEncode(key.Key.ToString()) + "=" + HttpUtility.UrlEncode(key.Value.ToString()) + "&");
-//            }
 
+            StringBuilder p = new StringBuilder( ToJson( parameters ));
+            
             byte[] bytes = System.Text.Encoding.UTF8.GetBytes(p.ToString());
             request.ContentLength = bytes.Length;
 
@@ -1541,11 +1319,13 @@ namespace Dropio.Core
 
         #endregion
 		
+		#region Helpers
 		/// <summary>
-		/// 
+		/// Add the parameters common to all api calls to a <see cref="HashTable"/> of parameters. Parameters added are "version",
+		/// "format" and "api_key"
 		/// </summary>
 		/// <param name="parameters">
-		/// A <see cref="Hashtable"/>
+		/// A <see cref="Hashtable"/> reference
 		/// </param>
 		protected void AddCommonParameters( ref Hashtable parameters )
 		{
@@ -1555,27 +1335,76 @@ namespace Dropio.Core
 		}
 		
 		/// <summary>
-		/// 
+		/// Takes a <see cref="HashTable"/> containing parameters for an HTTP request and puts them in the form
+		/// "k1=v1&k2=v2&...". Also url encodes all data
 		/// </summary>
 		/// <param name="parameters">
-		/// A <see cref="Hashtable"/>
+		/// A <see cref="Hashtable"/> containing the parameters to be used.
 		/// </param>
 		/// <returns>
-		/// A <see cref="System.String"/>
+		/// A <see cref="System.String"/> containing the request string that can be added to the end of a url
 		/// </returns>
-		protected string BuildParameterString( Hashtable parameters )
+		protected string BuildParameterString (Hashtable parameters)
 		{
-			StringBuilder paramString = new StringBuilder();
+			StringBuilder paramString = new StringBuilder ();
 			
-			//paramString.Append( "?" );
-			
-			foreach( DictionaryEntry key in parameters)
-			{
-				paramString.Append(HttpUtility.UrlEncode(key.Key.ToString()) + "=" + HttpUtility.UrlEncode(key.Value.ToString()) + "&");
+			// iterate through each item in the hashtable...
+			foreach (object parameter in parameters.Keys) {
+				paramString.Append (HttpUtility.UrlEncode ( parameter.ToString() ) + "=" + HttpUtility.UrlEncode ( parameters[parameter].ToString() ) + "&");
 			}
 			
 			return paramString.ToString();
 		}
 
+		/// <summary>
+		/// Convenience function to convert a <see cref="Hashtable"/> of parameters to JSON format. Nested Hashtables are OK.
+		/// </summary>
+		/// <param name="parameters">
+		/// A <see cref="Hashtable"/> containing the option to JSON-ify
+		/// </param>
+		/// <returns>
+		/// A <see cref="System.String"/> containing valid JSON that represents the <see cref="Hashtable"/> that was given.
+		/// </returns>
+		protected string ToJson (Hashtable parameters)
+		{
+			// pretty simple stuff, C# already has a function to JSON-ify
+			JavaScriptSerializer json = new JavaScriptSerializer ();
+			return json.Serialize (parameters);
+		}
+		
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="parameters">
+		/// A <see cref="Hashtable"/>
+		/// </param>
+		public void SignIfNeeded (ref Hashtable parameters)
+		{
+			// only sign if a secret key has been set
+			if (!String.IsNullOrEmpty (this.ApiSecret)) {
+				// add the timestamp to our parameters
+				string timestamp = GenerateUnixTimestamp ().ToString ();
+				parameters.Add ("timestamp", timestamp);
+				
+				// the parameters must be in alpha order before signing
+				// create an array from the hash keys, and use that to sort the parameters
+				ArrayList ParameterKeys = new ArrayList (parameters.Keys);
+				ParameterKeys.Sort ();
+				
+				// concatenate the parameters and values together then add the secret and sign it
+				StringBuilder StringToSign = new StringBuilder ();
+				foreach (object key in ParameterKeys) {
+					StringToSign.Append (key + "=" + parameters[key]);
+				}
+				
+				string signature = GenerateSignature (StringToSign.Append (this.ApiSecret).ToString ());
+				
+				// Add signature as a parameter
+				parameters.Add ("signature", signature);
+				
+			}
+		}
+		#endregion
+		
     }
 }

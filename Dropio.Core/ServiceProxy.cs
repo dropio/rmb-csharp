@@ -1,7 +1,9 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Text;
 using System.Net;
+using System.Web;
 using System.Web.UI.WebControls;
 
 namespace Dropio.Core
@@ -102,9 +104,9 @@ namespace Dropio.Core
 		/// </summary>
 		/// <param name="page">The page.</param>
 		/// <returns></returns>
-		public List<Drop> FindManagerDrops(int page)
+		public List<Drop> FindAll(int page)
 		{
-			return this.ServiceAdapter.FindManagerDrops(page);
+			return this.ServiceAdapter.FindAll(page);
 		}
 
         /// <summary>
@@ -146,9 +148,9 @@ namespace Dropio.Core
         /// <returns>
         /// 
         /// </returns>
-        public bool UpdateDrop(Drop drop, string name, string chatPassword)
+        public bool UpdateDrop(Drop drop, string newName, string newDescription, string newChatPassword, int newMaxSize)
         {
-            return this.ServiceAdapter.UpdateDrop(drop, name, chatPassword);
+            return this.ServiceAdapter.UpdateDrop(drop, newName, newDescription, newChatPassword, newMaxSize );
         }
 
         /// <summary>
@@ -161,16 +163,6 @@ namespace Dropio.Core
         {
             return this.ServiceAdapter.FindAsset(drop, assetUrl);
         }
-		
-		/// <summary>
-		/// Gets the embed code for the asset.
-		/// </summary>
-		/// <param name="asset">The asset.</param>
-		/// <returns></returns>
-		public string GetAssetEmbedCode(Asset asset)
-		{
-			return this.ServiceAdapter.GetAssetEmbedCode(asset);
-		}
 
         /// <summary>
         /// Deletes the asset.
@@ -188,16 +180,16 @@ namespace Dropio.Core
         /// <param name="asset">
         /// The asset.
         /// </param>
-        /// <param name="newName">
+        /// <param name="newTitle">
         /// 
         /// </param>
         /// <param name="newDescription">
         /// 
         /// </param>
         /// <returns></returns>
-        public bool UpdateAsset(Asset asset, string newName, string newDescription )
+        public bool UpdateAsset(Asset asset, string newTitle, string newDescription )
         {
-            return this.ServiceAdapter.UpdateAsset(asset, newName, newDescription );
+            return this.ServiceAdapter.UpdateAsset(asset, newTitle, newDescription );
         }
 		
 		/// <summary>
@@ -252,57 +244,20 @@ namespace Dropio.Core
         }
 
         /// <summary>
-        /// Creates the note.
-        /// </summary>
-        /// <param name="drop">The drop.</param>
-        /// <param name="title">The title.</param>
-        /// <param name="contents">The content.</param>
-        /// <param name="description">The description.</param>
-        /// <returns></returns>
-        public Asset CreateNote(Drop drop, string title, string contents, string description)
-        {
-            return this.ServiceAdapter.CreateNote(drop, title, contents, description);
-        }
-
-        /// <summary>
-        /// Creates the link.
-        /// </summary>
-        /// <param name="drop">The drop.</param>
-        /// <param name="title">The title.</param>
-        /// <param name="description">The description.</param>
-        /// <param name="url">The url.</param>
-        /// <returns></returns>
-        public Asset CreateLink(Drop drop, string title, string description, string url)
-        {
-            return this.ServiceAdapter.CreateLink(drop, title, description, url);
-        }
-
-        /// <summary>
-        /// Sends to drop.
-        /// </summary>
-        /// <param name="asset">The asset.</param>
-        /// <param name="dropName">Name of the drop.</param>
-        /// <param name="dropToken">Drop token.</param>
-        public void SendToDrop(Asset asset, string dropName, string dropToken)
-        {
-            this.ServiceAdapter.SendToDrop(asset, dropName, dropToken);
-        }
-
-        /// <summary>
         /// Adds the file to the drop..
         /// </summary>
         /// <param name="drop">The drop.</param>
         /// <param name="file">The file.</param>
         /// <param name="description">The description.</param>
         /// <returns></returns>
-        public Asset AddFile (Drop drop, string file, string description)
+        public Asset AddFile (Drop drop, string file, string description, bool conversion, string pingbackUrl, string outputLocations )
         {
-        	return this.ServiceAdapter.AddFileInit (drop, file, description);
+        	return this.ServiceAdapter.AddFileInit (drop, file, description, conversion, pingbackUrl, outputLocations);
 		}
 		
-		public Asset AddFile (Drop drop, FileUpload file, string description)
+		public Asset AddFile (Drop drop, HttpPostedFile file, string description, bool conversion, string pingbackUrl, string outputLocations )
 		{
-			return this.ServiceAdapter.AddFileInit (drop, file, description);
+			return this.ServiceAdapter.AddFileInit (drop, file, description, conversion, pingbackUrl, outputLocations );
 		}
 		
 		/// <summary>
@@ -313,7 +268,7 @@ namespace Dropio.Core
 		/// <returns></returns>
 		public bool CopyAsset(Asset asset, Drop targetDrop)
 		{
-			return this.ServiceAdapter.CopyAsset(asset, targetDrop);
+			return this.ServiceAdapter.CopyAsset(asset, targetDrop, true);
 		}
 		
 		/// <summary>
@@ -324,9 +279,31 @@ namespace Dropio.Core
 		/// <returns></returns>
 		public bool MoveAsset(Asset asset, Drop targetDrop)
 		{
-			return this.ServiceAdapter.MoveAsset(asset, targetDrop);
+			return this.ServiceAdapter.CopyAsset(asset, targetDrop, false);
 		}
 		
-        #endregion
+        public bool CreateJob (AssetType type, List<Hashtable> inputs, List<Hashtable> outputs, string plugin, string pingback_url)
+        {
+        	return this.ServiceAdapter.CreateJob( type, inputs, outputs, plugin, pingback_url);
+        }
+        
+        /// <summary>
+        /// Gets an uploadify form
+        /// </summary>
+        /// <param name="drop">
+        /// A <see cref="Drop"/>
+        /// </param>
+        /// <param name="uploadifyOptions">
+        /// A <see cref="Hashtable"/>
+        /// </param>
+        /// <returns>
+        /// A <see cref="System.String"/>
+        /// </returns>
+        public string GetUploadifyForm (Drop drop, Hashtable uploadifyOptions)
+        {
+        	return this.ServiceAdapter.GetUploadifyForm (drop, uploadifyOptions);
+        }
+        
+		#endregion
     }
 }
