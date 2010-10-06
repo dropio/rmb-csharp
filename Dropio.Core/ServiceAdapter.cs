@@ -332,25 +332,42 @@ namespace Dropio.Core
         /// <param name="name"></param>
         /// <param name="chatPassword"></param>
         /// <returns></returns>
-        public bool UpdateDrop (Drop drop, string newName, string newDescription, string newChatPassword, int newMaxSize)
+        //public bool UpdateDrop (Drop drop, string newName, string newDescription, string newChatPassword, int newMaxSize)
+        public bool UpdateDrop (Drop drop, string newName )
         {
         	// can't do much if we don't have a drop to act on...
             if (drop == null)
                 throw new ArgumentNullException("drop", "The given drop can't be null");
+            
+            Hashtable parameters = new Hashtable();
+
+			if ( !string.IsNullOrEmpty( newName ))
+			{
+				// we are updating just the name
+				Console.WriteLine( "name update");
+				parameters.Add( "name", newName );
+			}
+			else
+			{
+				// we are updating anything but name
+				parameters.Add( "description", drop.Description );
+				parameters.Add( "chat_password", drop.ChatPassword );
+				parameters.Add( "max_size", drop.MaxBytes.ToString() );
+			}
 
 			// bool to return
             bool updated = false;
-			
+            
 			// add the parameters (that were actually specified) to a hashtable of parameters
-            Hashtable parameters = new Hashtable();
-			if( !String.IsNullOrEmpty( newName ))
-				parameters.Add("name", newName);
-			if( !String.IsNullOrEmpty( newDescription ))
-				parameters.Add("description", newDescription);
-			if( !String.IsNullOrEmpty( newChatPassword ))
-				parameters.Add("chat_password", newChatPassword);
-			if( newMaxSize > 0 )
-				parameters.Add( "max_size", newMaxSize.ToString());
+//            Hashtable parameters = new Hashtable();
+//			if( !String.IsNullOrEmpty( newName ))
+//				parameters.Add("name", newName);
+//			if( !String.IsNullOrEmpty( newDescription ))
+//				parameters.Add("description", newDescription);
+//			if( !String.IsNullOrEmpty( newChatPassword ))
+//				parameters.Add("chat_password", newChatPassword);
+//			if( newMaxSize > 0 )
+//				parameters.Add( "max_size", newMaxSize.ToString());
 			
 			// do the request and change updated to "true" if request succeeded
             HttpWebRequest request = this.CreatePutRequest(this.CreateDropUrl(drop.Name), parameters);

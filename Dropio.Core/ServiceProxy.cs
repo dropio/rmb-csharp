@@ -136,9 +136,10 @@ namespace Dropio.Core
         /// <returns>
         /// 
         /// </returns>
-        public bool UpdateDrop(Drop drop, string newName, string newDescription, string newChatPassword, int newMaxSize)
+//        public bool UpdateDrop(Drop drop, string newName, string newDescription, string newChatPassword, int newMaxSize)
+        public bool UpdateDrop(Drop drop, string newName )
         {
-            return this.ServiceAdapter.UpdateDrop(drop, newName, newDescription, newChatPassword, newMaxSize );
+            return this.ServiceAdapter.UpdateDrop(drop, newName );
         }
 
         /// <summary>

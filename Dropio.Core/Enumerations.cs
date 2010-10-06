@@ -6,119 +6,77 @@ namespace Dropio.Core
 {
 
 	/// <summary>
-	/// 
+	/// Enumeration for asset types
 	/// </summary>
 	public enum AssetType
 	{
-		/// <summary>
-		/// 
-		/// </summary>
 		Image,
-		/// <summary>
-		/// 
-		/// </summary>
 		Other,
-		/// <summary>
-		/// 
-		/// </summary>
 		Audio,
-		/// <summary>
-		/// 
-		/// </summary>
 		Document,
-		/// <summary>
-		/// 
-		/// </summary>
 		Movie,
-		/// <summary>
-		/// 
-		/// </summary>
 		Link
 	};
 
 	/// <summary>
 	/// 
 	/// </summary>
-    public enum ExpirationLength
-    {
-		/// <summary>
-		/// 
-		/// </summary>
-        OneDayFromNow,
-		/// <summary>
-		/// 
-		/// </summary>
-        OneWeekFromNow,
-		/// <summary>
-		/// 
-		/// </summary>
-        OneMonthFromNow,
-		/// <summary>
-		/// 
-		/// </summary>
-        OneYearFromNow,
-		/// <summary>
-		/// 
-		/// </summary>
-        OneDayFromLastView,
-		/// <summary>
-		/// 
-		/// </summary>
-        OneWeekFromLastView,
-		/// <summary>
-		/// 
-		/// </summary>
-        OneMonthFromLastView,
-		/// <summary>
-		/// 
-		/// </summary>
-        OneYearFromLastView
-    };
+//    public enum ExpirationLength
+//    {
+//		/// <summary>
+//		/// 
+//		/// </summary>
+//        OneDayFromNow,
+//		/// <summary>
+//		/// 
+//		/// </summary>
+//        OneWeekFromNow,
+//		/// <summary>
+//		/// 
+//		/// </summary>
+//        OneMonthFromNow,
+//		/// <summary>
+//		/// 
+//		/// </summary>
+//        OneYearFromNow,
+//		/// <summary>
+//		/// 
+//		/// </summary>
+//        OneDayFromLastView,
+//		/// <summary>
+//		/// 
+//		/// </summary>
+//        OneWeekFromLastView,
+//		/// <summary>
+//		/// 
+//		/// </summary>
+//        OneMonthFromLastView,
+//		/// <summary>
+//		/// 
+//		/// </summary>
+//        OneYearFromLastView
+//    };
 	
 	/// <summary>
-	/// 
+	/// Flags to use for specifying events for pingback creation
 	/// </summary>
 	[Flags]
 	public enum AssetEvents
 	{
-		/// <summary>
-		/// 
-		/// </summary>
 		AssetCreated = 0x0,
-		/// <summary>
-		/// 
-		/// </summary>
 		AssetUpdated = 0x1,
-		/// <summary>
-		/// 
-		/// </summary>
 		AssetDeleted = 0x2,
-		/// <summary>
-		/// 
-		/// </summary>
 		JobStarted = 0x4,
-		/// <summary>
-		/// 
-		/// </summary>
 		JobProgress = 0x8,
-		/// <summary>
-		/// 
-		/// </summary>
 		JobComplete = 0x10
 	}
 	
 	/// <summary>
-	/// 
+	/// Enumeration for specifying the order of returned results
 	/// </summary>
 	public enum Order
 	{
-		/// <summary>
-		/// 
-		/// </summary>
 		Oldest,
-		/// <summary>
-		/// 
-		/// </summary>
 		Newest
 	};
 

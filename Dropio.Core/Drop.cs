@@ -142,6 +142,7 @@ namespace Dropio.Core
 		/// <example><code>AssetEvents.AssetCreated | AssetEvents.AssetDeleted</code></example>
 		/// </param>
 		/// <returns>A <see cref="Subscription"> object of the newly created pingback subscription</returns>
+        /// <exception cref="System.NullReferenceException">Thrown when the Drop object is not set to an instance of Drop</exception> 
 		public Subscription CreatePingbackSubscription (string url, AssetEvents events)
 		{
 			return ServiceProxy.Instance.CreatePingbackSubscription (this, url, events);
@@ -154,7 +155,8 @@ namespace Dropio.Core
 			return FindAll(1);
 		}
 		
-		/// <summary>Get the specified results page of the list of drops associated with the RMB account</summary>
+		/// <summary>Get the specified results page of the list of drops associated with the RMB account. If the page
+		/// specified does not exist there is no error, 0 results will be returned.</summary>
 		/// <param name="page">An <see cref="int"> type specifying the page of results to return</summary>
 		/// <returns>A List of <see cref="Drop"> objects of the returned drops</returns>
 		public static List<Drop> FindAll(int page)
@@ -165,19 +167,40 @@ namespace Dropio.Core
         #endregion
 
         #region Update / Delete
-		
-        /// <summary>Update information associated with a drop. All parameters are optional, pass <see cref="string.Empty">
-		/// to any you do not want to set. The <see cref="Drop"/> object is updated with the new information.</summary>
-		/// <param name="newName">A <see cref="string"> type specifying the new name for the drop</param>
-		/// <param name="newDescription">A <see cref="string"> type specifying the new description for the drop</param>
-		/// <param name="newChatPassword">A <see cref="string"> type specifying the new chat password for the drop</param>
-		/// <param name="newMaxSize">A <see cref="int"> type specifying the new maximum size for the drop</param>
-        /// <returns>A <see cref="bool"> indicating whether the action sucessfully completed</returns>
-        public bool Update( string newName, string newDescription, string newChatPassword, int newMaxSize )
+        
+        /// <summary>
+        /// Change the name of a drop
+        /// </summary>
+        ///	<remarks>If you have changed any other properties of the Drop object, those changes will be erased if this
+        /// method returns true because it will reload the drop object with all the drop information (not just the new
+        /// name. If are changing other properties of the drop, either call Update() first before changing the name, or
+        /// change the other properties after calling ChangeName()</remarks>
+        /// <param name="newName">
+        /// A <see cref="System.String"/> type specifying the new drop name
+        /// </param>
+        /// <returns>
+        /// A <see cref="System.Boolean"/> indicating the success of the update
+        /// </returns>
+        /// <exception cref="Dropio.Core.ServiceException">Thrown when the drop cannot be updated (for example, the name
+        /// is not available</exception>
+        public bool ChangeName( string newName )
         {
-			return ServiceProxy.Instance.UpdateDrop( this, newName, newDescription, newChatPassword, newMaxSize );
+        	return ServiceProxy.Instance.UpdateDrop( this, newName );
         }
-
+		
+        /// <summary>Update information associated with a drop. Update the properties you want to change on the drop
+        /// object itself, then call Update(). Note that you CANNOT change the name using this method, trying to do so
+        /// will result in a "drop not found" exception. To change the name, use ChangeName(). If Update() returns true,
+        /// the drop object will be updated with the new drop properties
+        /// Properties that can be changed are description, email_key, chat_password and max_size.
+        /// <returns>A <see cref="bool"> indicating whether the action sucessfully completed</returns>
+        /// <exception cref="Dropio.Core.ServiceException">Thrown when the drop cannot be updated (for example, the name
+        /// is not available</exception>
+        public bool Update()
+        {
+			return ServiceProxy.Instance.UpdateDrop( this, string.Empty );
+        }
+        
 		/// <summary>Empty the drop of all assets</summary>
 		/// <returns>A <see cref="bool"/> indicating whether the drop was sucessfully emptied</returns>
 		public bool Empty()
