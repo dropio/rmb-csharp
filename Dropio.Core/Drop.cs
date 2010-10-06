@@ -42,26 +42,31 @@ namespace Dropio.Core
         /// <summary>Gets the assets contained in a drop, using defaults of first page, oldest assets first.</summary>
         /// <returns>A List of <see cref="Asset"/> objects containing the first page of returned assets (up to 30).
         /// </returns>
+        /// <exception cref="System.NullReferenceException">Thrown when the Drop object is not set to an instance of Drop</exception> 
         public List<Asset> Assets()
         {
             return this.Assets(1);
         }
 
-        /// <summary>Gets the specified page of drop assets in the default order of oldest assets first.</summary>
+        /// <summary>Gets the specified page of drop assets in the default order of oldest assets first. If the
+        /// specified page does not exist there is no error, 0 assets will be returned.</summary>
         /// <param name="page">An <see cref="int"/> type specifying the page number.</param>
         /// <returns>A List of <see cref="Asset"/> objects containing the specified page of returned assets (up to 30,
-        /// in the default order, oldest first)</returns> 
+        /// in the default order, oldest first)</returns>
+        /// <exception cref="System.NullReferenceException">Thrown when the Drop object is not set to an instance of Drop</exception> 
         public List<Asset> Assets(int page)
         {
             return this.Assets(page,Order.Oldest);
         }
 		
-		/// <summary>Gets the specified page of drop assets in the specified order.</summary>
+		/// <summary>Gets the specified page of drop assets in the specified order. If the specified page does not
+		/// exist there is no error, 0 assets will be returned.</summary>
         /// <param name="page">An <see cref="int"/> type specifying the page number.</param>
         /// <param name="order">An <see cref="Order"/> enumeration constant specifying in which order to return the
         /// assets.</param>
         /// <returns>A List of <see cref="Asset"/> objects containing the specified page of returned assets (up to
         /// 30, in the specified order)</returns>
+        /// <exception cref="System.NullReferenceException">Thrown when the Drop object is not set to an instance of Drop</exception> 
         public List<Asset> Assets(int page, Order order)
         {
             return ServiceProxy.Instance.FindAssets(this, page, order);
@@ -71,15 +76,18 @@ namespace Dropio.Core
 		/// results.</summary>
         /// <returns>A List of <see cref="Subscription"/> objects containing the first page of returned pingback
         /// subscriptions (up to 30)</returns>
+        /// <exception cref="System.NullReferenceException">Thrown when the Drop object is not set to an instance of Drop</exception> 
         public List<Subscription> Subscriptions()
         {
             return this.Subscriptions(1);
         }
 		
-		/// <summary>Get the specified page of pingback subscriptions associated with the account.</summary>
+		/// <summary>Get the specified page of pingback subscriptions associated with the account. If the page number
+		/// does not exist there is no error, 0 assets will be returned.</summary>
         /// <param name="page">An <see cref="int"/> type specifying the page number</param>
         /// <returns>A List of <see cref="Subscription"/> objects containing the specified page of returned pingback
         /// subscriptions (up to 30)</returns>
+        /// <exception cref="System.NullReferenceException">Thrown when the Drop object is not set to an instance of Drop</exception> 
         public List<Subscription> Subscriptions (int page)
         {
         	return ServiceProxy.Instance.FindSubscriptions (this, page);
@@ -92,6 +100,7 @@ namespace Dropio.Core
         /// <summary>Finds the drop by name.</summary>
         /// <param name="name">A <see cref="string"/> type specifying the drop to find</param>
         /// <returns>A <see cref="Drop"/> object of the found drop.</returns>
+        /// <exception cref="Dropio.Core.ServiceException">thrown when the drop does not exist</exception>
         public static Drop Find(string name)
         {
             return ServiceProxy.Instance.FindDrop(name);
@@ -101,32 +110,42 @@ namespace Dropio.Core
 		/// <returns>A <see cref="Drop"/> object of the newly created drop.</returns>
 		public static Drop Create()
 		{
-			return ServiceProxy.Instance.CreateDrop( string.Empty, string.Empty, string.Empty, 0, string.Empty);
+			return ServiceProxy.Instance.CreateDrop( new Hashtable() );
 		}
 		
-        /// <summary>Creates a drop with the given name.</summary>
-        /// <param name="name">A <see cref="string"/> type specifying the name for the drop</param>
+        /// <summary>Creates a drop with the given options.</summary>
+        /// <param name="dropAttributes">A <see cref="Hashtable"/> that contains key-value pairs that correspond to
+        /// options for drop creation. All parameters are optional, so if none are specified use the overloaded form of
+        /// Create() that has no parameters
+        /// Options are:
+        ///	name: name of drop
+        /// description: description for the drop
+        /// email_key: security key tagged onto the email address created for a drop
+        /// max_size: max size of drop, in megabytes (default is 100)
+        /// chat_password: the password used for 3rd party and javascript clients to connect to real-time stream of
+        ///		events in your drop. Valid characters are alphanumeric (a-z, A-Z, 0-9)
+        ///
+        /// All keys and values must be created as <see cref="string"/> types.
+        /// </param>
         /// <returns>A <see cref="Drop"/> object of the newly created drop.</returns>
-        /// <exception cref="ServiceException">If the <paramref name="name"/> given is not available</exception>
-        public static Drop Create(string name)
+        /// <exception cref="Dropio.Core.ServiceException">Thrown if the drop name given is not available</exception>
+        public static Drop Create( Hashtable dropAttributes )
         {
-            return ServiceProxy.Instance.CreateDrop( name, string.Empty, string.Empty, 0, string.Empty );
+            return ServiceProxy.Instance.CreateDrop( dropAttributes );
         }
-
-		/// <summary>Create a new drop (with more options). All parameters are optional, pass "string.Empty" for any
-		/// that you don't want to specify (or 0 for "maxSize", which will cause the default to be used).</summary>
-		/// <param name="name">A <see cref="string"/> type specifying the name to use for the drop</param>
-		/// <param name="description">A <see cref="string"/> specifying a description for the drop</param>
-		/// <param name="emailKey">A <see cref="string"/> type specifying a key to use for the drop's email address</param>
-		/// <param name="maxSize">A <see cref="int"/> specifying the size of the drop, in megabytes. "0" will create a drop
-		/// with the default size</param>
-		/// <param name="chatPassword">A <see cref="string"/> type specifying the chat password for the drop</param>
-		/// <returns>A <see cref="Drop"/> object of the newly created drop</returns>
-		/// <exception cref="ServiceException">If the <paramref name="name"/> given is not available</exception>
-        public static Drop Create(string name, string description, string emailKey, int maxSize, string chatPassword)
-        {
-            return ServiceProxy.Instance.CreateDrop(name, description, emailKey, maxSize, chatPassword);
-        }
+        
+        /// <summary>Creates a pingback subscription. When the events happen, the url will be sent a POST request with the
+		/// pertinent data.</summary>
+		/// <param name="url">A <see cref="string"> type specifying the url to send the pingback to</param>
+		/// <param name="events">The events that a pingback should be sent for. Multiple events can be specifed by using the
+		/// bitwise OR operator.
+		/// <example><code>AssetEvents.AssetCreated | AssetEvents.AssetDeleted</code></example>
+		/// </param>
+		/// <returns>A <see cref="Subscription"> object of the newly created pingback subscription</returns>
+		public Subscription CreatePingbackSubscription (string url, AssetEvents events)
+		{
+			return ServiceProxy.Instance.CreatePingbackSubscription (this, url, events);
+		}
 		
 		/// <summary>Get the first page of the list of drops associated with the RMB account</summary>
 		/// <returns>A List of <see cref="Drop"> objects (up to 30)</returns>
@@ -248,18 +267,7 @@ namespace Dropio.Core
 			return a;
 		}
 
-		/// <summary>Creates a pingback subscription. When the events happen, the url will be sent a POST request with the
-		/// pertinent data.</summary>
-		/// <param name="url">A <see cref="string"> type specifying the url to send the pingback to</param>
-		/// <param name="events">The events that a pingback should be sent for. Multiple events can be specifed by using the
-		/// bitwise OR operator.
-		/// <example><code>AssetEvents.AssetCreated | AssetEvents.AssetDeleted</code></example>
-		/// </param>
-		/// <returns>A <see cref="Subscription"> object of the newly created pingback subscription</returns>
-		public Subscription CreatePingbackSubscription(string url, AssetEvents events)
-		{
-			return ServiceProxy.Instance.CreatePingbackSubscription(this, url, events);
-		}
+
         
         /// <summary>
         /// returns a string that contain the entire <script> needed to embed an uploadify uploader on a web page.

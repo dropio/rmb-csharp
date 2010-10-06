@@ -193,34 +193,30 @@ namespace Dropio.Core
         /// <summary>
         /// Creates a Drop.
         /// </summary>
-        /// <param name="name">The name.</param>
-        /// <param name="description"></param>
-        /// <param name="emailKey">The password.</param>
-        /// <param name="maxSize">The admin password.</param>
-        /// <param name="chatPassword">The premium code.</param>
+        /// <param name="dropAttributes">The name.</param>
         /// <returns>
         /// 
         /// </returns>
-        public Drop CreateDrop(string name, string description, string emailKey, int maxSize, string chatPassword ) 
+        public Drop CreateDrop( Hashtable dropAttributes ) 
         {
         	// drop object that will be returned
             Drop d = null;
 
 			// add any specified parameters to a Hashtable. All parameters are optional, so only add if they've been specified
-			Hashtable parameters = new Hashtable();
-			if( name != string.Empty)
-	            parameters.Add("name", name);
-			if( description != string.Empty)
-				parameters.Add("description", description);
-			if( emailKey != string.Empty)
-				parameters.Add("email_key", emailKey);
-			if( maxSize > 0 )
-				parameters.Add("max_size", maxSize.ToString() );
-			if( chatPassword != string.Empty)
-				parameters.Add("chat_password", chatPassword);
+//			Hashtable parameters = new Hashtable();
+//			if( name != string.Empty)
+//	            parameters.Add("name", name);
+//			if( description != string.Empty)
+//				parameters.Add("description", description);
+//			if( emailKey != string.Empty)
+//				parameters.Add("email_key", emailKey);
+//			if( maxSize > 0 )
+//				parameters.Add("max_size", maxSize.ToString() );
+//			if( chatPassword != string.Empty)
+//				parameters.Add("chat_password", chatPassword);
 
 			// do the request and load to response into the Drop object
-            HttpWebRequest request = this.CreatePostRequest(this.CreateDropUrl(string.Empty), parameters);
+            HttpWebRequest request = this.CreatePostRequest(this.CreateDropUrl(string.Empty), dropAttributes );
             CompleteRequest(request, delegate(HttpWebResponse response)
             {
                 ReadResponse(response, (XmlDocument doc) => d = this.CreateAndMapDrop(doc.SelectSingleNode("drop")));
@@ -455,7 +451,7 @@ namespace Dropio.Core
 
 			Hashtable parameters = new Hashtable();
 			parameters.Add( "page", page.ToString() );
-            HttpWebRequest request = this.CreateUrlEncodedRequest("GET", this.CreateSubscriptionsUrl(drop.Name)); //, parameters);
+            HttpWebRequest request = this.CreateUrlEncodedRequest("GET", this.CreateSubscriptionsUrl(drop.Name), parameters );
             CompleteRequest(request, delegate(HttpWebResponse response)
             {
                 ReadResponse(response, delegate(XmlDocument doc)

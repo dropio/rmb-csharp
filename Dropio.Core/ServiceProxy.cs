@@ -62,27 +62,15 @@ namespace Dropio.Core
 		/// <summary>
 		/// Create a drop
 		/// </summary>
-		/// <param name="name">
-		/// A <see cref="System.String"/>
-		/// </param>
-		/// <param name="description">
-		/// A <see cref="System.String"/>
-		/// </param>
-		/// <param name="emailKey">
-		/// A <see cref="System.String"/>
-		/// </param>
-		/// <param name="maxSize">
-		/// A <see cref="System.Int32"/>
-		/// </param>
-		/// <param name="chatPassword">
-		/// A <see cref="System.String"/>
+		/// <param name="dropAttributes">
+		/// A <see cref="Hashtable"/>
 		/// </param>
 		/// <returns>
 		/// A <see cref="Drop"/>
 		/// </returns>
-        public Drop CreateDrop(string name, string description, string emailKey, int maxSize, string chatPassword)
+        public Drop CreateDrop( Hashtable dropAttributes )
         {
-            return this.ServiceAdapter.CreateDrop(name, description, emailKey, maxSize, chatPassword);
+            return this.ServiceAdapter.CreateDrop( dropAttributes );
         }
 
         /// <summary>
