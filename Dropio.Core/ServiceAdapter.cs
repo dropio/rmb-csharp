@@ -321,6 +321,9 @@ namespace Dropio.Core
 			// do request and change "destroyed" to true if request succeeds
             HttpWebRequest request = this.CreateUrlEncodedRequest("DELETE",this.CreateDropUrl(drop.Name), new Hashtable() );
             CompleteRequest(request, (HttpWebResponse response) => { destroyed = true; });
+            
+            //drop.Description = "this is a test";
+            //drop = null;
 
             return destroyed;
         }
@@ -358,17 +361,6 @@ namespace Dropio.Core
 			// bool to return
             bool updated = false;
             
-			// add the parameters (that were actually specified) to a hashtable of parameters
-//            Hashtable parameters = new Hashtable();
-//			if( !String.IsNullOrEmpty( newName ))
-//				parameters.Add("name", newName);
-//			if( !String.IsNullOrEmpty( newDescription ))
-//				parameters.Add("description", newDescription);
-//			if( !String.IsNullOrEmpty( newChatPassword ))
-//				parameters.Add("chat_password", newChatPassword);
-//			if( newMaxSize > 0 )
-//				parameters.Add( "max_size", newMaxSize.ToString());
-			
 			// do the request and change updated to "true" if request succeeded
             HttpWebRequest request = this.CreatePutRequest(this.CreateDropUrl(drop.Name), parameters);
             CompleteRequest(request, delegate(HttpWebResponse response)
@@ -633,7 +625,7 @@ namespace Dropio.Core
             return copied;
 		}
 	
-		public Asset AddFileInit (Drop drop, string file, string description, bool conversion, string pingbackUrl, string outputLocations )
+		public Asset AddFileInit (Drop drop, string file, string description, string conversion, string pingbackUrl, string outputLocations )
 		{
 			// get the name of the file
 			string fileName = Path.GetFileName (file);
@@ -647,7 +639,7 @@ namespace Dropio.Core
 			return this.AddFile (drop, fileName, description, fileLength, fs, conversion, pingbackUrl, outputLocations);
 		}
 		
-		public Asset AddFileInit (Drop drop, HttpPostedFile file, string description, bool conversion, string pingbackUrl, string outputLocations )
+		public Asset AddFileInit (Drop drop, HttpPostedFile file, string description, string conversion, string pingbackUrl, string outputLocations )
 		{
 
 			// get the name of the file
@@ -673,7 +665,7 @@ namespace Dropio.Core
         /// <param name="fs"></param>
         /// <returns></returns>
         //public Asset AddFile (Drop drop, string file, string description)
-		public Asset AddFile (Drop drop, string fileName, string description, long fileLength, Stream fs, bool conversion, string pingbackUrl, string outputLoations )
+		public Asset AddFile (Drop drop, string fileName, string description, long fileLength, Stream fs, string conversion, string pingbackUrl, string outputLoations )
         {
 
             string requestUrl = this.UploadUrl;
@@ -692,8 +684,8 @@ namespace Dropio.Core
 			parameters.Add( "drop_name", drop.Name );
 			if( !String.IsNullOrEmpty(description))
 				parameters.Add( "description", description );
-			if( conversion == true )
-				parameters.Add( "conversion", "BASE" );
+			if( !String.IsNullOrEmpty(conversion) )
+				parameters.Add( "conversion", conversion );
 			if( !String.IsNullOrEmpty(pingbackUrl))
 				parameters.Add( "pingback_url", pingbackUrl );
 			if( !String.IsNullOrEmpty( outputLoations ))

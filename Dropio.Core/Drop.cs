@@ -219,45 +219,35 @@ namespace Dropio.Core
 
         #region Actions
 		
-		/// <summary>Add a file to a drop (using a HttpPostedFile object)</summary>
-        /// <param name="file">A <see cref="HttpPostedFile"> object specifying the path to the file</param>
-        /// <param name="description">A <see cref="string"> type specifying a description for the file. Pass
-		/// <see cref="string.Empty"/> if you don't want to set a description</param>
+		/// <summary>Add a file to a drop</summary>
+		/// <remarks>When using a FileUpload control in ASP.NET there is no way to retrieve the file path of the file
+		/// to be uploaded. This overloaded method allows a <see cref="HttpPostedFile"> object (which FileUpload provides
+		/// to be passed in</remarks>
+        /// <param name="file">A <see cref="HttpPostedFile"> object of the file to upload</param>
         /// <returns>An <see cref="Asset"> object of the newly created asset</returns>
-//		public Asset AddFile (FileUpload file, string description)
-		public Asset AddFile ( HttpPostedFile file, string description )
+		public Asset AddFile ( HttpPostedFile file )
 		{
-			return this.AddFile (file, description, false, string.Empty, string.Empty, null);
+			return this.AddFile (file, string.Empty, string.Empty, string.Empty, string.Empty, null);
 		}
 		
-		public Asset AddFile (HttpPostedFile file, string description, bool conversion, string pingbackUrl, string outputLocations )
-		{
-			return this.AddFile( file, description, conversion, pingbackUrl, outputLocations, null );
-		}
-
-		/// <summary>Add a file to a drop (using a string type to specify the filepath)</summary>
-		/// <param name="file">A <see cref="string"> type specifying the path to the file</param>
-		/// <param name="description">A <see cref="string"> type specifying a description for the file. Pass
-		/// <see cref="string.Empty"/> if you don't want to set a description</param>
-		/// <returns>An <see cref="Asset"> object of the newly created asset</returns	
-		public Asset AddFile (string file, string description)
-		{
-			return this.AddFile (file, description, false, string.Empty, string.Empty, null);
-		}
-				
-		public Asset AddFile (string file, string description, bool conversion, string pingbackUrl, string outputLocations)
-		{
-			return this.AddFile (file, description, conversion, pingbackUrl, outputLocations, null);
-		}
-		
-		/// <summary>Add a file to a drop (using a HttpPostedFile object)</summary>
-		/// <param name="file">A <see cref="HttpPostedFile"> object specifying the path to the file</param>
-		/// <param name="description">A <see cref="string"> type specifying a description for the file. Pass
-		/// <see cref="string.Empty"/> if you don't want to set a description</param>
-		/// <param name="handler">A <see cref="ServiceAdapter.TransferProgressHandler"/> object to keep track of bytes
-		/// transfered. If you don't want to specify this just use the AddFile(string, string) prototype</param>
+		/// <summary>Add a file to a drop</summary>
+		/// <remarks>When using a FileUpload control in ASP.NET there is no way to retrieve the file path of the file
+		/// to be uploaded. This overloaded method allows a <see cref="HttpPostedFile"> object (which FileUpload provides
+		/// to be passed in.
+		/// All parameters listed are optional, except for file. Pass in string.Empty for any you do not want to specify
+		/// (or null for handler). If you don't need to specify anything but the file, use the single parameter overload</remarks>	
+		/// <param name="file">A <see cref="HttpPostedFile"> object of the file to upload</param>
+		/// <param name="description">A <see cref="string"> type specifying a description for the file.</param>
+		/// <param name="conversion">A <see cref="string"> type sepcifying what conversions you want. Currently the only
+		/// possible value is "BASE", which will cause the default drop.io conversions to be performed. Passing an empty string
+		/// will cause no conversions to be performed</param>
+		/// <param name="pingbackUrl">A <see cref="string"> type that specifies a fully qualified url to which a request will
+		/// be sent once the conversion is complete</param>
+		/// <param name="outputLocations">A <see cref="string"> type that specifies a comma separated list of output locations</param>
+		/// <param name="handler">A <see cref="ServiceAdapter.TransferProgressHandler"/> instance that can be used to
+		/// keep track of the file transfer progress</param>
 		/// <returns>An <see cref="Asset"/> object of the newly created asset</returns>		
-		public Asset AddFile (HttpPostedFile file, string description, bool conversion, string pingbackUrl, string outputLocations, ServiceAdapter.TransferProgressHandler handler)
+		public Asset AddFile (HttpPostedFile file, string description, string conversion, string pingbackUrl, string outputLocations, ServiceAdapter.TransferProgressHandler handler)
 		{
 			if (handler != null)
 				ServiceProxy.Instance.ServiceAdapter.OnTransferProgress += handler;
@@ -269,15 +259,30 @@ namespace Dropio.Core
 			
 			return a;
 		}
+		
+		/// <summary>Add a file to a drop (using a string type to specify the filepath)</summary>
+		/// <param name="file">A <see cref="string"> type specifying the path to the file</param>
+		/// <returns>An <see cref="Asset"> object of the newly created asset</returns	
+		public Asset AddFile (string file)
+		{
+			return this.AddFile (file, string.Empty, string.Empty, string.Empty, string.Empty, null);
+		}
 
 		/// <summary>Add a file to a drop (using a string type to specify the filepath)</summary>
+		/// <remarks>All parameters listed are optional, except for file. Pass in string.Empty for any you do not want to specify
+		/// (or null for handler). If you don't need to specify anything but the file, use the single parameter overload</remarks>	
         /// <param name="file">A <see cref="string"> type specifying the path to the file</param>
-        /// <param name="description">A <see cref="string"> type specifying a description for the file. Pass
-		/// <see cref="string.Empty"/> if you don't want to set a description</param>
-        /// <param name="handler">A <see cref="ServiceAdapter.TransferProgressHandler"/> object to keep track of bytes
-		/// transfered. If you don't want to specify this just use the AddFile(string, string) prototype</param>
-        /// <returns>An <see cref="Asset"/> object of the newly created asset</returns>
-		public Asset AddFile (string file, string description, bool conversion, string pingbackUrl, string outputLocations, ServiceAdapter.TransferProgressHandler handler)
+		/// <param name="description">A <see cref="string"> type specifying a description for the file.</param>
+		/// <param name="conversion">A <see cref="string"> type sepcifying what conversions you want. Currently the only
+		/// possible value is "BASE", which will cause the default drop.io conversions to be performed. Passing an empty string
+		/// will cause no conversions to be performed</param>
+		/// <param name="pingbackUrl">A <see cref="string"> type that specifies a fully qualified url to which a request will
+		/// be sent once the conversion is complete</param>
+		/// <param name="outputLocations">A <see cref="string"> type that specifies a comma separated list of output locations</param>
+		/// <param name="handler">A <see cref="ServiceAdapter.TransferProgressHandler"/> instance that can be used to
+		/// keep track of the file transfer progress</param>
+		/// <returns>An <see cref="Asset"/> object of the newly created asset</returns>		
+		public Asset AddFile (string file, string description, string conversion, string pingbackUrl, string outputLocations, ServiceAdapter.TransferProgressHandler handler)
 		{
 			if (handler != null)
 				ServiceProxy.Instance.ServiceAdapter.OnTransferProgress += handler;
@@ -290,8 +295,6 @@ namespace Dropio.Core
 			return a;
 		}
 
-
-        
         /// <summary>
         /// returns a string that contain the entire <script> needed to embed an uploadify uploader on a web page.
         /// The uploader is created using the following defaults:

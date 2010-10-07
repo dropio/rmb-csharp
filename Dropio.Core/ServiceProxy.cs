@@ -239,12 +239,12 @@ namespace Dropio.Core
         /// <param name="file">The file.</param>
         /// <param name="description">The description.</param>
         /// <returns></returns>
-        public Asset AddFile (Drop drop, string file, string description, bool conversion, string pingbackUrl, string outputLocations )
+        public Asset AddFile (Drop drop, string file, string description, string conversion, string pingbackUrl, string outputLocations )
         {
         	return this.ServiceAdapter.AddFileInit (drop, file, description, conversion, pingbackUrl, outputLocations);
 		}
 		
-		public Asset AddFile (Drop drop, HttpPostedFile file, string description, bool conversion, string pingbackUrl, string outputLocations )
+		public Asset AddFile (Drop drop, HttpPostedFile file, string description, string conversion, string pingbackUrl, string outputLocations )
 		{
 			return this.ServiceAdapter.AddFileInit (drop, file, description, conversion, pingbackUrl, outputLocations );
 		}
