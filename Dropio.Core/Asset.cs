@@ -6,138 +6,80 @@ using System.Collections;
 namespace Dropio.Core
 {
     /// <summary>
-    /// 
+    /// Struct to store asset roles and locations. Field names that are returned are not consistent so we must use a hash
     /// </summary>
 	public struct AssetRoleAndLocations
 	{
-		/// <summary>
-		/// 
-		/// </summary>
 		public Hashtable Role;
-		/// <summary>
-		/// 
-		/// </summary>
 		public List<Hashtable> Locations;
 		
 	}
     
 	/// <summary>
-	/// 
+	/// Class for working with assets
 	/// </summary>
     public class Asset
     {
 		
         #region Properties
 
-        /// <summary>
-        /// Gets or sets the name.
-        /// </summary>
-        /// <value>
-        /// The name.
-        /// </value>
-        public string Name { get; set; }
+        /// <summary>Gets or sets the name.</summary>
+        public string Name { get; internal set; }
 
-		/// <summary>
-        /// Gets or sets the created at.
-        /// </summary>
-        /// <value>
-        /// The created at.
-        /// </value>
-        public DateTime CreatedAt { get; set; }
+		/// <summary>Gets or sets the created at.</summary>
+        public DateTime CreatedAt { get; internal set; }
 
-		/// <summary>
-		/// Sets and gets the file type.
-		/// </summary>
-		/// <value>
-		/// The file type
-		/// </value>
-		public AssetType Type { get; set; }
+		/// <summary>Sets and gets the file type.</summary>
+		public AssetType Type { get; internal set; }
 		
-        /// <summary>
-        /// Gets or sets the filesize.
-        /// </summary>
-        /// <value>
-        /// The filesize.
-        /// </value>
-        public int Filesize { get; set; }		
+        /// <summary>Gets or sets the filesize.</summary>
+        public int Filesize { get; internal set; }		
 		
-		/// <summary>
-		/// Gets or sets the description.
-		/// </summary>
-		/// <value>
-		/// The description.
-		/// </value>
+		/// <summary>Gets or sets the description.</summary>
 		public string Description { get; set; }		
 		
-		/// <summary>
-		/// Gets or sets the title of the Asset.
-		/// </summary>
-		/// <value>
-		/// The title.
-		/// </value>
+		/// <summary>Gets or sets the title of the Asset.</summary>
 		public string Title { get; set; }
 		
-		public string Id { get; set; }
+		/// <summary>Gets or sets the asset id</summary>
+		public string Id { get; internal set; }
 		
-		public string DropName { get; set; }
+		/// <summary>Gets or sets the name of the drop the asset belongs to</summary>
+		public string DropName { get; internal set; }
 		
-        /// <summary>
-        /// Gets or sets the drop.
-        /// </summary>
-        /// <value>
-        /// The drop.
-        /// </value>
-        public Drop Drop { get; set; }
+        /// <summary>Gets or sets the drop.</summary>
+        public Drop Drop { get; internal set; }
 		
-		/// <summary>
-		/// Get or set the roles
-		/// </summary>
-		/// <value>
-		/// List of roles of the asset
-		/// </value>
-		public List<AssetRoleAndLocations> Roles { get; set; }
+		/// <summary>Get or set the roles</summary>
+		public List<AssetRoleAndLocations> Roles { get; internal set; }
 
         #endregion
 
         #region Create/Read
 
-        /// <summary>
-        /// Finds the specified asset name.
-        /// </summary>
-        /// <param name="drop">
-        /// 
-        /// </param>
-        /// <param name="name">
-        /// The asset URL.
-        /// </param>
-        /// <returns>
-        /// 
+        /// <summary>Finds the specified asset name.</summary>
+        /// <param name="drop">A <see cref="Drop"/> object containing the drop in which to retrieve the asset</param>
+        /// <param name="name">A <see cref="string"/> object specifying the ID of the asset to get</param>
+        /// <returns>An <see cref="Asset"/> object of the returned asset</param>
+        /// <exception cref="Dropio.Core.ServiceException">Thrown when the asset does not exist</exception>
 		/// </returns>
-        public static Asset Find(Drop drop, string name)
+        public static Asset Find(Drop drop, string assetId)
         {
-            return ServiceProxy.Instance.FindAsset(drop, name);
+            return ServiceProxy.Instance.FindAsset(drop, assetId);
         }
 
         #endregion
 
         #region Update/Delete
-		
-        /// <summary>
-        /// Saves this instance.
-        /// Do not use this to change the name of the asset, use ChangeName for that
-        /// </summary>
-        /// <param name="newTitle">
-        /// 
-        /// </param>
-        /// <param name="newDescription">
-        /// 
-        /// </param>
-        /// <returns>
-        /// 
-        /// </returns>
-        public bool Update( string newTitle, string newDescription )
+        
+        /// <summary>Saves this instance of the asset</summary>
+        /// <remarks>To update information about the asset, change the properties on the asset object itself then
+        /// call this.
+        /// Currently the only updatable properties are "title" and "description"</remarks>
+        /// <returns>a <see cref="bool"/> indicating the sucess of the update</returns>
+        public bool Save()
         {
-            return ServiceProxy.Instance.UpdateAsset(this, newTitle, newDescription );
+            return ServiceProxy.Instance.UpdateAsset(this);
         }
 
         /// <summary>
@@ -187,11 +129,11 @@ namespace Dropio.Core
 		/// Gets an original file download url.
 		/// </summary>
 		/// <returns></returns>
-		public string GenerateOriginalFileUrl()
+		public string OriginalFileUrl()
 		{
-			return ServiceProxy.Instance.OriginalFileUrl(this);
+			return ServiceProxy.Instance.GenerateOriginalFileUrl(this);
 		}
-
+		
         #endregion
         
         public bool Convert (AssetType type, List<Hashtable> inputs, List<Hashtable> outputs, string plugin, string pingback_url)

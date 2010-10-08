@@ -54,9 +54,9 @@ namespace Dropio.Core
         /// </summary>
         /// <param name="asset">The asset.</param>
         /// <returns></returns>
-        public string OriginalFileUrl(Asset asset)
+        public string GenerateOriginalFileUrl(Asset asset)
         {
-            return this.ServiceAdapter.OriginalFileUrl(asset);
+            return this.ServiceAdapter.GenerateOriginalFileUrl(asset);
         }
 
 		/// <summary>
@@ -146,11 +146,11 @@ namespace Dropio.Core
         /// Finds the asset.
         /// </summary>
         /// <param name="drop">The drop.</param>
-        /// <param name="assetUrl">The asset name.</param>
+        /// <param name="assetId">The asset id.</param>
         /// <returns></returns>
-        public Asset FindAsset(Drop drop, string assetUrl)
+        public Asset FindAsset(Drop drop, string assetId)
         {
-            return this.ServiceAdapter.FindAsset(drop, assetUrl);
+            return this.ServiceAdapter.FindAsset(drop, assetId);
         }
 
         /// <summary>
@@ -163,22 +163,11 @@ namespace Dropio.Core
             return this.ServiceAdapter.DeleteAsset(asset);
         }
 
-        /// <summary>
-        /// Saves the asset.
-        /// </summary>
-        /// <param name="asset">
-        /// The asset.
-        /// </param>
-        /// <param name="newTitle">
-        /// 
-        /// </param>
-        /// <param name="newDescription">
-        /// 
-        /// </param>
-        /// <returns></returns>
-        public bool UpdateAsset(Asset asset, string newTitle, string newDescription )
+        /// <summary>Saves the asset.</summary>
+        /// <returns>A <see cref="bool"/> indicating the sucess of the update</returns>
+        public bool UpdateAsset(Asset asset)
         {
-            return this.ServiceAdapter.UpdateAsset(asset, newTitle, newDescription );
+            return this.ServiceAdapter.UpdateAsset(asset);
         }
 		
 		/// <summary>

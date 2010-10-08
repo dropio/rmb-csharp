@@ -8,7 +8,7 @@ using System.Web.UI.WebControls;
 namespace Dropio.Core
 {
 	/// <summary>
-	/// 
+	/// Class for working with drops
 	/// </summary>
     public class Drop
     {
@@ -16,16 +16,16 @@ namespace Dropio.Core
         #region Properties
 
         /// <summary>Gets or sets the name of the drop.</summary>
-        public string Name { get; set; }
+        public string Name { get; internal set; }
 
         /// <summary>Gets or sets the asset count.</summary>
         public int AssetCount { get; set; }
-
+        
         /// <summary>
         /// Gets or sets the email address of the drop. This is usually just /<name_of_drop/>@drop.io unless
         /// a security key has been set.
         /// </summary>
-        public string Email { get; set; }
+        public string Email { get; internal set; }
 		
 		/// <summary>Gets or sets the description.</summary>
         public string Description { get; set; }
@@ -34,7 +34,7 @@ namespace Dropio.Core
         public int MaxBytes { get; set; }
 
         /// <summary>Gets or sets the current size of the drop, in bytes.</summary>
-        public int CurrentBytes { get; set; }
+        public int CurrentBytes { get; internal set; }
 
         /// <summary>Gets or sets the chat password.</summary>>
         public string ChatPassword { get; set; }

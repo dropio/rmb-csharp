@@ -138,7 +138,7 @@ namespace Dropio.Core
         /// </summary>
         /// <param name="asset">An <see cref="Asset"/> object</param>
         /// <returns></returns>
-        public string OriginalFileUrl (Asset asset)
+        public string GenerateOriginalFileUrl (Asset asset )
         {
 			// create the API call
             StringBuilder sb = new StringBuilder ();
@@ -300,6 +300,9 @@ namespace Dropio.Core
 			// do request and change "emptied" to true if request succeeds 
             HttpWebRequest request = this.CreatePutRequest(this.CreateEmptyDropUrl(drop.Name), new Hashtable() );
             CompleteRequest(request, (HttpWebResponse response) => { emptied = true; });
+            
+            if( emptied == true )
+      	      drop.AssetCount = 0;
 
             return emptied;
         }
@@ -321,10 +324,20 @@ namespace Dropio.Core
 			// do request and change "destroyed" to true if request succeeds
             HttpWebRequest request = this.CreateUrlEncodedRequest("DELETE",this.CreateDropUrl(drop.Name), new Hashtable() );
             CompleteRequest(request, (HttpWebResponse response) => { destroyed = true; });
-            
-            //drop.Description = "this is a test";
-            //drop = null;
-
+           
+            if( destroyed == true )
+            {
+            	// empty the drop *object* so that actions cannot be performed on it (since the drop it represents no
+            	// longer exists). Just setting it to null doesn't work (it doesn't overwrite the object being passed
+            	// in, so once we return we are back to the object that we orginially passed in.
+            	drop.AssetCount = 0;
+            	drop.ChatPassword = string.Empty;
+            	drop.CurrentBytes = 0;
+            	drop.Description = string.Empty;
+            	drop.Email = string.Empty;
+            	drop.MaxBytes = 0;
+            	drop.Name = string.Empty;
+            } 
             return destroyed;
         }
 
@@ -347,7 +360,6 @@ namespace Dropio.Core
 			if ( !string.IsNullOrEmpty( newName ))
 			{
 				// we are updating just the name
-				Console.WriteLine( "name update");
 				parameters.Add( "name", newName );
 			}
 			else
@@ -369,7 +381,7 @@ namespace Dropio.Core
                 ReadResponse(response, (XmlDocument doc) => this.MapDrop(drop, doc.SelectSingleNode("drop")));
                 updated = true;
             });
-
+            
             return updated;
         }
 
@@ -550,8 +562,22 @@ namespace Dropio.Core
 
             Hashtable parameters = new Hashtable();
 
-            HttpWebRequest request = this.CreateUrlEncodedRequest("DELETE",this.CreateAssetUrl(drop.Name, asset.Name, string.Empty), parameters);
+            HttpWebRequest request = this.CreateUrlEncodedRequest("DELETE",this.CreateAssetUrl(drop.Name, asset.Id, string.Empty), parameters);
             CompleteRequest(request, (HttpWebResponse response) => { destroyed = true; });
+            
+            if( destroyed == true)
+            {
+            	// empty the Asset object
+            	asset.CreatedAt = new DateTime();
+            	asset.Description = string.Empty;
+            	asset.Drop = null;
+            	asset.DropName = string.Empty;
+            	asset.Filesize = 0;
+            	asset.Id = string.Empty;
+            	asset.Name = string.Empty;
+            	asset.Roles = new List<AssetRoleAndLocations>();
+            	asset.Title = string.Empty;
+            }
 
             return destroyed;
         }
@@ -563,7 +589,7 @@ namespace Dropio.Core
         /// <param name="newTitle"></param>
         /// <param name="newDescription"></param>
         /// <returns></returns>
-        public bool UpdateAsset(Asset asset, string newTitle, string newDescription)
+        public bool UpdateAsset(Asset asset)
         {
             if (asset == null)
                 throw new ArgumentNullException("asset", "The given asset can't be null");
@@ -572,20 +598,23 @@ namespace Dropio.Core
             Drop drop = asset.Drop;
 
             Hashtable parameters = new Hashtable();
+            
+            parameters.Add( "title", asset.Title );
+            parameters.Add( "description", asset.Description );
 				
-			if( !string.IsNullOrEmpty( newTitle ))
-				parameters.Add("name", newTitle);
-			if( !string.IsNullOrEmpty( newDescription ))
-				parameters.Add("description", newDescription );
+//			if( !string.IsNullOrEmpty( newTitle )) 
+//				parameters.Add("name", newTitle);
+//			if( !string.IsNullOrEmpty( newDescription ))
+//				parameters.Add("description", newDescription );
 			//if( !string.IsNullOrEmpty( asset.))
 			
-            HttpWebRequest request = this.CreatePutRequest(this.CreateAssetUrl(drop.Name, asset.Name, string.Empty), parameters);
+            HttpWebRequest request = this.CreatePutRequest(this.CreateAssetUrl(drop.Name, asset.Id, string.Empty), parameters);
             CompleteRequest(request, delegate(HttpWebResponse response)
             {
                 ReadResponse(response, delegate(XmlDocument doc)
                 {
                     XmlNode node = doc.SelectSingleNode("/asset");
-					CreateAndMapAsset( drop, node );
+					MapAsset( asset, drop, node );
                     updated = true;
                 });
             });
@@ -621,6 +650,19 @@ namespace Dropio.Core
 
             HttpWebRequest request = this.CreatePostRequest(this.CreateAssetUrl(asset.Drop.Name, asset.Id, keepOriginal == true ? COPY : MOVE ), parameters);
             CompleteRequest(request, (HttpWebResponse response) => { copied = true; });
+            
+            if( copied == true )
+            {
+            	// increase asset count by 1 if the asset was copied sucessfully
+            	Console.WriteLine( "yo...");
+            	drop.AssetCount++;
+            }
+            
+            if( keepOriginal == false )
+            {
+            	// we moved (not copied) so decrease assets count on drop that asset was moved from
+            	asset.Drop.AssetCount--;
+            }
 
             return copied;
 		}
@@ -765,6 +807,8 @@ namespace Dropio.Core
                 {
                     XmlNode node = doc.SelectSingleNode("/asset");
                     a = this.CreateAndMapAsset(drop, node);
+                    // incease asset count by one 
+                    drop.AssetCount++;
                 });
             });
 			
@@ -1189,9 +1233,9 @@ namespace Dropio.Core
         /// <param name="dropName">Name of the drop.</param>
         /// <param name="assetName">Name of the asset.</param>
         /// <returns></returns>
-        protected string CreateAssetUrl (string dropName, string assetName, string action)
+        protected string CreateAssetUrl (string dropName, string assetId, string action)
         {
-            return this.ApiBaseUrl + DROPS + dropName + ASSETS + assetName + action;
+            return this.ApiBaseUrl + DROPS + dropName + ASSETS + assetId + action;
         }
 		
 		/// <summary>
