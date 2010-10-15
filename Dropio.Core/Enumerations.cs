@@ -17,7 +17,9 @@ namespace Dropio.Core
 		Movie,
 		Link
 	};
-
+	
+	
+	
 	/// <summary>
 	/// 
 	/// </summary>

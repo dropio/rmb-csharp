@@ -82,12 +82,8 @@ namespace Dropio.Core
             return ServiceProxy.Instance.UpdateAsset(this);
         }
 
-        /// <summary>
-        /// Deletes the asset from the drop
-        /// </summary>
-        /// <returns>
-        /// 
-        /// </returns>
+        /// <summary>Deletes the asset from the drop</summary>
+        /// <returns>a <see cref="bool"/> indicating the success of the update</returns>
         public bool Destroy()
         {
             return ServiceProxy.Instance.DeleteAsset(this);
@@ -97,38 +93,25 @@ namespace Dropio.Core
 
         #region Actions
 		
-		/// <summary>
-		/// Copies the asset to the given drop and returns the new asset.
-		/// </summary>
-		/// <param name="targetDrop">
-		/// The target drop.
-		/// </param>
-		/// <returns>
-		/// 
-		/// </returns>
+		/// <summary>Copies the asset to the given drop and returns the new asset.</summary>
+		/// <param name="targetDrop">The target drop.</param>
+		/// <returns>a <see cref="bool"/> indicating the success of the copy</returns>
 		public bool CopyTo(Drop targetDrop)
 		{
 			return ServiceProxy.Instance.CopyAsset(this, targetDrop);
 		}
 		
-		/// <summary>
-		/// Moves the asset to the given drop.
-		/// </summary>
-		/// <param name="targetDrop">
-		/// The target drop.
-		/// </param>
-		/// <returns>
-		/// 
-		/// </returns>
+		/// <summary>Moves the asset to the given drop.</summary>
+		/// <param name="targetDrop">The target drop.</param>
+		/// <returns>A <see cref="bool"/> indicating the success of the move</returns>
 		public bool MoveTo (Drop targetDrop)
 		{
 			return ServiceProxy.Instance.MoveAsset (this, targetDrop);
 		}
 
-		/// <summary>
-		/// Gets an original file download url.
-		/// </summary>
-		/// <returns></returns>
+		/// <summary>Gets an original file download url.</summary>
+		/// <returns>A <see cref="string"/> containing a url that can be used to access the "original_content" role of
+		/// the asset</returns>
 		public string OriginalFileUrl()
 		{
 			return ServiceProxy.Instance.GenerateOriginalFileUrl(this);
@@ -136,9 +119,83 @@ namespace Dropio.Core
 		
         #endregion
         
-        public bool Convert (AssetType type, List<Hashtable> inputs, List<Hashtable> outputs, string plugin, string pingback_url)
+        /// <summary>Convert the asset. This is a convenience function for Job.Convert(), and is an overloaded form that
+        /// takes a Hashtable for the outputs (instead of a Hashtable List</summary>
+        /// <remarks>When creating the output parameters "asset_id" does not have to be included if you are adding this
+        /// converted output to the same asset (which is usually what you want to do). If you want to save it to a
+        /// different asset then you must include "asset_id" in the output hash</remarks>
+        /// <param name="output">A <see cref="Hashtable"/> containing the output parameters for the conversion you want
+        /// performed</param>
+        /// <param name="plugin">A <see cref="System.String"/> type object that specifies what converter plugin to use</param>
+        /// <returns>A <see cref="System.Boolean"/> indicated whether a Job Resource was returned. Note that this does not
+        /// indicate if the job was successful! If you want to check if the job succeeded, update the Asset object and
+        /// check the status for the role you just created for the conversion</returns>
+        /// <exception cref="Dropio.Core.ServiceException">Throw when there is a problem processing the job request</exception>
+        /// <exception cref="ArgumentNullException">Thrown when the Asset object is null</exception>
+        public bool Convert ( Hashtable output, string plugin )
         {
-        	return ServiceProxy.Instance.CreateJob( type, inputs, outputs, plugin, pingback_url);
+        	// convert to List<Hashtable>
+        	List<Hashtable> outputHashTable = new List<Hashtable>();
+        	outputHashTable.Add( output );
+        	return this.Convert( outputHashTable, plugin );
+        }
+        
+        /// <summary>Convert the asset. This is a convenience function for Job.Convert()</summary>
+        /// <remarks>When creating the output parameters, "asset_id" does not have to be included if you are adding this
+        /// converted output to the same asset (which is usually what you want to do). If you want to save it to a
+        /// different asset then you must include "asset_id" in the output hash</remarks>
+        /// <param name="outputs">A <see cref="List<Hashtable>"/> containing Hashtables with the output parameters for
+        /// each conversion you want</param>
+        /// <param name="plugin">A <see cref="System.String"/> type object that specifies what converter plugin to use</param>
+        /// <returns>A <see cref="System.Boolean"/> indicated whether a Job Resource was returned. Note that this does not
+        /// indicate if the job was successful! If you want to check if the job succeeded, update the Asset object and
+        /// check the status for the role you just created for the conversion</returns>
+        /// <exception cref="Dropio.Core.ServiceException">Throw when there is a problem processing the job request</exception>
+        /// <exception cref="ArgumentNullException">Thrown when the Asset object is null</exception> 
+        public bool Convert ( List<Hashtable> outputs, string plugin )
+        {
+       		return ServiceProxy.Instance.ConvertAsset( this, outputs, plugin, string.Empty );
+        }
+        
+        /// <summary>Convert the asset. This is a convenience function for Job.Convert() and is an overloaded form that
+        /// takes a Hashtable for the outputs (instead of a Hashtable List)</summary>
+        /// <remarks>When creating the output parameters, "asset_id" does not have to be included if you are adding this
+        /// converted output to the same asset (which is usually what you want to do). If you want to save it to a
+        /// different asset then you must include "asset_id" in the output hash</remarks>
+        /// <param name="outputs">A <see cref="List<Hashtable>"/> containing Hashtables with the output parameters for
+        /// each conversion you want</param>
+        /// <param name="plugin">A <see cref="System.String"/> type object that specifies what converter plugin to use</param>
+        /// <param name="pingbackUrl">A <see cref="string"/> type object that specifies a pingback url</param>
+        /// <returns>A <see cref="System.Boolean"/> indicated whether a Job Resource was returned. Note that this does not
+        /// indicate if the job was successful! If you want to check if the job succeeded, update the Asset object and
+        /// check the status for the role you just created for the conversion</returns>
+        /// <exception cref="Dropio.Core.ServiceException">Throw when there is a problem processing the job request</exception>
+        /// <exception cref="ArgumentNullException">Thrown when the Asset object is null</exception>
+        public bool Convert ( Hashtable outputs, string plugin, string pingbackUrl)
+        {
+        	// convert to List<Hashtable>
+        	List<Hashtable> outputHashTable = new List<Hashtable>();
+        	outputHashTable.Add( outputs );
+        	return this.Convert( outputHashTable, plugin, pingbackUrl);
+        }
+        
+        /// <summary>Convert the asset. This is a convenience function for Job.Convert()</summary>
+        /// <remarks>When creating the output parameters, "asset_id" does not have to be included if you are adding this
+        /// converted output to the same asset (which is usually what you want to do). If you want to save it to a
+        /// different asset then you must include "asset_id" in the output hash</remarks>
+        /// <param name="outputs">A <see cref="List<Hashtable>"/> containing Hashtables with the output parameters for
+        /// each conversion you want</param>
+        /// <param name="plugin">A <see cref="System.String"/> type object that specifies what converter plugin to use</param>
+        /// <param name="pingbackUrl">A <see cref="string"/> type object that specifies a pingback url</param>
+        /// <returns>A <see cref="System.Boolean"/> indicated whether a Job Resource was returned. Note that this does not
+        /// indicate if the job was successful! If you want to check if the job succeeded, update the Asset object and
+        /// check the status for the role you just created for the conversion</returns>
+        /// <exception cref="Dropio.Core.ServiceException">Throw when there is a problem processing the job request</exception>
+        /// <exception cref="ArgumentNullException">Thrown when the Asset object is null</exception>
+        public bool Convert ( List<Hashtable> outputs, string plugin, string pingbackUrl )
+        {
+        	return ServiceProxy.Instance.ConvertAsset( this, outputs, plugin, pingbackUrl);
+        
         }
 
     }

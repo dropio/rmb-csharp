@@ -847,21 +847,54 @@ namespace Dropio.Core
             throw exc;
         }
         
-        public bool CreateJob (AssetType type, List<Hashtable> inputs, List<Hashtable> outputs, string plugin, string pingback_url)
+        public bool ConvertAsset ( Asset asset, List<Hashtable> outputs, string plugin, string pingbackUrl)
+        {
+			// can't do much if we don't have an asset to act on...
+            if (asset == null)
+                throw new ArgumentNullException("asset", "The given asset can't be null");
+                
+        	// get the job type by using the asset's type
+        	string type = asset.Type.ToString().ToUpper();
+        	
+        	// create the input hash
+        	List<Hashtable> inputs = new List<Hashtable>();
+        	Hashtable input = new Hashtable();
+        	input.Add( "asset_id", asset.Id );
+        	input.Add( "role", "original_content");
+        	input.Add( "name", "source");
+        	inputs.Add( input );
+        	
+        	// add the "asset_id" param to the outputs hash is it isn't already there
+        	foreach( Hashtable hash in outputs)
+        	{
+        		if( !hash.Contains( "asset_id"))
+        		{
+        			hash.Add( "asset_id", asset.Id );
+        		}
+        	}
+        	
+			return this.Convert( type, inputs, outputs, plugin, pingbackUrl );
+        }
+        
+        public bool Convert (string type, List<Hashtable> inputs, List<Hashtable> outputs, string plugin, string pingbackUrl)
 		{
 			bool success = false;
-			Hashtable parameters = new Hashtable ();
 			
-			parameters.Add ("job_type", type.ToString ().ToUpper ());
+			Hashtable parameters = new Hashtable();
+			// add required parameters for api call
+			parameters.Add ("job_type", type.ToString());
 			parameters.Add ("using", plugin);
-			
 			parameters.Add ("inputs", inputs);
 			parameters.Add ("outputs", outputs);
+			// optional parameters for api call
+			if( !string.IsNullOrEmpty( pingbackUrl ))
+			{
+				parameters.Add( "pingback_url", pingbackUrl );
+			}
 			
-			//Console.Write( ToJson( parameters ) );
-			
+			// do the request
 			HttpWebRequest request = this.CreatePostRequest (this.ApiBaseUrl + JOBS, parameters);
-			CompleteRequest (request, (HttpWebResponse response) => { success = true; });
+			CompleteRequest(request, (HttpWebResponse response) => { success = true; });
 			
 			return success;
 			
@@ -1127,7 +1160,7 @@ namespace Dropio.Core
 			subscription.Url = this.ExtractInnerText(node, "url");
 			subscription.Drop = drop;
 		}
-
+		
         /// <summary>
         /// Extracts the boolean.
         /// </summary>

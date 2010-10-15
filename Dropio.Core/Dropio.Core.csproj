@@ -57,6 +57,7 @@
     <Compile Include="ServiceProxy.cs" />
     <Compile Include="Subscription.cs" />
     <Compile Include="TransferProgressEventArgs.cs" />
+    <Compile Include="Job.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

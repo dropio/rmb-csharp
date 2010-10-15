@@ -260,9 +260,53 @@ namespace Dropio.Core
 			return this.ServiceAdapter.CopyAsset(asset, targetDrop, false);
 		}
 		
-        public bool CreateJob (AssetType type, List<Hashtable> inputs, List<Hashtable> outputs, string plugin, string pingback_url)
+		/// <summary>
+		/// Create a Job for an asset conversion
+		/// </summary>
+		/// <param name="type">
+		/// A <see cref="System.String"/>
+		/// </param>
+		/// <param name="inputs">
+		/// A <see cref="List<Hashtable>"/>
+		/// </param>
+		/// <param name="outputs">
+		/// A <see cref="List<Hashtable>"/>
+		/// </param>
+		/// <param name="plugin">
+		/// A <see cref="System.String"/>
+		/// </param>
+		/// <param name="pingbackUrl">
+		/// A <see cref="System.String"/>
+		/// </param>
+		/// <returns>
+		/// A <see cref="System.Boolean"/>
+		/// </returns>
+        public bool Convert (string type, List<Hashtable> inputs, List<Hashtable> outputs, string plugin, string pingbackUrl)
         {
-        	return this.ServiceAdapter.CreateJob( type, inputs, outputs, plugin, pingback_url);
+        	return this.ServiceAdapter.Convert( type, inputs, outputs, plugin, pingbackUrl);
+        }
+        
+        /// <summary>
+        /// Create a job for an Asset conversion
+        /// </summary>
+        /// <param name="asset">
+        /// A <see cref="Asset"/>
+        /// </param>
+        /// <param name="outputs">
+        /// A <see cref="List<Hashtable>"/>
+        /// </param>
+        /// <param name="plugin">
+        /// A <see cref="System.String"/>
+        /// </param>
+        /// <param name="pingbackUrl">
+        /// A <see cref="System.String"/>
+        /// </param>
+        /// <returns>
+        /// A <see cref="System.Boolean"/>
+        /// </returns>
+        public bool ConvertAsset ( Asset asset, List<Hashtable> outputs, string plugin, string pingbackUrl)
+        {
+        	return this.ServiceAdapter.ConvertAsset( asset, outputs, plugin, pingbackUrl);
         }
         
         /// <summary>
