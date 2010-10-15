@@ -38,7 +38,7 @@ namespace Dropio.Core
 		/// <summary>
 		/// getters for the base API urls
 		/// </summary>
-        public abstract string BaseUrl { get; }
+//        public abstract string BaseUrl { get; }
         public abstract string ApiBaseUrl { get; }
         public abstract string UploadUrl { get; }
         

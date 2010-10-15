@@ -9,7 +9,7 @@ namespace Dropio.Core
 	/// </summary>
     public class ProductionService : ServiceAdapter
     {
-        private string _baseUrl;
+//        private string _baseUrl;
         private string _apiBaseUrl;
         private string _uploadUrl;
 
@@ -18,19 +18,19 @@ namespace Dropio.Core
 		/// </summary>
         public ProductionService ()
         {
-        	this._baseUrl = "http://drop.io/";
-        	this._apiBaseUrl = "http://api.drop.io/";
-        	this._uploadUrl = "http://assets.drop.io/upload";
+//        	this._baseUrl = "http://drop.io/";
+        	this._apiBaseUrl = "http://api.rmb.io/";
+        	this._uploadUrl = "http://u.rmb.io/upload";
         }
 
         /// <summary>
         /// Gets the base URL.
         /// </summary>
         /// <value>The base URL.</value>
-        public override string BaseUrl
-        {
-            get { return this._baseUrl; }
-        }
+//        public override string BaseUrl
+//        {
+//            get { return this._baseUrl; }
+//        }
 
         /// <summary>
         /// Gets the API base URL.
@@ -54,10 +54,10 @@ namespace Dropio.Core
         /// Sets the base URL.
         /// </summary>
         /// <param name="baseUrl">The base URL.</param>
-        public void SetBaseUrl(string baseUrl)
-        {
-            this._baseUrl = baseUrl;
-        }
+//        public void SetBaseUrl(string baseUrl)
+//        {
+//            this._baseUrl = baseUrl;
+//        }
 
         /// <summary>
         /// Sets the API base URL.
