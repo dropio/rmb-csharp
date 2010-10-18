@@ -943,7 +943,16 @@ namespace Dropio.Core
 			
 			// SCRIPTDATA
 			if ((uploadifyOptions != null) && uploadifyOptions.Contains ("scriptData")) {
-				sb.AppendLine ("'scriptData':" + uploadifyOptions["scriptData"]);
+				// scriptData should be a Hashtable
+				if( uploadifyOptions["scriptData"].GetType() == typeof(Hashtable) )
+				{
+					Hashtable scriptData = (Hashtable)uploadifyOptions["scriptData"];
+					foreach( string data in scriptData.Keys)
+					{
+						parameters.Add( data, scriptData[data]);
+					}
+				}
+				sb.Append( "'scriptData': ").AppendLine( ToJson(parameters) + "," );
 				uploadifyOptions.Remove ("scriptData");
 			} else
 				sb.Append ("'scriptData': ").AppendLine (ToJson (parameters) + ",");
