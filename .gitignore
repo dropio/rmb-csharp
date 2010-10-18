@@ -1,6 +1,6 @@
 .DS_Store
-Dropio.Core/bin/[^.]*
-Dropio.Core/obj/[^.]*
-Dropio.Core/Dropio.Core.suo
-Dropio.Core/Dropio.Core.userprefs
-Dropio.Core/Dropio.Core.pidb
+Rmb.Core/bin/[^.]*
+Rmb.Core/obj/[^.]*
+Rmb.Core/Rmb.Core.suo
+Rmb.Core/Rmb.Core.userprefs
+Rmb.Core/Rmb.Core.pidb

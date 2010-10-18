@@ -8,8 +8,8 @@
     <ProjectGuid>{A158B25B-1D87-405F-9B31-8954664FE223}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Dropio.Core</RootNamespace>
-    <AssemblyName>Dropio.Core</AssemblyName>
+    <RootNamespace>Rmb.Core</RootNamespace>
+    <AssemblyName>Rmb.Core</AssemblyName>
     <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>
