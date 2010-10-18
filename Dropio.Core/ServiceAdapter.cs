@@ -38,7 +38,7 @@ namespace Dropio.Core
 		/// <summary>
 		/// getters for the base API urls
 		/// </summary>
-//        public abstract string BaseUrl { get; }
+        public abstract string BaseUrl { get; }
         public abstract string ApiBaseUrl { get; }
         public abstract string UploadUrl { get; }
         
@@ -932,7 +932,7 @@ namespace Dropio.Core
 				sb.AppendLine ("'script':" + uploadifyOptions["script"] + ",");
 				uploadifyOptions.Remove ("script");
 			} else
-				sb.AppendLine ("'script':'http://assets.drop.io/upload',");
+				sb.AppendLine ("'script':'" + this.UploadUrl + "',");
 			
 			// MULTI
 			if ((uploadifyOptions != null) && uploadifyOptions.Contains ("multi")) {
