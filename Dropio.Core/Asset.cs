@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Text;
 using System.Collections;
 
-namespace Dropio.Core
+namespace Rmb.Core
 {
     /// <summary>
     /// Struct to store asset roles and locations. Field names that are returned are not consistent so we must use a hash

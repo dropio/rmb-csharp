@@ -11,7 +11,7 @@ using System.Web;
 using System.Web.UI.WebControls;
 using System.Web.Script.Serialization;
 
-namespace Dropio.Core
+namespace Rmb.Core
 {
 	/// <summary>
 	/// 

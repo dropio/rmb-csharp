@@ -2,9 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 
-
-
-namespace Dropio.Core
+namespace Rmb.Core
 {
 	public class Job {
 	

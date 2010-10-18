@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace Dropio.Core
+namespace Rmb.Core
 {
     /// <summary>
     /// Event arguments for a <see cref="ServiceAdapter.OnTransferProgress"/> event.

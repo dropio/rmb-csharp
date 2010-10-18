@@ -1,6 +1,6 @@
 using System;
 
-namespace Dropio.Core
+namespace Rmb.Core
 {
 	/// <summary>
 	/// 

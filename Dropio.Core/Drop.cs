@@ -5,7 +5,7 @@ using System.Text;
 using System.Web;
 using System.Web.UI.WebControls;
 
-namespace Dropio.Core
+namespace Rmb.Core
 {
 	/// <summary>
 	/// Class for working with drops
