@@ -171,11 +171,11 @@ namespace Rmb.Core
         /// check the status for the role you just created for the conversion</returns>
         /// <exception cref="Dropio.Core.ServiceException">Throw when there is a problem processing the job request</exception>
         /// <exception cref="ArgumentNullException">Thrown when the Asset object is null</exception>
-        public bool Convert ( Hashtable outputs, string plugin, string pingbackUrl)
+        public bool Convert ( Hashtable output, string plugin, string pingbackUrl)
         {
         	// convert to List<Hashtable>
         	List<Hashtable> outputHashTable = new List<Hashtable>();
-        	outputHashTable.Add( outputs );
+        	outputHashTable.Add( output );
         	return this.Convert( outputHashTable, plugin, pingbackUrl);
         }
         

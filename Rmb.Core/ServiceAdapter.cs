@@ -882,7 +882,7 @@ namespace Rmb.Core
 			
 			Hashtable parameters = new Hashtable();
 			// add required parameters for api call
-			parameters.Add ("job_type", type.ToString());
+			parameters.Add ("job_type", type);
 			parameters.Add ("using", plugin);
 			parameters.Add ("inputs", inputs);
 			parameters.Add ("outputs", outputs);
